@@ -3,6 +3,7 @@ package fi.metropolia.intellicircumstances
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import fi.metropolia.intellicircumstances.navigation.Navigation
 import fi.metropolia.intellicircumstances.ui.theme.IntelliCircumstancesTheme
 
 class MainActivity : ComponentActivity() {
@@ -10,6 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             IntelliCircumstancesTheme {
+                Navigation()
             }
         }
     }
