@@ -29,11 +29,14 @@ fun BottomNavigationBar(navController: NavController) {
             NavigationItem.Measure,
             NavigationItem.Settings
         )
+
         items.forEach { item ->
             BottomNavigationItem(
                 icon = { Icon(item.navigationIcon, null) },
                 label = { Text(stringResource(item.labelText)) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = currentDestination?.hierarchy?.any {
+                    it.route?.startsWith(item.route, true) ?: false
+                } == true,
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(navController.graph.startDestinationId) {
