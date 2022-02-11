@@ -30,7 +30,7 @@ class SpaceRepository(context: Context) {
     fun getSpaces(propertyId: Long): LiveData<PropertyWithSpaces> =
         spaceDao.getPropertyWithSpaces(propertyId).asLiveData()
 
-    suspend fun deleteSpace(space: Space) = withContext(Dispatchers.IO) {
-        spaceDao.deleteSpace(space)
+    suspend fun deleteSpace(spaceId: Long) = withContext(Dispatchers.IO) {
+        spaceDao.deleteSpace(spaceId)
     }
 }

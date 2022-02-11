@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Typography
 
 @Composable
@@ -156,7 +157,11 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                                             ) {
                                                 Icon(Icons.Outlined.Delete, null)
                                             }
-                                            IconButton(onClick = { }) {
+                                            IconButton(
+                                                onClick = {
+                                                    navController.navigate(NavigationRoutes.SPACES.replace("{propertyId}", property.id.toString()))
+                                                }
+                                            ) {
                                                 Icon(Icons.Outlined.NavigateNext, null)
                                             }
                                         }

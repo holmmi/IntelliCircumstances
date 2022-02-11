@@ -53,7 +53,7 @@ fun BottomNavigationBar(navController: NavController) {
 
 private sealed class NavigationItem(val route: String, val navigationIcon: ImageVector, val labelText: Int) {
     object Home : NavigationItem(NavigationRoutes.HOME, Icons.Filled.Home, R.string.home)
-    object Spaces : NavigationItem(NavigationRoutes.SPACES, Icons.Filled.RoomPreferences, R.string.spaces)
+    object Spaces : NavigationItem(NavigationRoutes.PROPERTIES, Icons.Filled.RoomPreferences, R.string.spaces)
     object Measure : NavigationItem(NavigationRoutes.MEASURE, Icons.Filled.Speed, R.string.measure)
     object Settings : NavigationItem(NavigationRoutes.SETTINGS, Icons.Filled.Settings, R.string.settings)
 }
