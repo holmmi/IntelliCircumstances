@@ -12,7 +12,7 @@ import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureView
 import fi.metropolia.intellicircumstances.view.settings.SettingsView
-import fi.metropolia.intellicircumstances.view.spaces.SpacesView
+import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 
 @Composable
 fun Navigation() {
@@ -25,7 +25,7 @@ fun Navigation() {
                     composable(NavigationRoutes.HOME) { HomeView(navController) }
                     composable(NavigationRoutes.MEASURE) { MeasureView(navController) }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
-                    composable(NavigationRoutes.SPACES) { SpacesView(navController) }
+                    composable(NavigationRoutes.SPACES) { PropertiesView(navController) }
                 }
             }
         },
