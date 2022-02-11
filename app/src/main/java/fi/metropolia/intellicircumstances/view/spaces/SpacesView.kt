@@ -19,17 +19,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ruuvi.station.bluetooth.FoundRuuviTag
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.bluetooth.BluetoothModel
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @Composable
-fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel: SpacesViewModel = viewModel()) {
+fun SpacesView(
+    navController: NavController,
+    propertyId: Long?,
+    spacesViewModel: SpacesViewModel = viewModel(),
+    bluetoothModel: BluetoothModel,
+) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var spaceName by rememberSaveable { mutableStateOf("") }
     var spaceNameIsEmpty by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showSearchScreen by rememberSaveable { mutableStateOf(false) }
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Scaffold(
@@ -40,7 +49,10 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                     title = { Text(text = spaces.value?.property?.name ?: "-") },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Filled.NavigateBefore,
+                                contentDescription = null
+                            )
                         }
                     }
                 )
@@ -68,6 +80,14 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                                     modifier = Modifier.padding(start = 16.dp)
                                 )
                             }
+                            Button(
+                                modifier = Modifier.padding(top = 16.dp),
+                                onClick = {
+                                    showAddDialog = false
+                                    showSearchScreen = true
+                                }) {
+                                Text(stringResource(id = R.string.add_tag))
+                            }
                         }
                     },
                     confirmButton = {
@@ -88,6 +108,40 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                     },
                     dismissButton = {
                         TextButton(onClick = { showAddDialog = false }) {
+                            Text(text = stringResource(id = R.string.cancel))
+                        }
+                    }
+                )
+            }
+
+            if (showSearchScreen) {
+                val devices = bluetoothModel.foundTags.observeAsState()
+                bluetoothModel.startScanning()
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    text = {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.height(200.dp)
+                        ) {
+                            item {
+                                Text("Found devices:", fontSize = 30.sp)
+                            }
+                            items(devices.value ?: listOf()) {
+                                Text("${it.id}")
+                            }
+
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { showSearchScreen = false }
+                        ) {
+                            Text(text = stringResource(id = R.string.confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showSearchScreen = false }) {
                             Text(text = stringResource(id = R.string.cancel))
                         }
                     }

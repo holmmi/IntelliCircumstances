@@ -77,4 +77,14 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+
+    //ruuvi
+    def kodein_version = "6.5.0"
+    implementation 'com.neovisionaries:nv-bluetooth:1.8'
+    implementation 'no.nordicsemi.android:ble-ktx:2.3.1'
+    implementation 'net.swiftzer.semver:semver:1.1.1'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodein_version"
+    implementation "org.kodein.di:kodein-di-framework-android-support:$kodein_version"
+    implementation 'com.github.ruuvi:com.ruuvi.bluetooth:1.3.0'
 }

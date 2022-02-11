@@ -27,4 +27,8 @@
     </string>
     <string name="delete">Delete</string>
     <string name="no_spaces">There are no spaces in this property</string>
+    <string name="add_tag">Add RuuviTag</string>
+
+    <!--measure-->
+    <string name="choose_property">There are no spaces in this property</string>
 </resources>
