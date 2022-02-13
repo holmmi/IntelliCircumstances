@@ -7,7 +7,7 @@ import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable
-fun MeasureView(navController: NavController) {
+fun MeasureSpaceView(navController: NavController, spaceId: Long?) {
     Scaffold(
         content = {
             Text(text = NavigationRoutes.MEASURE)

@@ -19,6 +19,10 @@ interface SpaceDao {
     @Query("SELECT * FROM property WHERE id = :propertyId")
     fun getPropertyWithSpaces(propertyId: Long): Flow<PropertyWithSpaces>
 
+    @Transaction
+    @Query("SELECT * FROM property")
+    fun getPropertiesWithSpaces(): Flow<List<PropertyWithSpaces>>
+
     @Update
     suspend fun updateSpace(space: Space)
 

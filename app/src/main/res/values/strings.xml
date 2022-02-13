@@ -26,4 +26,6 @@
     </string>
     <string name="delete">Delete</string>
     <string name="no_spaces">There are no spaces in this property</string>
+    <string name="space_selection">Space selection</string>
+    <string name="choose_space">Choose a space</string>
 </resources>
