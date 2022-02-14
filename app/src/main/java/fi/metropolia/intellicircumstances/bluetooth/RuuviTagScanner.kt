@@ -9,6 +9,7 @@ import android.os.ParcelUuid
 import com.ruuvi.station.bluetooth.FoundRuuviTag
 import com.ruuvi.station.bluetooth.IRuuviGattListener
 import com.ruuvi.station.bluetooth.IRuuviTagScanner
+import fi.metropolia.intellicircumstances.bluetooth.decoder.FoundTag
 import fi.metropolia.intellicircumstances.bluetooth.decoder.LeScanResult
 import fi.metropolia.intellicircumstances.bluetooth.gatt.NordicGattManager
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class RuuviTagScanner(
     private val context: Context,
-) : IRuuviTagScanner {
+) {
 
-    private var tagListener: IRuuviTagScanner.OnTagFoundListener? = null
+    private var tagListener: OnTagFoundListener? = null
 
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var scanner: BluetoothLeScanner? = null
@@ -54,8 +55,8 @@ class RuuviTagScanner(
     }
 
     @SuppressLint("MissingPermission")
-    override fun startScanning(
-        foundListener: IRuuviTagScanner.OnTagFoundListener
+    fun startScanning(
+        foundListener: RuuviTagScanner.OnTagFoundListener
     ) {
         Timber.d("[RuuviTagScanner startScanning")
         crashResolver.start()
@@ -77,10 +78,10 @@ class RuuviTagScanner(
     }
 
     @SuppressLint("MissingPermission")
-    override fun canScan(): Boolean =
+    fun canScan(): Boolean =
         bluetoothAdapter != null && scanner != null && bluetoothAdapter?.state == BluetoothAdapter.STATE_ON
 
-    override fun connect(macAddress: String, readLogsFrom: Date?, listener: IRuuviGattListener): Boolean {
+    fun connect(macAddress: String, readLogsFrom: Date?, listener: IRuuviGattListener): Boolean {
         val device = devices[macAddress]
         device.let {
             it?.let { leResult ->
@@ -96,7 +97,7 @@ class RuuviTagScanner(
         return device != null
     }
 
-    override fun getFwVersion(macAddress: String, listener: IRuuviGattListener): Boolean {
+    fun getFwVersion(macAddress: String, listener: IRuuviGattListener): Boolean {
         val device = devices[macAddress]
         device.let {
             it?.let { leResult ->
@@ -112,7 +113,7 @@ class RuuviTagScanner(
         return device != null
     }
 
-    override fun disconnect(macAddress: String): Boolean {
+    fun disconnect(macAddress: String): Boolean {
         Timber.d("disconnect $macAddress")
         gattManagers[macAddress]?.let { manager ->
             manager.executeDisconnect()
@@ -122,7 +123,7 @@ class RuuviTagScanner(
     }
 
     @SuppressLint("MissingPermission")
-    override fun stopScanning() {
+    fun stopScanning() {
         if (!canScan()) return
         Timber.d("[RuuviTagScanner stopScanning isScanning = $isScanning")
         scanner?.stopScan(scanCallback)
@@ -158,7 +159,7 @@ class RuuviTagScanner(
         }
     }
 
-    private fun sendDataToListener(tag: FoundRuuviTag) {
+    private fun sendDataToListener(tag: FoundTag) {
         if (tag.measurementSequenceNumber != null) {
             val lastSequenceNumber = sequenceMap[tag.id]
 
@@ -191,6 +192,10 @@ class RuuviTagScanner(
         filters.add(ruuviFilter)
         filters.add(eddystoneFilter)
         return filters
+    }
+
+    interface OnTagFoundListener {
+        fun onTagFound(tag: FoundTag)
     }
 }
 

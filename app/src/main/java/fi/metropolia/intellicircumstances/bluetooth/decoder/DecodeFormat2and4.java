@@ -8,12 +8,12 @@ import java.math.RoundingMode;
 class DecodeFormat2and4 implements LeScanResult.RuuviTagDecoder {
 
     @Override
-    public FoundRuuviTag decode(byte[] data, int offset) {
+    public FoundTag decode(byte[] data, int offset) {
         int[] pData = new int[8];
         for (int i = 0; i < data.length && i < 8; i++)
             pData[i] = data[i] & 0xFF;
 
-        FoundRuuviTag tag = new FoundRuuviTag();
+        FoundTag tag = new FoundTag();
         tag.setDataFormat(pData[0]);
         tag.setHumidity(((pData[1] & 0xFF)) / 2.0);
         double uTemp = (((pData[2] & 127) << 8) | pData[3]);

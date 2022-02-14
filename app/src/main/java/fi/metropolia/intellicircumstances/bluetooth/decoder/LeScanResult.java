@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.bluetooth.decoder;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
@@ -12,6 +13,8 @@ import com.ruuvi.station.bluetooth.FoundRuuviTag;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import timber.log.Timber;
+
 
 public class LeScanResult {
     private static final Integer PROTOCOL_OFFSET = 7;
@@ -19,8 +22,9 @@ public class LeScanResult {
     public byte[] scanData;
     public int rssi;
 
-    public FoundRuuviTag parse() {
-        FoundRuuviTag tag = null;
+    @SuppressLint("MissingPermission")
+    public FoundTag parse() {
+        FoundTag tag = null;
 
         try {
             // Parse the payload of the advertisement packet
@@ -36,6 +40,7 @@ public class LeScanResult {
                     if (es.getURL().toString().startsWith("https://ruu.vi/#") || es.getURL().toString().startsWith("https://r/")) {
                         tag = from(
                                 this.device.getAddress(),
+                                this.device.getName(),
                                 es.getURL().toString(),
                                 null,
                                 this.rssi
@@ -46,7 +51,7 @@ public class LeScanResult {
                 else if (structure instanceof ADManufacturerSpecific) {
                     ADManufacturerSpecific es = (ADManufacturerSpecific) structure;
                     if (es.getCompanyId() == 0x0499) {
-                        tag = from(this.device.getAddress(), null, this.scanData, this.rssi);
+                        tag = from(this.device.getAddress(), this.device.getName(), null, this.scanData, this.rssi);
                     }
                 }
             }
@@ -57,7 +62,7 @@ public class LeScanResult {
         return tag;
     }
 
-    public static FoundRuuviTag from(String id, String url, byte[] rawData, int rssi) {
+    public static FoundTag from(String id, String name, String url, byte[] rawData, int rssi) {
         RuuviTagDecoder decoder = null;
         if (url != null && url.contains("#")) {
             String data = url.split("#")[1];
@@ -73,13 +78,14 @@ public class LeScanResult {
                     decoder = new DecodeFormat5();
                     break;
                 default:
-                    Log.d("DBG",String.format("Unknown tag protocol version: %1$s (PROTOCOL_OFFSET: %2$s)", protocolVersion, PROTOCOL_OFFSET));
+                    Timber.d("Unknown tag protocol version: %1$s (PROTOCOL_OFFSET: %2$s)", protocolVersion, PROTOCOL_OFFSET);
             }
         }
         if (decoder != null) {
-            FoundRuuviTag tag = decoder.decode(rawData, PROTOCOL_OFFSET);
+            FoundTag tag = decoder.decode(rawData, PROTOCOL_OFFSET);
             if (tag != null) {
                 tag.setId(id);
+                tag.setName(name);
                 tag.setUrl(url);
                 tag.setRssi(rssi);
             }
@@ -192,8 +198,6 @@ public class LeScanResult {
     }
 
     public interface RuuviTagDecoder {
-
-        FoundRuuviTag decode(byte[] data, int offset);
-
+        FoundTag decode(byte[] data, int offset);
     }
 }

@@ -52,7 +52,7 @@ interface ConditionDao {
 @Dao
 interface DeviceDao {
     @Insert
-    suspend fun addDevice(ruuviDevice: RuuviDevice)
+    suspend fun addDevice(ruuviDevice: RuuviDevice): Long
 
     @Transaction
     @Query("SELECT * FROM space WHERE device_id = :deviceId")

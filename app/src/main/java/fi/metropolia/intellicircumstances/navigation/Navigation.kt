@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import fi.metropolia.intellicircumstances.bluetooth.BluetoothModel
 import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
@@ -24,7 +23,6 @@ import fi.metropolia.intellicircumstances.view.spaces.SpacesView
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    val bluetoothModel = BluetoothModel(LocalContext.current.applicationContext as Application)
     Scaffold(
         content = { padding ->
             Column(modifier = Modifier.padding(padding)) {
@@ -44,7 +42,7 @@ fun Navigation() {
                         NavigationRoutes.SPACES,
                         arguments = listOf(navArgument("propertyId") { type = NavType.StringType })
                     ) {
-                        SpacesView(navController, it.arguments?.getString("propertyId")?.toLong(), bluetoothModel = bluetoothModel)
+                        SpacesView(navController, it.arguments?.getString("propertyId")?.toLong())
                     }
                 }
             }

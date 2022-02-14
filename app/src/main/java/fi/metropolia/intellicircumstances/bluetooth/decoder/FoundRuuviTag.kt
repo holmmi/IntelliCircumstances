@@ -26,7 +26,28 @@ const val MOVEMENT_MAXIMUM = 254
 const val MEASUREMENT_SEQUENCE_MINIMUM = 0
 const val MEASUREMENT_SEQUENCE_MAXIMUM = 65534
 
-fun validateValues(tag: FoundRuuviTag) : FoundRuuviTag{
+data class FoundTag(
+    var id: String? = null,
+    var name: String? = null,
+    var url: String? = null,
+    var rssi: Int? = null,
+    var temperature: Double? = null,
+    var humidity: Double? = null,
+    var pressure: Double? = null,
+    var accelX: Double? = null,
+    var accelY: Double? = null,
+    var accelZ: Double? = null,
+    var voltage: Double? = null,
+    var dataFormat: Int? = null,
+    var txPower: Double? = null,
+    var movementCounter: Int? = null,
+    var measurementSequenceNumber: Int? = null,
+    var connectable: Boolean? = null
+)
+
+
+fun validateValues(tag: FoundTag): FoundTag {
+
     tag.temperature?.let {
         if (it !in TEMPERATURE_MINIMUM..TEMPERATURE_MAXIMUM) tag.temperature = null
     }
@@ -64,7 +85,8 @@ fun validateValues(tag: FoundRuuviTag) : FoundRuuviTag{
     }
 
     tag.measurementSequenceNumber?.let {
-        if (it !in MEASUREMENT_SEQUENCE_MINIMUM..MEASUREMENT_SEQUENCE_MAXIMUM) tag.measurementSequenceNumber = null
+        if (it !in MEASUREMENT_SEQUENCE_MINIMUM..MEASUREMENT_SEQUENCE_MAXIMUM) tag.measurementSequenceNumber =
+            null
     }
     return tag
 }
