@@ -1,3 +1,5 @@
+package fi.metropolia.intellicircumstances.bluetooth
+
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -7,7 +9,6 @@ import android.os.ParcelUuid
 import com.ruuvi.station.bluetooth.FoundRuuviTag
 import com.ruuvi.station.bluetooth.IRuuviGattListener
 import com.ruuvi.station.bluetooth.IRuuviTagScanner
-import fi.metropolia.intellicircumstances.bluetooth.BluetoothCrashResolver
 import fi.metropolia.intellicircumstances.bluetooth.decoder.LeScanResult
 import fi.metropolia.intellicircumstances.bluetooth.gatt.NordicGattManager
 import kotlinx.coroutines.Dispatchers

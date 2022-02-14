@@ -1,7 +1,5 @@
 package fi.metropolia.intellicircumstances.bluetooth
 
-import RuuviTagScanner
-import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData

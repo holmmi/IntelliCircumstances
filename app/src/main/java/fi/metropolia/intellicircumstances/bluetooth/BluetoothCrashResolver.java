@@ -40,7 +40,7 @@ import timber.log.Timber;
  *
  * Created by dyoung on 3/24/14.
  */
-public class BluetoothCrashResolver {
+class BluetoothCrashResolver {
     private static final boolean PREEMPTIVE_ACTION_ENABLED = true;
     /**
      * This is not the same file that Bluedroid uses.  This is just to maintain state of this module.
