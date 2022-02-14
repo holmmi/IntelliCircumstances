@@ -9,7 +9,7 @@ import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable
-fun MeasureView(navController: NavController) {
+fun MeasureSpaceView(navController: NavController, spaceId: Long?) {
     Scaffold(
         content = {
             Text(stringResource(R.string.choose_property))

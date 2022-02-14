@@ -19,6 +19,9 @@ class SpaceRepository(context: Context) {
 
     fun getProperties(): LiveData<List<Property>> = spaceDao.getProperties().asLiveData()
 
+    fun getPropertiesWithSpaces(): LiveData<List<PropertyWithSpaces>> =
+        spaceDao.getPropertiesWithSpaces().asLiveData()
+
     suspend fun deletePropertyById(propertyId: Long) = withContext(Dispatchers.IO) {
         spaceDao.deletePropertyById(propertyId)
     }

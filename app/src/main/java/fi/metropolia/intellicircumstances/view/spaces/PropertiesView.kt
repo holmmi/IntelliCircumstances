@@ -8,12 +8,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.NavigateNext
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -21,7 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
-import fi.metropolia.intellicircumstances.ui.theme.Typography
+import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @Composable
 fun PropertiesView(navController: NavController, propertiesViewModel: PropertiesViewModel = viewModel()) {
@@ -39,7 +41,7 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
             if (showAddDialog) {
                 AlertDialog(
                     onDismissRequest = { showAddDialog = false },
-                    title = { Text(text = stringResource(id = R.string.add_property)) },
+                    title = { Text(text = stringResource(id = R.string.create_property)) },
                     text = {
                         Column {
                             OutlinedTextField(
@@ -89,7 +91,6 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
             if (showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
-                    title = { Text(text = stringResource(id = R.string.are_you_sure)) },
                     text = { Text(text = stringResource(id = R.string.delete_property)) },
                     confirmButton = {
                         TextButton(
@@ -118,10 +119,9 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                     if (it.isEmpty()) {
                         Text(
                             text = stringResource(id = R.string.no_properties),
-                            style = Typography.h5,
+                            style = MaterialTheme.typography.h5,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth()
                         )
                     } else {
                         LazyColumn(
@@ -131,7 +131,7 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                         ) {
                             items(it) { property ->
                                 Card(
-                                    backgroundColor = Color.White,
+                                    backgroundColor = Red100,
                                     elevation = 8.dp,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
@@ -144,7 +144,7 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                                         Column {
                                             Text(
                                                 text = property.name,
-                                                style = Typography.h6
+                                                style = MaterialTheme.typography.h6
                                             )
                                         }
                                         Spacer(modifier = Modifier.weight(1.0f))

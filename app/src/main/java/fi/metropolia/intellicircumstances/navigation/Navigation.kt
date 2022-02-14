@@ -15,7 +15,8 @@ import androidx.navigation.navArgument
 import fi.metropolia.intellicircumstances.bluetooth.BluetoothModel
 import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
-import fi.metropolia.intellicircumstances.view.measure.MeasureView
+import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
+import fi.metropolia.intellicircumstances.view.measure.SpaceSelectionView
 import fi.metropolia.intellicircumstances.view.settings.SettingsView
 import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 import fi.metropolia.intellicircumstances.view.spaces.SpacesView
@@ -30,7 +31,13 @@ fun Navigation() {
                 NavHost(navController = navController, startDestination = NavigationRoutes.HOME) {
                     composable(NavigationRoutes.FAQ) { FaqView(navController) }
                     composable(NavigationRoutes.HOME) { HomeView(navController) }
-                    composable(NavigationRoutes.MEASURE) { MeasureView(navController) }
+                    composable(NavigationRoutes.MEASURE) { SpaceSelectionView(navController) }
+                    composable(
+                        NavigationRoutes.MEASURE_SPACE,
+                        arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
+                    ) {
+                        MeasureSpaceView(navController, it.arguments?.getString("spaceId")?.toLong())
+                    }
                     composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(
@@ -50,6 +57,7 @@ object NavigationRoutes {
     const val FAQ = "home/faq"
     const val HOME = "home"
     const val MEASURE = "measure"
+    const val MEASURE_SPACE = "measure/{spaceId}"
     const val PROPERTIES = "properties"
     const val SETTINGS = "settings"
     const val SPACES = "properties/{propertyId}"
