@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -114,69 +115,86 @@ fun MeasureSpaceView(navController: NavController, spaceId: Long?, measureSpaceV
             if (showBluetoothLeScanner) {
                 var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
                 val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
-                AlertDialog(
+                Dialog(
                     onDismissRequest = { showBluetoothLeScanner = false },
-                    title = { Text(text = stringResource(id = R.string.connect_to_ruuvi_tag)) },
-                    text = {
-                        ruuviTagDevices.value?.let {
+                    content = {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.7f)
+                        ) {
                             Column(
-                                Modifier
-                                    .selectableGroup()
-                                    .verticalScroll(rememberScrollState())
-                                    .fillMaxHeight()
-                                    .padding(bottom = 16.dp)
+                                modifier = Modifier
+                                    .padding(10.dp)
                             ) {
-                                it.forEachIndexed { index, device ->
-                                    Row(
+                                Text(
+                                    text = stringResource(id = R.string.connect_to_ruuvi_tag),
+                                    style = MaterialTheme.typography.subtitle1
+                                )
+                                ruuviTagDevices.value?.let {
+                                    Column(
                                         Modifier
-                                            .fillMaxWidth()
-                                            .height(56.dp)
-                                            .selectable(
-                                                selected = (selectedOption == index),
-                                                onClick = { selectedOption = index },
-                                                role = Role.RadioButton
-                                            )
-                                            .padding(horizontal = 16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .selectableGroup()
+                                            .verticalScroll(rememberScrollState())
+                                            .fillMaxHeight()
+                                            .padding(bottom = 16.dp)
                                     ) {
-                                        RadioButton(
-                                            selected = (selectedOption == index),
-                                            onClick = null
-                                        )
-                                        Text(
-                                            text = device.name,
-                                            style = MaterialTheme.typography.body1.merge(),
-                                            modifier = Modifier.padding(start = 16.dp)
-                                        )
+                                        it.forEachIndexed { index, device ->
+                                            Row(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(56.dp)
+                                                    .selectable(
+                                                        selected = (selectedOption == index),
+                                                        onClick = { selectedOption = index },
+                                                        role = Role.RadioButton
+                                                    )
+                                                    .padding(horizontal = 16.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                RadioButton(
+                                                    selected = (selectedOption == index),
+                                                    onClick = null
+                                                )
+                                                Text(
+                                                    text = device.name,
+                                                    style = MaterialTheme.typography.body1.merge(),
+                                                    modifier = Modifier.padding(start = 16.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    TextButton(onClick = { showBluetoothLeScanner = false }) {
+                                        Text(text = stringResource(id = R.string.cancel))
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            showBluetoothLeScanner = false
+                                            if (spaceId != null && selectedOption != null) {
+                                                ruuviTagDevices.value?.let {
+                                                    measureSpaceViewModel.addDeviceAndConnect(
+                                                        spaceId,
+                                                        it[selectedOption!!]
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        enabled = selectedOption != null
+                                    ) {
+                                        Text(text = stringResource(id = R.string.connect))
                                     }
                                 }
                             }
                         }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showBluetoothLeScanner = false }) {
-                            Text(text = stringResource(id = R.string.cancel))
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showBluetoothLeScanner = false
-                                if (spaceId != null && selectedOption != null) {
-                                    ruuviTagDevices.value?.let {
-                                        measureSpaceViewModel.addDeviceAndConnect(
-                                            spaceId,
-                                            it[selectedOption!!]
-                                        )
-                                    }
-                                }
-                            },
-                            enabled = selectedOption != null
-                        ) {
-                            Text(text = stringResource(id = R.string.connect))
-                        }
-                    },
-                    modifier = Modifier.wrapContentHeight()
+                    }
                 )
             }
         }
