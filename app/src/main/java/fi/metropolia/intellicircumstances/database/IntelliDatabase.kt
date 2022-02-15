@@ -54,9 +54,11 @@ interface DeviceDao {
     @Insert
     suspend fun addDevice(ruuviDevice: RuuviDevice)
 
-    @Transaction
-    @Query("SELECT * FROM space WHERE device_id = :deviceId")
-    fun getSpaceAndDevice(deviceId: Long): Flow<SpaceAndDevice>
+    @Query("DELETE FROM ruuvi_device WHERE space_id = :spaceId")
+    suspend fun deleteDeviceBySpaceId(spaceId: Long)
+
+    @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
+    suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 }
 
 private const val DATABASE_NAME = "intelli"

@@ -28,4 +28,8 @@
     <string name="no_spaces">There are no spaces in this property</string>
     <string name="space_selection">Space selection</string>
     <string name="choose_space">Choose a space</string>
+    <string name="connect_to_ruuvi_tag">Connect to RuuviTag</string>
+    <string name="connect">Connect</string>
+    <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
+    <string name="retry">Retry</string>
 </resources>

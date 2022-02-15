@@ -16,24 +16,36 @@ data class Property(
             parentColumns = ["id"],
             childColumns = ["property_id"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = RuuviDevice::class,
-            parentColumns = ["id"],
-            childColumns = ["device_id"],
-            onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [
-        Index(value = ["property_id"]),
-        Index(value = ["device_id"])
-    ]
+    indices = [Index(value = ["property_id"])]
 )
 data class Space(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
     @ColumnInfo(name = "property_id") val propertyId: Long,
-    val name: String,
-    @ColumnInfo(name = "device_id") val deviceId: Long? = null
+    val name: String
+)
+
+@Entity(
+    tableName = "ruuvi_device",
+    foreignKeys = [
+        ForeignKey(
+            entity = Space::class,
+            parentColumns = ["id"],
+            childColumns = ["space_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["space_id"])]
+)
+data class RuuviDevice(
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @ColumnInfo(name = "space_id")
+    val spaceId: Long,
+    @ColumnInfo(name = "mac_address")
+    val macAddress: String,
+    val name: String? = null,
+    val description: String? = null
 )
 
 @Entity(
@@ -93,15 +105,6 @@ data class Temperature(
     val value: Float
 )
 
-@Entity(tableName = "ruuvi_device")
-data class RuuviDevice(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    @ColumnInfo(name = "mac_address")
-    val macAddress: String,
-    val name: String?,
-    val description: String?
-)
-
 data class PropertyWithSpaces(
     @Embedded val property: Property,
     @Relation(
@@ -128,13 +131,4 @@ data class SpaceWithConditions(
         entityColumn = "space_id"
     )
     val temperatures: List<Temperature>
-)
-
-data class SpaceAndDevice(
-    @Embedded val space: Space,
-    @Relation(
-        parentColumn = "device_id",
-        entityColumn = "id"
-    )
-    val device: RuuviDevice
 )
