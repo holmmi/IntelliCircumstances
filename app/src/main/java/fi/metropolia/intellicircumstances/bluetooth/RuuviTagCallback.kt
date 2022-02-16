@@ -10,4 +10,6 @@ interface RuuviTagConnectionCallback {
     fun onConnectionStateChange(connectionState: ConnectionState)
 
     fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData)
+
+    fun onReceiveSensorLogs(logData: List<RuuviTagSensorData>)
 }

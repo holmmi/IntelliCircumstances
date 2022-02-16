@@ -5,6 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -73,6 +74,8 @@ fun MeasureSpaceView(navController: NavController, spaceId: Long?, measureSpaceV
                     }
                 }
             }
+        } else if (ruuviConnectionState == ConnectionState.CONNECTED) {
+            Toast.makeText(context, R.string.connected_to_ruuvi, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -32,4 +32,5 @@
     <string name="connect">Connect</string>
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="retry">Retry</string>
+    <string name="connected_to_ruuvi">Connected to RuuviTag</string>
 </resources>
