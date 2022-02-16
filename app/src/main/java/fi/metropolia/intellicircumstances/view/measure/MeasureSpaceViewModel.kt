@@ -39,7 +39,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
 
         override fun onReceiveSensorLogs(logData: List<RuuviTagSensorData>) {
-            // Not used
+            // Unused
         }
     }
 
@@ -76,10 +76,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
             emit(ruuviTagConnector.isBluetoothEnabled())
             delay(CHECK_BLUETOOTH)
         }
-    }
-
-    fun readLogs() {
-        ruuviTagConnector.readLogs()
     }
 
     override fun onCleared() {

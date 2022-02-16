@@ -15,9 +15,12 @@ class RuuviTagConnector(private val context: Context,
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
+    private var writeCharacteristic: BluetoothGattCharacteristic? = null
+
     private var isReadingLogs = false
     private var sensorLogs = mutableListOf<RuuviTagSensorData>()
-    private var writeCharacteristic: BluetoothGattCharacteristic? = null
+
+    private var ruuviFwVersion: Double? = null
 
     private val bluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -43,6 +46,9 @@ class RuuviTagConnector(private val context: Context,
                         WRITE_CHARACTERISTIC_UUID -> {
                             writeCharacteristic = characteristic
                         }
+                        FIRMWARE_CHARACTERISTIC_UUID -> {
+                            gatt.readCharacteristic(characteristic)
+                        }
                     }
                 }
             }
@@ -67,6 +73,20 @@ class RuuviTagConnector(private val context: Context,
             if (characteristic?.uuid == WRITE_CHARACTERISTIC_UUID && status == BluetoothGatt.GATT_SUCCESS) {
                 isReadingLogs = true
                 sensorLogs = mutableListOf()
+            }
+        }
+
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
+            super.onCharacteristicRead(gatt, characteristic, status)
+            if (characteristic?.uuid == FIRMWARE_CHARACTERISTIC_UUID && status == BluetoothGatt.GATT_SUCCESS) {
+                val version = characteristic?.value?.decodeToString()
+                version?.let {
+                    ruuviFwVersion = it.substring(10, 14).toDoubleOrNull()
+                }
             }
         }
     }
@@ -149,7 +169,7 @@ class RuuviTagConnector(private val context: Context,
     }
 
     fun readLogs(from: Long? = null) {
-        if (writeCharacteristic != null) {
+        if (canReadLogs() && writeCharacteristic != null) {
             val to = System.currentTimeMillis() / 1000
             val headerBytes = byteArrayOf(0x3A, 0x3A, 0x11).copyOfRange(0, 3)
             val toBytes = to.toByteArray().copyOfRange(4, 8)
@@ -163,10 +183,19 @@ class RuuviTagConnector(private val context: Context,
         }
     }
 
+    private fun canReadLogs(): Boolean {
+        ruuviFwVersion?.let {
+            return it >= LOGGING_CAPABLE_MIN_VERSION
+        }
+        return false
+    }
+
     companion object {
+        private val FIRMWARE_CHARACTERISTIC_UUID = UUID.fromString("00002A26-0000-1000-8000-00805F9B34FB")
         private val READ_CHARACTERISTIC_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
         private val WRITE_CHARACTERISTIC_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
         private val CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
         private const val FORMAT_5 = 5
+        private const val LOGGING_CAPABLE_MIN_VERSION = 3.30
     }
 }
