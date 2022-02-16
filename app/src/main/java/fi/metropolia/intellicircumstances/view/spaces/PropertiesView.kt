@@ -22,12 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
-import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @Composable
-fun PropertiesView(navController: NavController, propertiesViewModel: PropertiesViewModel = viewModel(), btService: BluetoothService) {
+fun PropertiesView(navController: NavController, propertiesViewModel: PropertiesViewModel = viewModel()) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var propertyName by rememberSaveable { mutableStateOf("") }
     var propertyNameIsEmpty by rememberSaveable { mutableStateOf(false) }

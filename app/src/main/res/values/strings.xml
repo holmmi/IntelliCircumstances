@@ -31,6 +31,8 @@
     <string name="selected_tag">Selected</string>
     <string name="icon">Icon</string>
 
+    <string name="bt_work">Bluetooth worker</string>
+
     <!--measure-->
     <string name="choose_property">There are no spaces in this property</string>
     <string name="space_selection">Space selection</string>

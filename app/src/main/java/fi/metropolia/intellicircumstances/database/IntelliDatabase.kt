@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SpaceDao {
     @Insert
-    suspend fun addSpace(space: Space)
+    suspend fun addSpace(space: Space): Long
 
     @Insert
     suspend fun addProperty(property: Property)
@@ -55,7 +55,7 @@ interface ConditionDao {
 @Dao
 interface DeviceDao {
     @Insert
-    suspend fun addDevice(ruuviDevice: RuuviDevice): Long
+    suspend fun addDevice(ruuviDevice: RuuviDevice)
 
     @Query("DELETE FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun deleteDeviceBySpaceId(spaceId: Long)
@@ -75,7 +75,7 @@ private const val DATABASE_NAME = "intelli"
         Temperature::class,
         RuuviDevice::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class IntelliDatabase : RoomDatabase() {

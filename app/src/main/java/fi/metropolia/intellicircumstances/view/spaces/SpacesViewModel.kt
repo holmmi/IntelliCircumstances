@@ -2,54 +2,108 @@ package fi.metropolia.intellicircumstances.view.spaces
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.*
-import android.os.IBinder
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
-import fi.metropolia.intellicircumstances.bluetooth.RuuviTagScanner
-import fi.metropolia.intellicircumstances.bluetooth.decoder.FoundTag
+import fi.metropolia.intellicircumstances.bluetooth.*
+import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.database.PropertyWithSpaces
-import fi.metropolia.intellicircumstances.database.RuuviDevice
 import fi.metropolia.intellicircumstances.database.Space
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
 import fi.metropolia.intellicircumstances.repository.SpaceRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @SuppressLint("StaticFieldLeak")
-class SpacesViewModel(application: Application, private val btService: BluetoothService) :
+class SpacesViewModel(application: Application) :
     AndroidViewModel(application) {
     private val spaceRepository = SpaceRepository(application.applicationContext)
     private val deviceRepository = DeviceRepository(application.applicationContext)
 
-    val devices = btService.foundTags
+    private val _ruuviTagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
+    val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
+        get() = _ruuviTagDevices
 
-    fun startScanning() {
-        btService.startScanning()
+    private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
+    val ruuviConnectionState: LiveData<ConnectionState>
+        get() = _ruuviConnectionState
+
+    private val scannerCallback = object : RuuviTagScannerCallback {
+        override fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>) {
+            _ruuviTagDevices.postValue(ruuviTagDevices)
+        }
     }
 
-    fun stopScanning() {
-        btService.stopScanning()
+    private val connectionCallback = object : RuuviTagConnectionCallback {
+        override fun onConnectionStateChange(connectionState: ConnectionState) {
+            _ruuviConnectionState.postValue(connectionState)
+        }
+
+        override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
+
+        }
+    }
+    private val ruuviTagScanner = RuuviTagScanner(application.applicationContext, scannerCallback)
+    private val ruuviTagConnector =
+        RuuviTagConnector(application.applicationContext, connectionCallback)
+
+    fun scanDevices() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (ruuviTagScanner.startScan()) {
+                delay(SCAN_TIMEOUT)
+                ruuviTagScanner.stopScan()
+            }
+        }
+    }
+
+    fun addDeviceAndConnect(spaceId: Long, ruuviTagDevice: RuuviTagDevice) {
+        viewModelScope.launch {
+            deviceRepository.addDeviceToSpace(spaceId, ruuviTagDevice)
+            ruuviTagConnector.connectDevice(ruuviTagDevice.macAddress)
+        }
+    }
+
+    fun connectDevice(spaceId: Long) {
+        viewModelScope.launch {
+            val device = deviceRepository.getRuuviTagDeviceBySpaceId(spaceId)
+            device?.macAddress?.let { ruuviTagConnector.connectDevice(it) }
+        }
+    }
+
+    fun isBluetoothEnabled(): Flow<Boolean> = flow {
+        while (true) {
+            emit(ruuviTagConnector.isBluetoothEnabled())
+            delay(CHECK_BLUETOOTH)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        ruuviTagConnector.disconnectDevice()
+    }
+
+    companion object {
+        private const val CHECK_BLUETOOTH = 1000L
+        private const val SCAN_TIMEOUT = 5000L
     }
 
     fun getSpaces(propertyId: Long): LiveData<PropertyWithSpaces> =
         spaceRepository.getSpaces(propertyId)
 
-    fun addSpace(propertyId: Long, spaceName: String, deviceId: Long) {
-        viewModelScope.launch {
+    suspend fun addSpace(propertyId: Long, spaceName: String): Long =
+        withContext(viewModelScope.coroutineContext) {
             spaceRepository.addSpace(
                 Space(
                     propertyId = propertyId,
-                    name = spaceName,
-                    deviceId = deviceId
+                    name = spaceName
                 )
             )
         }
-    }
 
     fun deleteSpace(spaceId: Long) {
         viewModelScope.launch {
@@ -57,8 +111,12 @@ class SpacesViewModel(application: Application, private val btService: Bluetooth
         }
     }
 
-    suspend fun addDevice(device: RuuviDevice): Long =
-        withContext(viewModelScope.coroutineContext) {
-            deviceRepository.addDevice(device)
+    fun addDevice(spaceId: Long, device: RuuviTagDevice) {
+        viewModelScope.launch {
+            deviceRepository.addDeviceToSpace(spaceId, device)
         }
+
+    }
+
+
 }

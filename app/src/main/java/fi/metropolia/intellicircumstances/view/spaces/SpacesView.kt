@@ -1,6 +1,5 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,9 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
-import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
-import fi.metropolia.intellicircumstances.bluetooth.decoder.FoundTag
-import fi.metropolia.intellicircumstances.database.RuuviDevice
+import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -40,7 +37,7 @@ import kotlinx.coroutines.launch
 fun SpacesView(
     navController: NavController,
     propertyId: Long?,
-    btService: BluetoothService,
+    spacesViewModel: SpacesViewModel = viewModel()
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var spaceName by rememberSaveable { mutableStateOf("") }
@@ -49,9 +46,8 @@ fun SpacesView(
     var showSearchScreen by rememberSaveable { mutableStateOf(false) }
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
     var selectedTag by rememberSaveable { mutableStateOf<String?>("") }
-    var selectedTagInfo by rememberSaveable { mutableStateOf<FoundTag?>(null) }
-    val spacesViewModel =
-        SpacesViewModel(LocalContext.current.applicationContext as Application, btService)
+    var selectedTagInfo by rememberSaveable { mutableStateOf<RuuviTagDevice?>(null) }
+    // var spaceId by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Scaffold(
         topBar = {
@@ -113,17 +109,18 @@ fun SpacesView(
                                     spaceNameIsEmpty = true
                                 } else {
                                     GlobalScope.launch(Dispatchers.IO) {
-                                       val id = spacesViewModel.addDevice(
-                                            RuuviDevice(
-                                                macAddress = selectedTagInfo?.id ?: "",
-                                                name = selectedTagInfo?.name,
-                                                description = "RuuviTag ${selectedTagInfo?.name} of space $spaceName"
+                                        val id = spacesViewModel.addSpace(
+                                            propertyId, spaceName
+                                        )
+                                        selectedTagInfo?.let { device ->
+                                            spacesViewModel.addDevice(
+                                                id,
+                                                device
                                             )
-                                        )
+                                        }
+
                                         Log.d("DBG", "device id : $id")
-                                        spacesViewModel.addSpace(
-                                            propertyId, spaceName, id
-                                        )
+
                                         spaceNameIsEmpty = false
                                         showAddDialog = false
                                         spaceName = ""
@@ -145,8 +142,8 @@ fun SpacesView(
             }
 
             if (showSearchScreen) {
-                val devices = spacesViewModel.devices.observeAsState()
-                spacesViewModel.startScanning()
+                val devices = spacesViewModel.ruuviTagDevices.observeAsState()
+                spacesViewModel.scanDevices()
 
                 AlertDialog(
                     onDismissRequest = { showSearchScreen = false },
@@ -167,8 +164,8 @@ fun SpacesView(
                                         Icons.Filled.Bluetooth,
                                         "Bluetooth ${stringResource(R.string.icon)}"
                                     )
-                                    RadioButton(selected = selectedTag == it.id, onClick = {
-                                        selectedTag = it.id
+                                    RadioButton(selected = selectedTag == it.macAddress, onClick = {
+                                        selectedTag = it.macAddress
                                         selectedTagInfo = it
                                     })
                                     Spacer(modifier = Modifier.width(10.dp))
@@ -178,7 +175,7 @@ fun SpacesView(
                                             fontSize = 20.sp,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        Text("MAC: ${it.id}")
+                                        Text("MAC: ${it.macAddress}")
                                         Text("${it.rssi} dBm")
                                     }
                                 }
@@ -191,7 +188,6 @@ fun SpacesView(
                             onClick = {
                                 showSearchScreen = false
                                 showAddDialog = true
-                                spacesViewModel.stopScanning()
                             }
                         ) {
                             Text(text = stringResource(id = R.string.confirm))
@@ -200,7 +196,6 @@ fun SpacesView(
                     dismissButton = {
                         TextButton(onClick = {
                             showSearchScreen = false
-                            spacesViewModel.stopScanning()
                         }) {
                             Text(text = stringResource(id = R.string.cancel))
                         }
