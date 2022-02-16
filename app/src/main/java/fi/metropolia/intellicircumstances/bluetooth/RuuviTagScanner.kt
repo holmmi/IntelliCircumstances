@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
 import android.os.ParcelUuid
+import android.util.Log
 import com.ruuvi.station.bluetooth.FoundRuuviTag
 import com.ruuvi.station.bluetooth.IRuuviGattListener
 import com.ruuvi.station.bluetooth.IRuuviTagScanner
@@ -83,6 +84,7 @@ class RuuviTagScanner(
 
     fun connect(macAddress: String, readLogsFrom: Date?, listener: IRuuviGattListener): Boolean {
         val device = devices[macAddress]
+        Log.d("DBG","connect device $device")
         device.let {
             it?.let { leResult ->
                 var gattManager = gattManagers[macAddress]
@@ -142,6 +144,7 @@ class RuuviTagScanner(
                 val parsed = leresult.parse()
                 if (parsed != null) {
                     var connectable = it.scanRecord?.deviceName != null
+                    Log.d("DBG", "connectable? $connectable")
                     if (connectable) {
                         devices[leresult.device.address] = leresult
                     } else if (gattManagers[it.device.address]?.isConnected == true) {
@@ -195,6 +198,7 @@ class RuuviTagScanner(
     }
 
     interface OnTagFoundListener {
+
         fun onTagFound(tag: FoundTag)
     }
 }

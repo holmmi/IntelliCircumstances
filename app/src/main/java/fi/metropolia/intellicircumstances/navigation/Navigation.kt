@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
 import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
@@ -21,7 +22,7 @@ import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 import fi.metropolia.intellicircumstances.view.spaces.SpacesView
 
 @Composable
-fun Navigation() {
+fun Navigation(btService: BluetoothService) {
     val navController = rememberNavController()
     Scaffold(
         content = { padding ->
@@ -34,15 +35,15 @@ fun Navigation() {
                         NavigationRoutes.MEASURE_SPACE,
                         arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
                     ) {
-                        MeasureSpaceView(navController, it.arguments?.getString("spaceId")?.toLong())
+                        MeasureSpaceView(navController, it.arguments?.getString("spaceId")?.toLong(), btService = btService)
                     }
-                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
+                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController, btService = btService) }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(
                         NavigationRoutes.SPACES,
                         arguments = listOf(navArgument("propertyId") { type = NavType.StringType })
                     ) {
-                        SpacesView(navController, it.arguments?.getString("propertyId")?.toLong())
+                        SpacesView(navController, it.arguments?.getString("propertyId")?.toLong(), btService = btService)
                     }
                 }
             }

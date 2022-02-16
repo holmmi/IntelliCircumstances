@@ -13,7 +13,6 @@ class DeviceRepository(context: Context) {
         deviceDao.addDevice(device)
     }
 
-   /* fun getSpaceAndDevice() {
-        deviceDao.getSpaceAndDevice()
-    }*/
+   fun getSpaceAndDevice(deviceId: Long) =
+        deviceDao.getSpaceAndDevice(deviceId)
 }

@@ -1,8 +1,10 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.*
 import android.os.IBinder
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,47 +20,20 @@ import fi.metropolia.intellicircumstances.repository.SpaceRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SpacesViewModel(application: Application) : AndroidViewModel(application),
-    RuuviTagScanner.OnTagFoundListener {
-    val foundTags = MutableLiveData<List<FoundTag>>()
-    private val ruuviRangeNotifier = RuuviTagScanner(application.applicationContext)
+@SuppressLint("StaticFieldLeak")
+class SpacesViewModel(application: Application, private val btService: BluetoothService) :
+    AndroidViewModel(application) {
     private val spaceRepository = SpaceRepository(application.applicationContext)
     private val deviceRepository = DeviceRepository(application.applicationContext)
-    private lateinit var mService: BluetoothService
-    private var mBound: Boolean = false
 
-    private val connection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            val binder = service as BluetoothService.LocalBinder
-            mService = binder.getService()
-            mBound = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            mBound = false
-        }
-    }
-
-
-
-        override fun onTagFound(tag: FoundTag) {
-        val prevTags = foundTags.value
-        if (prevTags != null && prevTags.size > 1) {
-            foundTags.postValue(prevTags + tag)
-        } else {
-            foundTags.postValue(listOf(tag))
-        }
-    }
+    val devices = btService.foundTags
 
     fun startScanning() {
-
-        ruuviRangeNotifier.startScanning(this)
+        btService.startScanning()
     }
 
     fun stopScanning() {
-        ruuviRangeNotifier.stopScanning()
+        btService.stopScanning()
     }
 
     fun getSpaces(propertyId: Long): LiveData<PropertyWithSpaces> =
@@ -82,7 +57,8 @@ class SpacesViewModel(application: Application) : AndroidViewModel(application),
         }
     }
 
-    suspend fun addDevice(device: RuuviDevice): Long = withContext(viewModelScope.coroutineContext) {
-        deviceRepository.addDevice(device)
-    }
+    suspend fun addDevice(device: RuuviDevice): Long =
+        withContext(viewModelScope.coroutineContext) {
+            deviceRepository.addDevice(device)
+        }
 }

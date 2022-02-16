@@ -29,6 +29,9 @@ interface SpaceDao {
     @Query("DELETE FROM property WHERE id = :propertyId")
     suspend fun deletePropertyById(propertyId: Long)
 
+    @Query("SELECT * FROM space WHERE id = :spaceId")
+    suspend fun getSpace(spaceId: Long): Space
+
     @Query("DELETE FROM space WHERE id = :spaceId")
     suspend fun deleteSpace(spaceId: Long)
 }

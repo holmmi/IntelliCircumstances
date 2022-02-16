@@ -1,5 +1,7 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
+import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
 import fi.metropolia.intellicircumstances.bluetooth.decoder.FoundTag
 import fi.metropolia.intellicircumstances.database.RuuviDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
@@ -36,7 +40,7 @@ import kotlinx.coroutines.launch
 fun SpacesView(
     navController: NavController,
     propertyId: Long?,
-    spacesViewModel: SpacesViewModel = viewModel(),
+    btService: BluetoothService,
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var spaceName by rememberSaveable { mutableStateOf("") }
@@ -46,6 +50,8 @@ fun SpacesView(
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
     var selectedTag by rememberSaveable { mutableStateOf<String?>("") }
     var selectedTagInfo by rememberSaveable { mutableStateOf<FoundTag?>(null) }
+    val spacesViewModel =
+        SpacesViewModel(LocalContext.current.applicationContext as Application, btService)
 
     Scaffold(
         topBar = {
@@ -107,22 +113,23 @@ fun SpacesView(
                                     spaceNameIsEmpty = true
                                 } else {
                                     GlobalScope.launch(Dispatchers.IO) {
-                                        val id = spacesViewModel.addDevice(
+                                       val id = spacesViewModel.addDevice(
                                             RuuviDevice(
                                                 macAddress = selectedTagInfo?.id ?: "",
                                                 name = selectedTagInfo?.name,
                                                 description = "RuuviTag ${selectedTagInfo?.name} of space $spaceName"
                                             )
                                         )
+                                        Log.d("DBG", "device id : $id")
                                         spacesViewModel.addSpace(
                                             propertyId, spaceName, id
                                         )
+                                        spaceNameIsEmpty = false
+                                        showAddDialog = false
+                                        spaceName = ""
+                                        selectedTag = ""
+                                        selectedTagInfo = null
                                     }
-                                    spaceNameIsEmpty = false
-                                    showAddDialog = false
-                                    spaceName = ""
-                                    selectedTag = ""
-                                    selectedTagInfo = null
                                 }
                             }
                         ) {
@@ -138,7 +145,7 @@ fun SpacesView(
             }
 
             if (showSearchScreen) {
-                val devices = spacesViewModel.foundTags.observeAsState()
+                val devices = spacesViewModel.devices.observeAsState()
                 spacesViewModel.startScanning()
 
                 AlertDialog(

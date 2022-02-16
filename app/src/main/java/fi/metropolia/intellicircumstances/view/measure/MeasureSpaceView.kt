@@ -1,22 +1,25 @@
 package fi.metropolia.intellicircumstances.view.measure
 
+import android.app.Application
+import android.util.Log
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import fi.metropolia.intellicircumstances.R
-import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.bluetooth.BluetoothService
 
 @Composable
 fun MeasureSpaceView(
     navController: NavController,
     spaceId: Long?,
-    measureViewModel: MeasureViewModel = viewModel()
+    btService: BluetoothService
 ) {
-    val deviceValues = measureViewModel.getDevice()
+    val measureViewModel: MeasureViewModel = MeasureViewModel(LocalContext.current.applicationContext as Application, btService, spaceId)
+    val tagData = measureViewModel.tagData.observeAsState()
+
     Scaffold(
         topBar = {
             TopAppBar() {
@@ -24,7 +27,8 @@ fun MeasureSpaceView(
             }
         },
         content = {
-            Text(stringResource(R.string.choose_property))
+
+            Text("${tagData.value?.temperature}")
         }
     )
 }
