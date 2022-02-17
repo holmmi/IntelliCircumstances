@@ -33,24 +33,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
+import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import kotlinx.coroutines.launch
 
 @Composable
-fun MeasureSpaceView(navController: NavController, spaceId: Long?, measureSpaceViewModel: MeasureSpaceViewModel = viewModel()) {
+fun MeasureSpaceView(
+    navController: NavController,
+    spaceId: Long?,
+    measureSpaceViewModel: MeasureSpaceViewModel = viewModel()
+) {
     var showBluetoothLeScanner by rememberSaveable { mutableStateOf(false) }
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
 
-    val permissionsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        permissionsGiven = it.values.all { value -> value }
-    }
+    val permissionsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            permissionsGiven = it.values.all { value -> value }
+        }
 
-    val enableBluetoothLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            if (spaceId != null) {
-                measureSpaceViewModel.connectDevice(spaceId)
+    val enableBluetoothLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                if (spaceId != null) {
+                    measureSpaceViewModel.connectDevice(spaceId)
+                }
             }
         }
-    }
     val bluetoothEnabled by measureSpaceViewModel.isBluetoothEnabled().asLiveData().observeAsState()
 
     val scaffoldState = rememberScaffoldState()
@@ -82,37 +89,43 @@ fun MeasureSpaceView(navController: NavController, spaceId: Long?, measureSpaceV
     Scaffold(
         scaffoldState = scaffoldState,
         snackbarHost = {
-           SnackbarHost(it) { data ->
-               Snackbar(
-                   snackbarData = data
-               )
-           }
+            SnackbarHost(it) { data ->
+                Snackbar(
+                    snackbarData = data
+                )
+            }
         },
         topBar = {
-             TopAppBar(
-                 title = { Text(text = stringResource(id = R.string.measure)) },
-                 actions = {
-                     IconButton(
-                         onClick = {
-                             if (permissionsGiven) {
-                                 measureSpaceViewModel.scanDevices()
-                                 showBluetoothLeScanner = true
-                             } else {
-                                 permissionsLauncher.launch(arrayOf(
-                                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                                     Manifest.permission.ACCESS_FINE_LOCATION))
-                             }
-                         }
-                     ) {
-                         Icon(imageVector = Icons.Filled.BluetoothSearching, contentDescription = null)
-                     }
-                 },
-                 navigationIcon = {
-                     IconButton(onClick = { navController.navigateUp() }) {
-                         Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
-                     }
-                 }
-             )
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.measure)) },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            if (permissionsGiven) {
+                                measureSpaceViewModel.scanDevices()
+                                showBluetoothLeScanner = true
+                            } else {
+                                permissionsLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.ACCESS_FINE_LOCATION
+                                    )
+                                )
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.BluetoothSearching,
+                            contentDescription = null
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                    }
+                }
+            )
         },
         content = {
             if (showBluetoothLeScanner) {
@@ -200,29 +213,17 @@ fun MeasureSpaceView(navController: NavController, spaceId: Long?, measureSpaceV
                     }
                 )
             }
-        }
-    )
-
-    LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionsLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
-        } else {
-            permissionsGiven = true
-        }
-
-        // Try to connect to RuuviTag
-        if (spaceId != null && bluetoothEnabled == true) {
-            measureSpaceViewModel.connectDevice(spaceId)
-        }
-    }
-
-    LaunchedEffect(bluetoothEnabled) {
-        bluetoothEnabled?.let {
-            if (!it) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                enableBluetoothLauncher.launch(enableBtIntent)
+            Button(onClick = {
+                navController.navigate(
+                    NavigationRoutes.SCHEDULE.replace(
+                        "{spaceId}",
+                        spaceId.toString()
+                    )
+                )
+            })
+            {
+                Text("Schedule")
             }
         }
-    }
+    )
 }

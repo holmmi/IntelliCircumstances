@@ -1,11 +1,13 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
@@ -16,21 +18,36 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel: SpacesViewModel = viewModel()) {
+fun SpacesView(
+    navController: NavController,
+    propertyId: Long?,
+    spacesViewModel: SpacesViewModel = viewModel()
+) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var spaceName by rememberSaveable { mutableStateOf("") }
     var spaceNameIsEmpty by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showSearchScreen by rememberSaveable { mutableStateOf(false) }
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
+    var selectedTag by rememberSaveable { mutableStateOf<String?>("") }
+    var selectedTagInfo by rememberSaveable { mutableStateOf<RuuviTagDevice?>(null) }
+    // var spaceId by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Scaffold(
         topBar = {
@@ -40,7 +57,10 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                     title = { Text(text = spaces.value?.property?.name ?: "-") },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Filled.NavigateBefore,
+                                contentDescription = null
+                            )
                         }
                     }
                 )
@@ -68,6 +88,18 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                                     modifier = Modifier.padding(start = 16.dp)
                                 )
                             }
+                            Button(
+                                modifier = Modifier.padding(top = 16.dp),
+                                onClick = {
+                                    showAddDialog = false
+                                    showSearchScreen = true
+                                }) {
+                                Text(
+                                    if (selectedTag.isNullOrBlank()) stringResource(id = R.string.add_tag) else {
+                                        "${stringResource(id = R.string.selected_tag)}: ${selectedTagInfo?.name}"
+                                    }
+                                )
+                            }
                         }
                     },
                     confirmButton = {
@@ -76,10 +108,25 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                                 if (spaceName.isEmpty()) {
                                     spaceNameIsEmpty = true
                                 } else {
-                                    spacesViewModel.addSpace(propertyId, spaceName)
-                                    spaceNameIsEmpty = false
-                                    showAddDialog = false
-                                    spaceName = ""
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        val id = spacesViewModel.addSpace(
+                                            propertyId, spaceName
+                                        )
+                                        selectedTagInfo?.let { device ->
+                                            spacesViewModel.addDevice(
+                                                id,
+                                                device
+                                            )
+                                        }
+
+                                        Log.d("DBG", "device id : $id")
+
+                                        spaceNameIsEmpty = false
+                                        showAddDialog = false
+                                        spaceName = ""
+                                        selectedTag = ""
+                                        selectedTagInfo = null
+                                    }
                                 }
                             }
                         ) {
@@ -88,6 +135,68 @@ fun SpacesView(navController: NavController, propertyId: Long?, spacesViewModel:
                     },
                     dismissButton = {
                         TextButton(onClick = { showAddDialog = false }) {
+                            Text(text = stringResource(id = R.string.cancel))
+                        }
+                    }
+                )
+            }
+
+            if (showSearchScreen) {
+                val devices = spacesViewModel.ruuviTagDevices.observeAsState()
+                spacesViewModel.scanDevices()
+
+                AlertDialog(
+                    onDismissRequest = { showSearchScreen = false },
+                    text = {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.height(200.dp)
+                        ) {
+                            item {
+                                Text(stringResource(id = R.string.found_devices), fontSize = 30.sp)
+                            }
+                            items(devices.value ?: listOf()) {
+                                Row(
+                                    modifier = Modifier.padding(15.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Bluetooth,
+                                        "Bluetooth ${stringResource(R.string.icon)}"
+                                    )
+                                    RadioButton(selected = selectedTag == it.macAddress, onClick = {
+                                        selectedTag = it.macAddress
+                                        selectedTagInfo = it
+                                    })
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            "${it.name}",
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text("MAC: ${it.macAddress}")
+                                        Text("${it.rssi} dBm")
+                                    }
+                                }
+                                Divider(color = MaterialTheme.colors.onSurface, thickness = 1.dp)
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showSearchScreen = false
+                                showAddDialog = true
+                            }
+                        ) {
+                            Text(text = stringResource(id = R.string.confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showSearchScreen = false
+                        }) {
                             Text(text = stringResource(id = R.string.cancel))
                         }
                     }
