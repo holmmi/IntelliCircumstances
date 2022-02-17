@@ -17,6 +17,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.NavigateBefore
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -138,9 +139,20 @@ fun MeasureSpaceView(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.BluetoothSearching,
-                            contentDescription = null
+                            imageVector = Icons.Filled.BluetoothSearching, contentDescription = null
                         )
+                    }
+                    IconButton(
+                        onClick = {
+                            navController.navigate(
+                                NavigationRoutes.SCHEDULE.replace(
+                                    "{spaceId}",
+                                    spaceId.toString()
+                                )
+                            )
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Filled.Schedule, contentDescription = null)
                     }
                 },
                 navigationIcon = {
@@ -235,17 +247,6 @@ fun MeasureSpaceView(
                         }
                     }
                 )
-            }
-            Button(onClick = {
-                navController.navigate(
-                    NavigationRoutes.SCHEDULE.replace(
-                        "{spaceId}",
-                        spaceId.toString()
-                    )
-                )
-            })
-            {
-                Text("Schedule")
             }
         }
     )
