@@ -15,9 +15,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class MeasureSpaceViewModel(application: Application) : AndroidViewModel(application) {
-    private val _ruuviTagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
-    val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
-        get() = _ruuviTagDevices
+    val tagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
+   // val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
+       // get() = _ruuviTagDevices
+    val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
 
     private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
     val ruuviConnectionState: LiveData<ConnectionState>
@@ -25,7 +26,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     private val scannerCallback = object : RuuviTagScannerCallback {
         override fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>) {
-            _ruuviTagDevices.postValue(ruuviTagDevices)
+            tagDevices.postValue(ruuviTagDevices)
         }
     }
 
@@ -35,7 +36,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
 
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
-
+            sensorData.postValue(ruuviTagSensorData)
         }
     }
 
@@ -81,6 +82,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     companion object {
         private const val CHECK_BLUETOOTH = 1000L
-        private const val SCAN_TIMEOUT = 5000L
+        private const val SCAN_TIMEOUT = 30000L
     }
 }

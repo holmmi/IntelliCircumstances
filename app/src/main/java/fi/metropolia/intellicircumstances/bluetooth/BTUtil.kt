@@ -88,7 +88,6 @@ class BtWorker(appContext: Context, workerParams: WorkerParameters) :
             Result.retry()
         }
     }
-
 }
 
 class BTUtil(context: Context) {
