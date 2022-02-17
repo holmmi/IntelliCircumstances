@@ -1,7 +1,5 @@
 package fi.metropolia.intellicircumstances.view.schedule
 
-import android.util.Log
-import android.widget.TimePicker
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -12,9 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import fi.metropolia.intellicircumstances.bluetooth.BtWorker
 import java.util.*
-
 
 @Composable
 fun ScheduleView(navController: NavController, spaceId: Long?) {
@@ -43,12 +39,6 @@ fun ScheduleView(navController: NavController, spaceId: Long?) {
                     showTimePicker = true
                 }) {
                     Text(text = "Show time picker")
-                }
-
-                Button(onClick = {
-                    BtWorker.setEndTime(date = date, hour = hour)
-                }) {
-                    Text("Schedule")
                 }
             }
         }

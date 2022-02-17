@@ -1,9 +1,8 @@
 package fi.metropolia.intellicircumstances.view.schedule
 
 import android.app.TimePickerDialog
-import android.widget.TimePicker
-
 import android.os.Build
+import android.widget.TimePicker
 import androidx.annotation.RequiresApi
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.compose.foundation.background

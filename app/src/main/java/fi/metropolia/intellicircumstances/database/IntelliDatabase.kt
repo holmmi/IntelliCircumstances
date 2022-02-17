@@ -75,7 +75,7 @@ private const val DATABASE_NAME = "intelli"
         Temperature::class,
         RuuviDevice::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = false
 )
 abstract class IntelliDatabase : RoomDatabase() {

@@ -42,6 +42,7 @@ fun MeasureSpaceView(
     spaceId: Long?,
     measureSpaceViewModel: MeasureSpaceViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     var showBluetoothLeScanner by rememberSaveable { mutableStateOf(false) }
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
 
@@ -60,9 +61,31 @@ fun MeasureSpaceView(
         }
     val bluetoothEnabled by measureSpaceViewModel.isBluetoothEnabled().asLiveData().observeAsState()
 
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
+        } else {
+            permissionsGiven = true
+        }
+
+        // Try to connect to RuuviTag
+        if (spaceId != null && bluetoothEnabled == true) {
+            measureSpaceViewModel.connectDevice(spaceId)
+        }
+    }
+
+    LaunchedEffect(bluetoothEnabled) {
+        bluetoothEnabled?.let {
+            if (!it) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                enableBluetoothLauncher.launch(enableBtIntent)
+            }
+        }
+    }
+
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     val ruuviConnectionState by measureSpaceViewModel.ruuviConnectionState.observeAsState()
     LaunchedEffect(ruuviConnectionState) {
