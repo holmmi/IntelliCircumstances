@@ -5,6 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,7 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
-import fi.metropolia.intellicircumstances.extensions.round
+import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.launch
@@ -159,7 +160,11 @@ fun MeasureSpaceView(
                 val sensorData = measureSpaceViewModel.sensorData.observeAsState()
 
                 var tabIndex by remember { mutableStateOf(0) } // 1.
-                val tabTitles = listOf(stringResource(id = R.string.temp), stringResource(R.string.humid), stringResource(R.string.pressure))
+                val tabTitles = listOf(
+                    stringResource(id = R.string.temp),
+                    stringResource(R.string.humid),
+                    stringResource(R.string.pressure)
+                )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) { // 2.
                     TabRow(selectedTabIndex = tabIndex) { // 3.
                         tabTitles.forEachIndexed { index, title ->
@@ -169,9 +174,27 @@ fun MeasureSpaceView(
                         }
                     }
                     when (tabIndex) { // 6.
-                        0 -> Text("${stringResource(id = R.string.temp)} ${sensorData.value?.temperature?.round(2)} C")
-                        1 -> Text("${stringResource(id = R.string.humid)} ${sensorData.value?.humidity?.round(2)} %")
-                        2 -> Text("${stringResource(id = R.string.pressure)} ${sensorData.value?.airPressure?.round(2)} hPa")
+                        0 -> Text(
+                            "${stringResource(id = R.string.temp)} ${
+                                sensorData.value?.temperature?.round(
+                                    2
+                                )
+                            } C"
+                        )
+                        1 -> Text(
+                            "${stringResource(id = R.string.humid)} ${
+                                sensorData.value?.humidity?.round(
+                                    2
+                                )
+                            } %"
+                        )
+                        2 -> Text(
+                            "${stringResource(id = R.string.pressure)} ${
+                                sensorData.value?.airPressure?.round(
+                                    2
+                                )
+                            } hPa"
+                        )
                     }
                 }
             }
@@ -179,9 +202,39 @@ fun MeasureSpaceView(
     )
 
     LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionsLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    permissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
+                    )
+                }
+            }
         } else {
             permissionsGiven = true
         }

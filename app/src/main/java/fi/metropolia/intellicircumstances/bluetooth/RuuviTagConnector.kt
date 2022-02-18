@@ -1,8 +1,10 @@
 package fi.metropolia.intellicircumstances.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagFormat
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.extension.toByteArray
@@ -10,9 +12,13 @@ import fi.metropolia.intellicircumstances.extension.toHex
 import fi.metropolia.intellicircumstances.extension.toInt32
 import java.util.*
 
-class RuuviTagConnector(private val context: Context,
-                        private val ruuviTagConnectionCallback: RuuviTagConnectionCallback) {
-    private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+@SuppressLint("MissingPermission")
+class RuuviTagConnector(
+    private val context: Context,
+    private val ruuviTagConnectionCallback: RuuviTagConnectionCallback
+) {
+    private val bluetoothManager =
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
     private var writeCharacteristic: BluetoothGattCharacteristic? = null
@@ -32,24 +38,27 @@ class RuuviTagConnector(private val context: Context,
             }
         }
 
-
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
             gatt?.services?.forEach { service ->
                 service.characteristics.forEach { characteristic ->
+                    Log.d("DBG", "${characteristic.uuid}")
                     when (characteristic.uuid) {
                         READ_CHARACTERISTIC_UUID -> {
+                            Log.d("DBG", "${characteristic.uuid}")
                             gatt.setCharacteristicNotification(characteristic, true)
-                            val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG)
+                            val descriptor =
+                                characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG)
                             descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                             gatt.writeDescriptor(descriptor)
                         }
                         WRITE_CHARACTERISTIC_UUID -> {
                             writeCharacteristic = characteristic
                         }
-                        FIRMWARE_CHARACTERISTIC_UUID -> {
-                            gatt.readCharacteristic(characteristic)
-                        }
+                        //TODO: Find why this causes live measurements not to be sent
+                        /*  FIRMWARE_CHARACTERISTIC_UUID -> {
+                             gatt.readCharacteristic(characteristic)
+                         }*/
                     }
                 }
             }
@@ -142,9 +151,10 @@ class RuuviTagConnector(private val context: Context,
                             val value = data.copyOfRange(7, 11)
                             val time = timestamp.toInt32().toLong() * 1000
 
-                            val logEntry = sensorLogs.find { it.time == time } ?: RuuviTagSensorData()
+                            val logEntry =
+                                sensorLogs.find { it.time == time } ?: RuuviTagSensorData()
 
-                            when(type.toHex()) {
+                            when (type.toHex()) {
                                 "3a3010" -> {
                                     val temperature = value.toInt32() / 100.0
                                     logEntry.temperature = temperature
@@ -192,10 +202,14 @@ class RuuviTagConnector(private val context: Context,
     }
 
     companion object {
-        private val FIRMWARE_CHARACTERISTIC_UUID = UUID.fromString("00002A26-0000-1000-8000-00805F9B34FB")
-        private val READ_CHARACTERISTIC_UUID = UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
-        private val WRITE_CHARACTERISTIC_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
-        private val CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+        private val FIRMWARE_CHARACTERISTIC_UUID =
+            UUID.fromString("00002A26-0000-1000-8000-00805F9B34FB")
+        private val READ_CHARACTERISTIC_UUID =
+            UUID.fromString("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
+        private val WRITE_CHARACTERISTIC_UUID =
+            UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
+        private val CLIENT_CHARACTERISTIC_CONFIG =
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
         private const val FORMAT_5 = 5
         private const val LOGGING_CAPABLE_MIN_VERSION = 3.30
     }

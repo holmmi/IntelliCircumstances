@@ -2,6 +2,7 @@ package fi.metropolia.intellicircumstances.view.schedule
 
 import android.Manifest
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
@@ -149,9 +151,11 @@ fun ScheduleView(navController: NavController, spaceId: Long?) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 10.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         value = frequency,
                         onValueChange = { frequency = it },
-                        label = { Text(text = stringResource(id = R.string.frequency)) })
+                        label = { Text(text = stringResource(id = R.string.frequency)) },
+                    )
                 }
             }
         }
