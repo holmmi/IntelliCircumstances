@@ -1,4 +1,4 @@
-package fi.metropolia.intellicircumstances.extensions
+package fi.metropolia.intellicircumstances.extension
 
 fun Double.round(decimals: Int): Double {
     var multiplier = 1.0

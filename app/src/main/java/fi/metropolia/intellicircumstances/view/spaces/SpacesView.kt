@@ -2,6 +2,7 @@ package fi.metropolia.intellicircumstances.view.spaces
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -57,7 +58,6 @@ fun SpacesView(
 
     val context = LocalContext.current
 
-
     Scaffold(
         topBar = {
             if (propertyId != null) {
@@ -106,7 +106,6 @@ fun SpacesView(
                                 if (spaceName.isEmpty()) {
                                     spaceNameIsEmpty = true
                                 } else {
-
                                     coroutineScope.launch(Dispatchers.IO) {
                                         val id = spacesViewModel.addSpace(
                                             propertyId, spaceName
@@ -142,7 +141,6 @@ fun SpacesView(
             if (showSearchScreen) {
                 val devices = spacesViewModel.ruuviTagDevices.observeAsState()
                 var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
-                spacesViewModel.scanDevices()
 
                 RuuviTagSearcher(
                     ruuviTagDevices = devices.value,
@@ -283,6 +281,24 @@ fun SpacesView(
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    permissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
+                    )
+                }
+            }
         } else {
             permissionsGiven = true
         }
