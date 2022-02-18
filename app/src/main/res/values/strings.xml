@@ -30,7 +30,6 @@
     <string name="found_devices">Add RuuviTag</string>
     <string name="selected_tag">Selected</string>
     <string name="icon">Icon</string>
-
     <string name="bt_work">Bluetooth worker</string>
 
     <!--measure-->
