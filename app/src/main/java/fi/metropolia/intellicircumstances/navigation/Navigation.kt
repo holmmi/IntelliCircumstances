@@ -35,13 +35,13 @@ fun Navigation() {
                     ) {
                         MeasureSpaceView(navController, it.arguments?.getString("spaceId")?.toLong())
                     }
+                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
                     composable(
                         NavigationRoutes.SCHEDULE,
                         arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
                     ) {
                         ScheduleView(navController, it.arguments?.getString("spaceId")?.toLong())
                     }
-                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(
                         NavigationRoutes.SPACES,
@@ -61,8 +61,8 @@ object NavigationRoutes {
     const val HOME = "home"
     const val MEASURE = "measure"
     const val MEASURE_SPACE = "measure/{spaceId}"
-    const val SCHEDULE = "schedule/{spaceId}"
     const val PROPERTIES = "properties"
+    const val SCHEDULE = "measure/{spaceId}/schedule"
     const val SETTINGS = "settings"
     const val SPACES = "properties/{propertyId}"
 }

@@ -38,6 +38,10 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
             sensorData.postValue(ruuviTagSensorData)
         }
+
+        override fun onReceiveSensorLogs(logData: List<RuuviTagSensorData>) {
+            // Unused
+        }
     }
 
     private val ruuviTagScanner = RuuviTagScanner(application.applicationContext, scannerCallback)

@@ -5,7 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -17,9 +17,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,7 +38,6 @@ import fi.metropolia.intellicircumstances.extensions.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.view.components.RuuviTagSearcher
 import kotlinx.coroutines.launch
-import kotlin.math.round
 
 @Composable
 fun MeasureSpaceView(
@@ -48,6 +45,7 @@ fun MeasureSpaceView(
     spaceId: Long?,
     measureSpaceViewModel: MeasureSpaceViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     var showBluetoothLeScanner by rememberSaveable { mutableStateOf(false) }
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
 
@@ -68,7 +66,6 @@ fun MeasureSpaceView(
 
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     val ruuviConnectionState by measureSpaceViewModel.ruuviConnectionState.observeAsState()
     LaunchedEffect(ruuviConnectionState) {
@@ -87,6 +84,8 @@ fun MeasureSpaceView(
                     }
                 }
             }
+        } else if (ruuviConnectionState == ConnectionState.CONNECTED) {
+            Toast.makeText(context, R.string.connected_to_ruuvi, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -105,18 +104,6 @@ fun MeasureSpaceView(
                 actions = {
                     IconButton(
                         onClick = {
-                            navController.navigate(
-                                NavigationRoutes.SCHEDULE.replace(
-                                    "{spaceId}",
-                                    spaceId.toString()
-                                )
-                            )
-                        }
-                    ) {
-                        Icon(Icons.Filled.Timer, null)
-                    }
-                    IconButton(
-                        onClick = {
                             if (permissionsGiven) {
                                 measureSpaceViewModel.scanDevices()
                                 showBluetoothLeScanner = true
@@ -127,7 +114,6 @@ fun MeasureSpaceView(
                                         Manifest.permission.ACCESS_FINE_LOCATION
                                     )
                                 )
-                                measureSpaceViewModel.scanDevices()
                             }
                         }
                     ) {
@@ -135,6 +121,18 @@ fun MeasureSpaceView(
                             imageVector = Icons.Filled.BluetoothSearching,
                             contentDescription = null
                         )
+                    }
+                    IconButton(
+                        onClick = {
+                            navController.navigate(
+                                NavigationRoutes.SCHEDULE.replace(
+                                    "{spaceId}",
+                                    spaceId.toString()
+                                )
+                            )
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Filled.Schedule, contentDescription = null)
                     }
                 },
                 navigationIcon = {
@@ -211,5 +209,3 @@ fun MeasureSpaceView(
         }
     }
 }
-
-

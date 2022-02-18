@@ -1,6 +1,5 @@
 package fi.metropolia.intellicircumstances.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
@@ -8,7 +7,6 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 
-@SuppressLint("MissingPermission")
 class RuuviTagScanner(context: Context, private val scannerCallback: RuuviTagScannerCallback) {
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
@@ -28,7 +26,7 @@ class RuuviTagScanner(context: Context, private val scannerCallback: RuuviTagSca
     }
 
     fun startScan(): Boolean {
-        if (!isBluetoothAvailable()) {
+        if (!isBluetoothEnabled()) {
             return false
         }
         leScanResults = mutableListOf()
@@ -53,7 +51,7 @@ class RuuviTagScanner(context: Context, private val scannerCallback: RuuviTagSca
         scannerCallback.onScanComplete(devices)
     }
 
-    private fun isBluetoothAvailable(): Boolean =
+    fun isBluetoothEnabled(): Boolean =
         bluetoothAdapter != null && bluetoothAdapter.isEnabled
 
     companion object {
