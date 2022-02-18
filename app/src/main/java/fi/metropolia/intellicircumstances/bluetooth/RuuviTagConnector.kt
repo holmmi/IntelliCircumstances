@@ -2,7 +2,6 @@ package fi.metropolia.intellicircumstances.bluetooth
 
 import android.bluetooth.*
 import android.content.Context
-import android.os.Build
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagFormat
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.extension.toByteArray
@@ -15,6 +14,8 @@ class RuuviTagConnector(private val context: Context,
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
+
+    private var readCharacteristic: BluetoothGattCharacteristic? = null
     private var writeCharacteristic: BluetoothGattCharacteristic? = null
 
     private var isReadingLogs = false
@@ -39,10 +40,7 @@ class RuuviTagConnector(private val context: Context,
                 service.characteristics.forEach { characteristic ->
                     when (characteristic.uuid) {
                         READ_CHARACTERISTIC_UUID -> {
-                            gatt.setCharacteristicNotification(characteristic, true)
-                            val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG)
-                            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            gatt.writeDescriptor(descriptor)
+                            readCharacteristic = characteristic
                         }
                         WRITE_CHARACTERISTIC_UUID -> {
                             writeCharacteristic = characteristic
@@ -83,11 +81,15 @@ class RuuviTagConnector(private val context: Context,
             status: Int
         ) {
             super.onCharacteristicRead(gatt, characteristic, status)
-            if (characteristic?.uuid == FIRMWARE_CHARACTERISTIC_UUID && status == BluetoothGatt.GATT_SUCCESS) {
-                val version = characteristic?.value?.decodeToString()
-                version?.let {
-                    ruuviFwVersion = it.substring(10, 14).toDoubleOrNull()
+            if (characteristic?.uuid == FIRMWARE_CHARACTERISTIC_UUID) {
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    val version = characteristic?.value?.decodeToString()
+                    version?.let {
+                        ruuviFwVersion = it.substring(10, 14).toDoubleOrNull()
+                    }
                 }
+                // After reading the FW version, subscribe notifications from RuuviTag
+                enableRuuviNotifications()
             }
         }
     }
@@ -95,20 +97,12 @@ class RuuviTagConnector(private val context: Context,
     fun connectDevice(macAddress: String) {
         if (isBluetoothEnabled() && bluetoothGatt == null) {
             val device = bluetoothAdapter.getRemoteDevice(macAddress)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bluetoothGatt = device.connectGatt(
-                    context,
-                    false,
-                    bluetoothGattCallback,
-                    BluetoothDevice.TRANSPORT_LE
-                )
-            } else {
-                bluetoothGatt = device.connectGatt(
-                    context,
-                    false,
-                    bluetoothGattCallback
-                )
-            }
+            bluetoothGatt = device.connectGatt(
+                context,
+                false,
+                bluetoothGattCallback,
+                BluetoothDevice.TRANSPORT_LE
+            )
             val connected = bluetoothGatt?.connect()
             if (connected == false) {
                 ruuviTagConnectionCallback.onConnectionStateChange(ConnectionState.CONNECTION_FAILED)
@@ -124,6 +118,15 @@ class RuuviTagConnector(private val context: Context,
 
     fun isBluetoothEnabled(): Boolean =
         bluetoothAdapter != null && bluetoothAdapter.isEnabled
+
+    private fun enableRuuviNotifications() {
+        if (readCharacteristic != null) {
+            bluetoothGatt?.setCharacteristicNotification(readCharacteristic, true)
+            val descriptor = readCharacteristic?.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG)
+            descriptor?.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            bluetoothGatt?.writeDescriptor(descriptor)
+        }
+    }
 
     private fun handleRuuviNotification(characteristic: BluetoothGattCharacteristic?) {
         characteristic?.value?.let { data ->
