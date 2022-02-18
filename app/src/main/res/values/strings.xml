@@ -30,9 +30,14 @@
     <string name="found_devices">Add RuuviTag</string>
     <string name="selected_tag">Selected</string>
     <string name="icon">Icon</string>
+    <string name="searching">Searching RuuviTag devices… please wait…</string>
+
     <string name="bt_work">Bluetooth worker</string>
 
     <!--measure-->
+    <string name="temp">Temperature</string>
+    <string name="humid">Humidity</string>
+    <string name="pressure">Pressure</string>
     <string name="choose_property">There are no spaces in this property</string>
     <string name="space_selection">Space selection</string>
     <string name="choose_space">Choose a space</string>
@@ -41,4 +46,13 @@
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="retry">Retry</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
+
+    <!--schedule-->
+    <string name="schedule">Schedule</string>
+    <string name="schedule_name">Schedule name</string>
+    <string name="start_date">Start date</string>
+    <string name="start_time">Start time</string>
+    <string name="end_date">End date</string>
+    <string name="end_time">End time</string>
+    <string name="frequency">Frequency (min)</string>
 </resources>

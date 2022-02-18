@@ -5,14 +5,11 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -22,19 +19,17 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
+import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,29 +56,6 @@ fun MeasureSpaceView(
             }
         }
     val bluetoothEnabled by measureSpaceViewModel.isBluetoothEnabled().asLiveData().observeAsState()
-
-    LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionsLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
-        } else {
-            permissionsGiven = true
-        }
-
-        // Try to connect to RuuviTag
-        if (spaceId != null && bluetoothEnabled == true) {
-            measureSpaceViewModel.connectDevice(spaceId)
-        }
-    }
-
-    LaunchedEffect(bluetoothEnabled) {
-        bluetoothEnabled?.let {
-            if (!it) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                enableBluetoothLauncher.launch(enableBtIntent)
-            }
-        }
-    }
 
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -139,7 +111,8 @@ fun MeasureSpaceView(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.BluetoothSearching, contentDescription = null
+                            imageVector = Icons.Filled.BluetoothSearching,
+                            contentDescription = null
                         )
                     }
                     IconButton(
@@ -163,91 +136,121 @@ fun MeasureSpaceView(
             )
         },
         content = {
+            val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
+            var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
             if (showBluetoothLeScanner) {
-                var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
-                val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
-                Dialog(
+                RuuviTagSearcher(
+                    ruuviTagDevices = ruuviTagDevices.value,
                     onDismissRequest = { showBluetoothLeScanner = false },
-                    content = {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.7f)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.connect_to_ruuvi_tag),
-                                    style = MaterialTheme.typography.subtitle1
+                    onConnect = {
+                        if (spaceId != null && selectedOption != null) {
+                            ruuviTagDevices.value?.let {
+                                measureSpaceViewModel.addDeviceAndConnect(
+                                    spaceId,
+                                    it[selectedOption!!]
                                 )
-                                ruuviTagDevices.value?.let {
-                                    Column(
-                                        Modifier
-                                            .selectableGroup()
-                                            .verticalScroll(rememberScrollState())
-                                            .fillMaxHeight()
-                                            .padding(bottom = 16.dp)
-                                    ) {
-                                        it.forEachIndexed { index, device ->
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .height(56.dp)
-                                                    .selectable(
-                                                        selected = (selectedOption == index),
-                                                        onClick = { selectedOption = index },
-                                                        role = Role.RadioButton
-                                                    )
-                                                    .padding(horizontal = 16.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                RadioButton(
-                                                    selected = (selectedOption == index),
-                                                    onClick = null
-                                                )
-                                                Text(
-                                                    text = device.name,
-                                                    style = MaterialTheme.typography.body1.merge(),
-                                                    modifier = Modifier.padding(start = 16.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Row(
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                ) {
-                                    TextButton(onClick = { showBluetoothLeScanner = false }) {
-                                        Text(text = stringResource(id = R.string.cancel))
-                                    }
-                                    TextButton(
-                                        onClick = {
-                                            showBluetoothLeScanner = false
-                                            if (spaceId != null && selectedOption != null) {
-                                                ruuviTagDevices.value?.let {
-                                                    measureSpaceViewModel.addDeviceAndConnect(
-                                                        spaceId,
-                                                        it[selectedOption!!]
-                                                    )
-                                                }
-                                            }
-                                        },
-                                        enabled = selectedOption != null
-                                    ) {
-                                        Text(text = stringResource(id = R.string.connect))
-                                    }
-                                }
                             }
                         }
-                    }
+                    },
+                    onSelect = { selectedOption = it }
                 )
+            }
+
+            if (ruuviConnectionState == ConnectionState.CONNECTED) {
+                val sensorData = measureSpaceViewModel.sensorData.observeAsState()
+
+                var tabIndex by remember { mutableStateOf(0) } // 1.
+                val tabTitles = listOf(
+                    stringResource(id = R.string.temp),
+                    stringResource(R.string.humid),
+                    stringResource(R.string.pressure)
+                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) { // 2.
+                    TabRow(selectedTabIndex = tabIndex) { // 3.
+                        tabTitles.forEachIndexed { index, title ->
+                            Tab(selected = tabIndex == index, // 4.
+                                onClick = { tabIndex = index },
+                                text = { Text(text = title) }) // 5.
+                        }
+                    }
+                    when (tabIndex) { // 6.
+                        0 -> Text(
+                            "${stringResource(id = R.string.temp)} ${
+                                sensorData.value?.temperature?.round(
+                                    2
+                                )
+                            } C"
+                        )
+                        1 -> Text(
+                            "${stringResource(id = R.string.humid)} ${
+                                sensorData.value?.humidity?.round(
+                                    2
+                                )
+                            } %"
+                        )
+                        2 -> Text(
+                            "${stringResource(id = R.string.pressure)} ${
+                                sensorData.value?.airPressure?.round(
+                                    2
+                                )
+                            } hPa"
+                        )
+                    }
+                }
             }
         }
     )
+
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    permissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
+                    )
+                }
+            }
+        } else {
+            permissionsGiven = true
+        }
+
+        // Try to connect to RuuviTag
+        if (spaceId != null && bluetoothEnabled == true) {
+            measureSpaceViewModel.connectDevice(spaceId)
+        }
+    }
+
+    LaunchedEffect(bluetoothEnabled) {
+        bluetoothEnabled?.let {
+            if (!it) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                enableBluetoothLauncher.launch(enableBtIntent)
+            }
+        }
+    }
 }

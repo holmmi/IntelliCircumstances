@@ -1,35 +1,36 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
-import android.util.Log
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
+import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,7 +47,16 @@ fun SpacesView(
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
     var selectedTag by rememberSaveable { mutableStateOf<String?>("") }
     var selectedTagInfo by rememberSaveable { mutableStateOf<RuuviTagDevice?>(null) }
-    // var spaceId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var newSpace by rememberSaveable { mutableStateOf<Long?>(null) }
+
+    var permissionsGiven by rememberSaveable { mutableStateOf(false) }
+
+    val permissionsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            permissionsGiven = it.values.all { value -> value }
+        }
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -87,38 +97,26 @@ fun SpacesView(
                                     modifier = Modifier.padding(start = 16.dp)
                                 )
                             }
-                            Button(
-                                modifier = Modifier.padding(top = 16.dp),
-                                onClick = {
-                                    showAddDialog = false
-                                    showSearchScreen = true
-                                }) {
-                                Text(
-                                    if (selectedTag.isNullOrBlank()) stringResource(id = R.string.add_tag) else {
-                                        "${stringResource(id = R.string.selected_tag)}: ${selectedTagInfo?.name}"
-                                    }
-                                )
-                            }
                         }
                     },
                     confirmButton = {
+                        val coroutineScope = rememberCoroutineScope()
                         TextButton(
                             onClick = {
                                 if (spaceName.isEmpty()) {
                                     spaceNameIsEmpty = true
                                 } else {
-                                    GlobalScope.launch(Dispatchers.IO) {
+                                    coroutineScope.launch(Dispatchers.IO) {
                                         val id = spacesViewModel.addSpace(
                                             propertyId, spaceName
                                         )
+                                        newSpace = id
                                         selectedTagInfo?.let { device ->
                                             spacesViewModel.addDevice(
                                                 id,
                                                 device
                                             )
                                         }
-
-                                        Log.d("DBG", "device id : $id")
 
                                         spaceNameIsEmpty = false
                                         showAddDialog = false
@@ -142,63 +140,22 @@ fun SpacesView(
 
             if (showSearchScreen) {
                 val devices = spacesViewModel.ruuviTagDevices.observeAsState()
-                spacesViewModel.scanDevices()
+                var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
 
-                AlertDialog(
+                RuuviTagSearcher(
+                    ruuviTagDevices = devices.value,
                     onDismissRequest = { showSearchScreen = false },
-                    text = {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.height(200.dp)
-                        ) {
-                            item {
-                                Text(stringResource(id = R.string.found_devices), fontSize = 30.sp)
-                            }
-                            items(devices.value ?: listOf()) {
-                                Row(
-                                    modifier = Modifier.padding(15.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Bluetooth,
-                                        "Bluetooth ${stringResource(R.string.icon)}"
-                                    )
-                                    RadioButton(selected = selectedTag == it.macAddress, onClick = {
-                                        selectedTag = it.macAddress
-                                        selectedTagInfo = it
-                                    })
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            "${it.name}",
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text("MAC: ${it.macAddress}")
-                                        Text("${it.rssi} dBm")
-                                    }
-                                }
-                                Divider(color = MaterialTheme.colors.onSurface, thickness = 1.dp)
+                    onConnect = {
+                        if (newSpace != null && selectedOption != null) {
+                            devices.value?.let {
+                                spacesViewModel.addDeviceAndConnect(
+                                    newSpace!!,
+                                    it[selectedOption!!]
+                                )
                             }
                         }
                     },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showSearchScreen = false
-                                showAddDialog = true
-                            }
-                        ) {
-                            Text(text = stringResource(id = R.string.confirm))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            showSearchScreen = false
-                        }) {
-                            Text(text = stringResource(id = R.string.cancel))
-                        }
-                    }
+                    onSelect = { selectedOption = it }
                 )
             }
 
@@ -264,6 +221,27 @@ fun SpacesView(
                                             Row {
                                                 IconButton(
                                                     onClick = {
+                                                        if (permissionsGiven) {
+                                                            spacesViewModel.scanDevices()
+                                                            showSearchScreen = true
+                                                        } else {
+                                                            permissionsLauncher.launch(
+                                                                arrayOf(
+                                                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                                                )
+                                                            )
+                                                            spacesViewModel.scanDevices()
+                                                        }
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.BluetoothSearching,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                                IconButton(
+                                                    onClick = {
                                                         selectedSpace = space.id
                                                         showDeleteDialog = true
                                                     }
@@ -286,4 +264,43 @@ fun SpacesView(
             }
         }
     )
+
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    permissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
+                    )
+                }
+            }
+        } else {
+            permissionsGiven = true
+        }
+    }
 }

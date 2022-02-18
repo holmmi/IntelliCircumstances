@@ -18,6 +18,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     private val _ruuviTagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
     val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
         get() = _ruuviTagDevices
+    val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
 
     private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
     val ruuviConnectionState: LiveData<ConnectionState>
@@ -35,7 +36,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
 
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
-
+            sensorData.postValue(ruuviTagSensorData)
         }
 
         override fun onReceiveSensorLogs(logData: List<RuuviTagSensorData>) {
@@ -44,7 +45,8 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private val ruuviTagScanner = RuuviTagScanner(application.applicationContext, scannerCallback)
-    private val ruuviTagConnector = RuuviTagConnector(application.applicationContext, connectionCallback)
+    private val ruuviTagConnector =
+        RuuviTagConnector(application.applicationContext, connectionCallback)
 
     private val deviceRepository = DeviceRepository(application.applicationContext)
 
@@ -85,6 +87,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     companion object {
         private const val CHECK_BLUETOOTH = 1000L
-        private const val SCAN_TIMEOUT = 5000L
+        private const val SCAN_TIMEOUT = 30000L
     }
 }
