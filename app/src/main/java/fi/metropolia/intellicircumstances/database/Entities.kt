@@ -132,3 +132,24 @@ data class SpaceWithConditions(
     )
     val temperatures: List<Temperature>
 )
+
+@Entity(
+    tableName = "schedule",
+    foreignKeys = [
+        ForeignKey(
+            entity = Space::class,
+            parentColumns = ["id"],
+            childColumns = ["space_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["space_id"])]
+)
+data class Schedule(
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @ColumnInfo(name = "space_id") val spaceId: Long?,
+    val uuid: String,
+    val name: String,
+    @ColumnInfo(name = "start_date") val startDate: Long,
+    @ColumnInfo(name = "end_date") val endDate: Long
+)
