@@ -9,10 +9,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -22,12 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,7 +28,7 @@ import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.extensions.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
-import fi.metropolia.intellicircumstances.view.components.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.launch
 
 @Composable
@@ -143,7 +135,7 @@ fun MeasureSpaceView(
             )
         },
         content = {
-            val ruuviTagDevices = measureSpaceViewModel.tagDevices.observeAsState()
+            val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
             var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
             if (showBluetoothLeScanner) {
                 RuuviTagSearcher(
@@ -164,7 +156,7 @@ fun MeasureSpaceView(
             }
 
             if (ruuviConnectionState == ConnectionState.CONNECTED) {
-                var sensorData = measureSpaceViewModel.sensorData.observeAsState()
+                val sensorData = measureSpaceViewModel.sensorData.observeAsState()
 
                 var tabIndex by remember { mutableStateOf(0) } // 1.
                 val tabTitles = listOf(stringResource(id = R.string.temp), stringResource(R.string.humid), stringResource(R.string.pressure))

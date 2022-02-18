@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class MeasureSpaceViewModel(application: Application) : AndroidViewModel(application) {
-    val tagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
-   // val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
-       // get() = _ruuviTagDevices
+    private val _ruuviTagDevices = MutableLiveData<List<RuuviTagDevice>?>(null)
+    val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
+        get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
 
     private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
@@ -26,7 +26,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     private val scannerCallback = object : RuuviTagScannerCallback {
         override fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>) {
-            tagDevices.postValue(ruuviTagDevices)
+            _ruuviTagDevices.postValue(ruuviTagDevices)
         }
     }
 
@@ -45,7 +45,8 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private val ruuviTagScanner = RuuviTagScanner(application.applicationContext, scannerCallback)
-    private val ruuviTagConnector = RuuviTagConnector(application.applicationContext, connectionCallback)
+    private val ruuviTagConnector =
+        RuuviTagConnector(application.applicationContext, connectionCallback)
 
     private val deviceRepository = DeviceRepository(application.applicationContext)
 

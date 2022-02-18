@@ -5,9 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
-import fi.metropolia.intellicircumstances.bluetooth.RuuviTagScanner
-import fi.metropolia.intellicircumstances.bluetooth.RuuviTagScannerCallback
+import fi.metropolia.intellicircumstances.bluetooth.*
+import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.database.PropertyWithSpaces
 import fi.metropolia.intellicircumstances.database.Space
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
@@ -33,7 +32,23 @@ class SpacesViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private val connectionCallback = object : RuuviTagConnectionCallback {
+        override fun onConnectionStateChange(connectionState: ConnectionState) {
+        }
+
+        override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
+            // Unused
+        }
+
+        override fun onReceiveSensorLogs(logData: List<RuuviTagSensorData>) {
+            // Unused
+        }
+    }
+
     private val ruuviTagScanner = RuuviTagScanner(application.applicationContext, scannerCallback)
+    private val ruuviTagConnector =
+        RuuviTagConnector(application.applicationContext, connectionCallback)
+
 
     fun scanDevices() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -73,6 +88,13 @@ class SpacesViewModel(application: Application) : AndroidViewModel(application) 
     fun addDevice(spaceId: Long, device: RuuviTagDevice) {
         viewModelScope.launch {
             deviceRepository.addDeviceToSpace(spaceId, device)
+        }
+    }
+
+    fun addDeviceAndConnect(spaceId: Long, ruuviTagDevice: RuuviTagDevice) {
+        viewModelScope.launch {
+            deviceRepository.addDeviceToSpace(spaceId, ruuviTagDevice)
+            ruuviTagConnector.connectDevice(ruuviTagDevice.macAddress)
         }
     }
 

@@ -1,9 +1,7 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
 import android.Manifest
-import android.app.Application
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -20,6 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,9 +28,8 @@ import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
-import fi.metropolia.intellicircumstances.view.components.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -289,5 +287,4 @@ fun SpacesView(
             permissionsGiven = true
         }
     }
-
 }
