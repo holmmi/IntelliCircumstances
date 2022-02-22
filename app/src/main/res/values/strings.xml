@@ -55,4 +55,9 @@
     <string name="end_date">End date</string>
     <string name="end_time">End time</string>
     <string name="frequency">Frequency (min)</string>
+    <string name="name_is_empty">Name is empty</string>
+    <string name="end_date_before">End date cannot be before start date</string>
+    <string name="date_range_error">There should be 10 days between start and end dates</string>
+    <string name="form_errors">Form errors</string>
+    <string name="ok">OK</string>
 </resources>

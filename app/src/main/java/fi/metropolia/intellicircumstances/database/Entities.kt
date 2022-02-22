@@ -143,7 +143,10 @@ data class SpaceWithConditions(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["space_id"])]
+    indices = [
+        Index(value = ["space_id"]),
+        Index(value = ["uuid"])
+    ]
 )
 data class Schedule(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
@@ -151,5 +154,6 @@ data class Schedule(
     val uuid: String,
     val name: String,
     @ColumnInfo(name = "start_date") val startDate: Long,
-    @ColumnInfo(name = "end_date") val endDate: Long
+    @ColumnInfo(name = "end_date") val endDate: Long,
+    val status: String
 )

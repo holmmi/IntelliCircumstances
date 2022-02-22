@@ -14,7 +14,7 @@ import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
 import fi.metropolia.intellicircumstances.view.measure.SpaceSelectionView
-import fi.metropolia.intellicircumstances.view.schedule.ScheduleView
+import fi.metropolia.intellicircumstances.view.schedule.NewScheduleView
 import fi.metropolia.intellicircumstances.view.settings.SettingsView
 import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 import fi.metropolia.intellicircumstances.view.spaces.SpacesView
@@ -40,7 +40,7 @@ fun Navigation() {
                         NavigationRoutes.SCHEDULE,
                         arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
                     ) {
-                        ScheduleView(navController, it.arguments?.getString("spaceId")?.toLong())
+                        NewScheduleView(navController, it.arguments?.getString("spaceId")?.toLong())
                     }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(

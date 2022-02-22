@@ -64,6 +64,24 @@ interface DeviceDao {
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 }
 
+@Dao
+interface ScheduleDao {
+    @Insert
+    suspend fun addSchedule(schedule: Schedule)
+
+    @Query("SELECT * FROM schedule WHERE space_id = :spaceId")
+    fun getSchedulesBySpaceId(spaceId: Long): Flow<List<Schedule>>
+
+    @Query("SELECT * FROM schedule WHERE uuid = :uuid")
+    suspend fun getScheduleByUuid(uuid: String): Schedule
+
+    @Query("DELETE FROM schedule WHERE id = :scheduleId")
+    suspend fun deleteScheduleById(scheduleId: Long)
+
+    @Update
+    suspend fun updateSchedule(schedule: Schedule)
+}
+
 private const val DATABASE_NAME = "intelli"
 
 @Database(
@@ -82,6 +100,7 @@ abstract class IntelliDatabase : RoomDatabase() {
     abstract fun spaceDao(): SpaceDao
     abstract fun conditionDao(): ConditionDao
     abstract fun deviceDao(): DeviceDao
+    abstract fun scheduleDao(): ScheduleDao
 
     companion object {
         @Volatile
