@@ -9,8 +9,10 @@ import fi.metropolia.intellicircumstances.extension.toHex
 import fi.metropolia.intellicircumstances.extension.toInt32
 import java.util.*
 
-class RuuviTagConnector(private val context: Context,
-                        private val ruuviTagConnectionCallback: RuuviTagConnectionCallback) {
+class RuuviTagConnector(
+    private val context: Context,
+    private var ruuviTagConnectionCallback: RuuviTagConnectionCallback? = null
+) {
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
@@ -27,9 +29,9 @@ class RuuviTagConnector(private val context: Context,
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt?.discoverServices()
-                ruuviTagConnectionCallback.onConnectionStateChange(ConnectionState.CONNECTED)
+                ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.CONNECTED)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                ruuviTagConnectionCallback.onConnectionStateChange(ConnectionState.DISCONNECTED)
+                ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.DISCONNECTED)
             }
         }
 
@@ -105,7 +107,7 @@ class RuuviTagConnector(private val context: Context,
             )
             val connected = bluetoothGatt?.connect()
             if (connected == false) {
-                ruuviTagConnectionCallback.onConnectionStateChange(ConnectionState.CONNECTION_FAILED)
+                ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.CONNECTION_FAILED)
             }
         }
     }
@@ -113,7 +115,7 @@ class RuuviTagConnector(private val context: Context,
     fun disconnectDevice() {
         bluetoothGatt?.close()
         bluetoothGatt = null
-        ruuviTagConnectionCallback.onConnectionStateChange(ConnectionState.DISCONNECTED)
+        ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.DISCONNECTED)
     }
 
     fun isBluetoothEnabled(): Boolean =
@@ -133,12 +135,12 @@ class RuuviTagConnector(private val context: Context,
             if (data.isNotEmpty()) {
                 if (data[0] == FORMAT_5.toByte()) {
                     val parsedData = RuuviTagFormat.parseDataFromFormat5(data)
-                    ruuviTagConnectionCallback.onReceiveSensorData(parsedData)
+                    ruuviTagConnectionCallback?.onReceiveSensorData(parsedData)
                 } else {
                     if (isReadingLogs) {
                         if (data.toHex().endsWith("FFFFFFFFFFFFFFFF", true)) {
                             isReadingLogs = false
-                            ruuviTagConnectionCallback.onReceiveSensorLogs(sensorLogs.toList())
+                            ruuviTagConnectionCallback?.onReceiveSensorLogs(sensorLogs.toList())
                         } else {
                             val type = data.copyOfRange(0, 3)
                             val timestamp = data.copyOfRange(3, 7)
@@ -172,14 +174,13 @@ class RuuviTagConnector(private val context: Context,
         }
     }
 
-    fun readLogs(from: Long? = null) {
+    fun readLogs(from: Long, connectionCallback: RuuviTagConnectionCallback? = null) {
         if (canReadLogs() && writeCharacteristic != null) {
-            val to = System.currentTimeMillis() / 1000
+            ruuviTagConnectionCallback = connectionCallback
+            val to = System.currentTimeMillis().div(1000)
             val headerBytes = byteArrayOf(0x3A, 0x3A, 0x11).copyOfRange(0, 3)
             val toBytes = to.toByteArray().copyOfRange(4, 8)
-            val fromBytes = from?.toByteArray()?.copyOfRange(4, 8)
-                ?: (System.currentTimeMillis() / 1000 - 60 * 60 * 24).toByteArray()
-                    .copyOfRange(4, 8)
+            val fromBytes = from.div(1000).toByteArray().copyOfRange(4, 8)
             val data = headerBytes + toBytes + fromBytes
             writeCharacteristic?.value = data
             writeCharacteristic?.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT

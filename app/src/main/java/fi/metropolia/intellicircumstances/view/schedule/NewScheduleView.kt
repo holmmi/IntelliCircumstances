@@ -45,7 +45,7 @@ fun NewScheduleView(navController: NavController,
                 actions = {
                     IconButton(
                         onClick = {
-                            newScheduleViewModel.validateForm(
+                            val result = newScheduleViewModel.validateForm(
                                 spaceId!!,
                                 selectedName,
                                 startDate!!,
@@ -55,6 +55,9 @@ fun NewScheduleView(navController: NavController,
                                 endHour,
                                 endMinute
                             )
+                            if (result) {
+                                navController.navigateUp()
+                            }
                         },
                         enabled = startDate != null && endDate != null
                     ) {

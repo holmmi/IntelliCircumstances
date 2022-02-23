@@ -60,4 +60,10 @@
     <string name="date_range_error">There should be 10 days between start and end dates</string>
     <string name="form_errors">Form errors</string>
     <string name="ok">OK</string>
+    <string name="starts">Starts at %s</string>
+    <string name="ends">Ends at %s</string>
+    <string name="delete_schedule">
+        Are you sure you want delete this schedule? You will lose all the data associated with it
+        and the pending schedule will not run.
+    </string>
 </resources>

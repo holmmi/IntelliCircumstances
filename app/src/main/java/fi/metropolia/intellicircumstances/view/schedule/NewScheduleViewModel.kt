@@ -27,7 +27,7 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         endDate: Long,
         endHour: Int,
         endMinute: Int
-    ) {
+    ): Boolean {
         _formErrors.value = mutableListOf()
 
         val resources = getApplication<Application>().applicationContext.resources
@@ -60,6 +60,7 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         } else {
             _formErrors.value = errors.toList()
         }
+        return errors.isEmpty()
     }
 
     private fun addSchedule(spaceId: Long, scheduleName: String, start: Long, end: Long) {
@@ -69,8 +70,7 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
                     spaceId = spaceId,
                     name = scheduleName,
                     startDate = start,
-                    endDate = end,
-                    uuid = UUID.randomUUID().toString()
+                    endDate = end
                 )
             )
         }

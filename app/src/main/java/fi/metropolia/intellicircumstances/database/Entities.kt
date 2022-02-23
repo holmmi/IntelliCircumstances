@@ -1,6 +1,7 @@
 package fi.metropolia.intellicircumstances.database
 
 import androidx.room.*
+import androidx.work.WorkInfo
 
 @Entity(tableName = "property")
 data class Property(
@@ -151,9 +152,18 @@ data class SpaceWithConditions(
 data class Schedule(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
     @ColumnInfo(name = "space_id") val spaceId: Long?,
-    val uuid: String,
+    var uuid: String? = null,
     val name: String,
     @ColumnInfo(name = "start_date") val startDate: Long,
     @ColumnInfo(name = "end_date") val endDate: Long,
-    val status: String
+    var status: String = WorkInfo.State.ENQUEUED.name
+)
+
+data class ScheduleAndRuuviDevice(
+    @Embedded val schedule: Schedule,
+    @Relation(
+        parentColumn = "space_id",
+        entityColumn = "space_id"
+    )
+    val ruuviDevice: RuuviDevice?
 )

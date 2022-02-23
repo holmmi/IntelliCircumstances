@@ -118,7 +118,7 @@ fun MeasureSpaceView(
                     IconButton(
                         onClick = {
                             navController.navigate(
-                                NavigationRoutes.SCHEDULE.replace(
+                                NavigationRoutes.SCHEDULES.replace(
                                     "{spaceId}",
                                     spaceId.toString()
                                 )

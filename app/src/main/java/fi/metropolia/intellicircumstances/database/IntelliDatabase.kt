@@ -72,11 +72,12 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule WHERE space_id = :spaceId")
     fun getSchedulesBySpaceId(spaceId: Long): Flow<List<Schedule>>
 
+    @Transaction
     @Query("SELECT * FROM schedule WHERE uuid = :uuid")
-    suspend fun getScheduleByUuid(uuid: String): Schedule
+    suspend fun getScheduleAndDeviceByUuid(uuid: String): ScheduleAndRuuviDevice
 
-    @Query("DELETE FROM schedule WHERE id = :scheduleId")
-    suspend fun deleteScheduleById(scheduleId: Long)
+    @Query("DELETE FROM schedule WHERE uuid = :uuid")
+    suspend fun deleteScheduleByUuid(uuid: String)
 
     @Update
     suspend fun updateSchedule(schedule: Schedule)
@@ -91,7 +92,8 @@ private const val DATABASE_NAME = "intelli"
         AirPressure::class,
         Humidity::class,
         Temperature::class,
-        RuuviDevice::class
+        RuuviDevice::class,
+        Schedule::class
     ],
     version = 1,
     exportSchema = false
