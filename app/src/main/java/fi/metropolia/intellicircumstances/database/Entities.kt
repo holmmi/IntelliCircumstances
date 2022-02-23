@@ -1,6 +1,7 @@
 package fi.metropolia.intellicircumstances.database
 
 import androidx.room.*
+import androidx.work.WorkInfo
 
 @Entity(tableName = "property")
 data class Property(
@@ -26,6 +27,15 @@ data class Space(
     val name: String
 )
 
+data class PropertyWithSpaces(
+    @Embedded val property: Property,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "property_id"
+    )
+    val spaces: List<Space>
+)
+
 @Entity(
     tableName = "ruuvi_device",
     foreignKeys = [
@@ -49,7 +59,7 @@ data class RuuviDevice(
 )
 
 @Entity(
-    tableName = "air_pressure",
+    tableName = "schedule",
     foreignKeys = [
         ForeignKey(
             entity = Space::class,
@@ -58,77 +68,47 @@ data class RuuviDevice(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["space_id"])]
+    indices = [
+        Index(value = ["space_id"]),
+        Index(value = ["uuid"])
+    ]
 )
-data class AirPressure(
+data class Schedule(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    @ColumnInfo(name = "space_id") val spaceId: Long,
-    val timestamp: Long? = System.currentTimeMillis(),
-    val value: Float
+    @ColumnInfo(name = "space_id") val spaceId: Long?,
+    var uuid: String? = null,
+    val name: String,
+    @ColumnInfo(name = "start_date") val startDate: Long,
+    @ColumnInfo(name = "end_date") val endDate: Long,
+    var status: String = WorkInfo.State.ENQUEUED.name
+)
+
+data class ScheduleAndRuuviDevice(
+    @Embedded val schedule: Schedule,
+    @Relation(
+        parentColumn = "space_id",
+        entityColumn = "space_id"
+    )
+    val ruuviDevice: RuuviDevice?
 )
 
 @Entity(
-    tableName = "humidity",
+    tableName = "circumstance",
     foreignKeys = [
         ForeignKey(
-            entity = Space::class,
+            entity = Schedule::class,
             parentColumns = ["id"],
-            childColumns = ["space_id"],
+            childColumns = ["schedule_id"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["space_id"])]
+    indices = [Index(value = ["schedule_id"])]
 )
-data class Humidity(
+data class Circumstance(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    @ColumnInfo(name = "space_id") val spaceId: Long,
-    val timestamp: Long? = System.currentTimeMillis(),
-    val value: Float
-)
-
-@Entity(
-    tableName = "temperature",
-    foreignKeys = [
-        ForeignKey(
-            entity = Space::class,
-            parentColumns = ["id"],
-            childColumns = ["space_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index(value = ["space_id"])]
-)
-data class Temperature(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    @ColumnInfo(name = "space_id") val spaceId: Long,
-    val timestamp: Long? = System.currentTimeMillis(),
-    val value: Float
-)
-
-data class PropertyWithSpaces(
-    @Embedded val property: Property,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "property_id"
-    )
-    val spaces: List<Space>
-)
-
-data class SpaceWithConditions(
-    @Embedded val space: Space,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "space_id"
-    )
-    val airPressures: List<AirPressure>,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "space_id"
-    )
-    val humidities: List<Humidity>,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "space_id"
-    )
-    val temperatures: List<Temperature>
+    @ColumnInfo(name = "schedule_id") val scheduleId: Long?,
+    val time: Long?,
+    val airPressure: Double?,
+    val humidity: Double?,
+    val temperature: Double?
 )

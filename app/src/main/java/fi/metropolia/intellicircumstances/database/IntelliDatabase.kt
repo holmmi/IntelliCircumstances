@@ -37,22 +37,6 @@ interface SpaceDao {
 }
 
 @Dao
-interface ConditionDao {
-    @Insert
-    suspend fun addAirPressure(airPressure: AirPressure)
-
-    @Insert
-    suspend fun addHumidity(humidity: Humidity)
-
-    @Insert
-    suspend fun addTemperature(temperature: Temperature)
-
-    @Transaction
-    @Query("SELECT * FROM space WHERE id = :spaceId")
-    fun getSpaceWithConditions(spaceId: Long): Flow<SpaceWithConditions>
-}
-
-@Dao
 interface DeviceDao {
     @Insert
     suspend fun addDevice(ruuviDevice: RuuviDevice)
@@ -64,24 +48,52 @@ interface DeviceDao {
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 }
 
+@Dao
+interface ScheduleDao {
+    @Insert
+    suspend fun addSchedule(schedule: Schedule)
+
+    @Query("SELECT * FROM schedule WHERE space_id = :spaceId")
+    fun getSchedulesBySpaceId(spaceId: Long): Flow<List<Schedule>>
+
+    @Transaction
+    @Query("SELECT * FROM schedule WHERE uuid = :uuid")
+    suspend fun getScheduleAndDeviceByUuid(uuid: String): ScheduleAndRuuviDevice
+
+    @Query("DELETE FROM schedule WHERE uuid = :uuid")
+    suspend fun deleteScheduleByUuid(uuid: String)
+
+    @Update
+    suspend fun updateSchedule(schedule: Schedule)
+}
+
+@Dao
+interface CircumstanceDao {
+    @Insert
+    suspend fun addCircumstances(circumstances: List<Circumstance>)
+
+    @Query("SELECT * FROM circumstance WHERE schedule_id = :scheduleId")
+    fun getCircumstancesByScheduleId(scheduleId: Long): Flow<List<Circumstance>>
+}
+
 private const val DATABASE_NAME = "intelli"
 
 @Database(
     entities = [
+        Circumstance::class,
         Property::class,
-        Space::class,
-        AirPressure::class,
-        Humidity::class,
-        Temperature::class,
-        RuuviDevice::class
+        RuuviDevice::class,
+        Schedule::class,
+        Space::class
     ],
     version = 1,
     exportSchema = false
 )
 abstract class IntelliDatabase : RoomDatabase() {
-    abstract fun spaceDao(): SpaceDao
-    abstract fun conditionDao(): ConditionDao
+    abstract fun circumstanceDao(): CircumstanceDao
     abstract fun deviceDao(): DeviceDao
+    abstract fun scheduleDao(): ScheduleDao
+    abstract fun spaceDao(): SpaceDao
 
     companion object {
         @Volatile

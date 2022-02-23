@@ -1,22 +1,20 @@
 package fi.metropolia.intellicircumstances.view.schedule
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.NavigateBefore
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.material.datepicker.CalendarConstraints
@@ -28,13 +26,10 @@ import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.component.DatePicker
 import fi.metropolia.intellicircumstances.component.TimePicker
 
-
 @Composable
-fun ScheduleView(
-    navController: NavController,
-    spaceId: Long?,
-    scheduleViewModel: ScheduleViewModel = viewModel()
-) {
+fun NewScheduleView(navController: NavController,
+                    spaceId: Long?,
+                    newScheduleViewModel: NewScheduleViewModel = viewModel()) {
     var selectedName by rememberSaveable { mutableStateOf("") }
     var startDate by rememberSaveable { mutableStateOf<Long?>(null) }
     var startHour by rememberSaveable { mutableStateOf(12) }
@@ -43,27 +38,37 @@ fun ScheduleView(
     var endDate by rememberSaveable { mutableStateOf<Long?>(null) }
     var endHour by rememberSaveable { mutableStateOf(12) }
     var endMinute by rememberSaveable { mutableStateOf(0) }
-    var frequency by rememberSaveable { mutableStateOf("") }
-    val scaffoldState = rememberScaffoldState()
 
-    val context = LocalContext.current
+    var showFormErrors by rememberSaveable { mutableStateOf(false) }
+
+    val formErrors by newScheduleViewModel.formErrors.observeAsState()
+
+    LaunchedEffect(formErrors) {
+        formErrors?.let { showFormErrors = it.isNotEmpty() }
+    }
+
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.schedule)) },
                 actions = {
                     IconButton(
                         onClick = {
-                            //TODO: check if schedule is already done, if so, show this icon that can delete the schedule
-                        }
-                    ) {
-                        Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
-                    }
-                    IconButton(
-                        onClick = {
-                            //TODO: Init schedule
-                        }
+                            val result = newScheduleViewModel.validateForm(
+                                spaceId!!,
+                                selectedName,
+                                startDate!!,
+                                startHour,
+                                startMinute,
+                                endDate!!,
+                                endHour,
+                                endMinute
+                            )
+                            if (result) {
+                                navController.navigateUp()
+                            }
+                        },
+                        enabled = startDate != null && endDate != null
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Check,
@@ -79,6 +84,26 @@ fun ScheduleView(
             )
         },
         content = {
+            if (showFormErrors) {
+                AlertDialog(
+                    onDismissRequest = { showFormErrors = false },
+                    title = { Text(text = stringResource(id = R.string.form_errors)) },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showFormErrors = false }
+                        ) {
+                            Text(text = stringResource(id = R.string.ok))
+                        }
+                    },
+                    confirmButton = {},
+                    text = {
+                        formErrors?.let {
+                            Text(text = it.joinToString("\n\n") )
+                        }
+                    }
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .padding(10.dp)
@@ -153,8 +178,8 @@ fun ScheduleView(
                     )
                     TimePicker(
                         label = stringResource(id = R.string.end_time),
-                        initialHour = startHour,
-                        initialMinute = startMinute,
+                        initialHour = endHour,
+                        initialMinute = endMinute,
                         modifier = Modifier.padding(10.dp),
                         onSelectTime = { hour, minute ->
                             endHour = hour
@@ -183,4 +208,3 @@ fun ScheduleView(
         }
     )
 }
-

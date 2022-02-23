@@ -14,7 +14,8 @@ import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
 import fi.metropolia.intellicircumstances.view.measure.SpaceSelectionView
-import fi.metropolia.intellicircumstances.view.schedule.ScheduleView
+import fi.metropolia.intellicircumstances.view.schedule.NewScheduleView
+import fi.metropolia.intellicircumstances.view.schedule.SchedulesView
 import fi.metropolia.intellicircumstances.view.settings.SettingsView
 import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 import fi.metropolia.intellicircumstances.view.spaces.SpacesView
@@ -35,12 +36,18 @@ fun Navigation() {
                     ) {
                         MeasureSpaceView(navController, it.arguments?.getString("spaceId")?.toLong())
                     }
-                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
                     composable(
-                        NavigationRoutes.SCHEDULE,
+                        NavigationRoutes.NEW_SCHEDULE,
                         arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
                     ) {
-                        ScheduleView(navController, it.arguments?.getString("spaceId")?.toLong())
+                        NewScheduleView(navController, it.arguments?.getString("spaceId")?.toLong())
+                    }
+                    composable(NavigationRoutes.PROPERTIES) { PropertiesView(navController) }
+                    composable(
+                        NavigationRoutes.SCHEDULES,
+                        arguments = listOf(navArgument("spaceId") { type = NavType.StringType })
+                    ) {
+                        SchedulesView(navController, it.arguments?.getString("spaceId")?.toLong())
                     }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(
@@ -61,8 +68,9 @@ object NavigationRoutes {
     const val HOME = "home"
     const val MEASURE = "measure"
     const val MEASURE_SPACE = "measure/{spaceId}"
+    const val NEW_SCHEDULE = "measure/{spaceId}/new-schedule"
     const val PROPERTIES = "properties"
-    const val SCHEDULE = "measure/{spaceId}/schedule"
+    const val SCHEDULES = "measure/{spaceId}/schedules"
     const val SETTINGS = "settings"
     const val SPACES = "properties/{propertyId}"
 }
