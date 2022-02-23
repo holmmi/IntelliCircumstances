@@ -1,8 +1,6 @@
 package fi.metropolia.intellicircumstances.view.spaces
 
 import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -23,13 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -50,13 +48,12 @@ fun SpacesView(
     var newSpace by rememberSaveable { mutableStateOf<Long?>(null) }
 
     var permissionsGiven by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val permissionsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            permissionsGiven = it.values.all { value -> value }
+            it.values.all { value -> value }
         }
-
-    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -225,12 +222,13 @@ fun SpacesView(
                                                             spacesViewModel.scanDevices()
                                                             showSearchScreen = true
                                                         } else {
-                                                            permissionsLauncher.launch(
-                                                                arrayOf(
-                                                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                                            permissionsLauncher
+                                                                .launch(
+                                                                    arrayOf(
+                                                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                                        Manifest.permission.ACCESS_FINE_LOCATION
+                                                                    )
                                                                 )
-                                                            )
                                                             spacesViewModel.scanDevices()
                                                         }
                                                     }
@@ -266,41 +264,7 @@ fun SpacesView(
     )
 
     LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.BLUETOOTH_SCAN
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    permissionsLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                        )
-                    )
-                }
-            }
-        } else {
-            permissionsGiven = true
-        }
+        permissionsGiven =
+            PermissionUtil.checkPerms(context, onCheckPerms = { permissionsLauncher.launch(it) })
     }
 }
