@@ -106,7 +106,7 @@ data class ScheduleAndRuuviDevice(
 )
 data class Circumstance(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    @ColumnInfo(name = "schedule_id") val scheduleId: Long,
+    @ColumnInfo(name = "schedule_id") val scheduleId: Long?,
     val time: Long?,
     val airPressure: Double?,
     val humidity: Double?,

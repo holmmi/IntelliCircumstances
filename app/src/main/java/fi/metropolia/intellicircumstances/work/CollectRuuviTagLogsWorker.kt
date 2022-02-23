@@ -8,6 +8,8 @@ import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagConnectionCallback
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagConnector
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
+import fi.metropolia.intellicircumstances.database.Circumstance
+import fi.metropolia.intellicircumstances.repository.CircumstanceRepository
 import fi.metropolia.intellicircumstances.repository.ScheduleRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -15,6 +17,7 @@ import kotlin.coroutines.resume
 
 class CollectRuuviTagLogsWorker(applicationContext: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(applicationContext, workerParameters) {
+    private val circumstanceRepository = CircumstanceRepository(applicationContext)
     private val scheduleRepository = ScheduleRepository(applicationContext)
 
     override suspend fun doWork(): Result {
@@ -29,6 +32,18 @@ class CollectRuuviTagLogsWorker(applicationContext: Context, workerParameters: W
             if (logData != null && logData.isNotEmpty()) {
                 schedule.status = WorkInfo.State.SUCCEEDED.name
                 scheduleRepository.updateSchedule(schedule)
+                val circumstances = logData
+                    .filter { it.time != null && it.time!! <= schedule.endDate }
+                    .map {
+                        Circumstance(
+                            scheduleId = schedule.id,
+                            time = it.time,
+                            airPressure = it.airPressure,
+                            humidity = it.humidity,
+                            temperature = it.temperature,
+                        )
+                    }
+                circumstanceRepository.addSchedules(circumstances)
                 return Result.success()
             }
         }
