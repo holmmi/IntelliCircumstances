@@ -67,4 +67,5 @@
         Are you sure you want delete this schedule? You will lose all the data associated with it
         and the pending schedule will not run.
     </string>
+    <string name="no_schedules">There are no schedules. Click + to add one.</string>
 </resources>

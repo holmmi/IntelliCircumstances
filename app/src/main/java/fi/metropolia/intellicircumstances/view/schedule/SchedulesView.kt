@@ -18,7 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.work.WorkInfo
+import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
@@ -71,75 +73,90 @@ fun SchedulesView(navController: NavController,
                 modifier = Modifier.padding(10.dp)
             ) {
                 schedules?.let {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(it) { schedule ->
-                            Column {
-                                Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 4.dp)
-                                ) {
-                                    Column() {
-                                        Text(
-                                            text = schedule.name,
-                                            style = MaterialTheme.typography.subtitle1
-                                        )
-                                        Text(
-                                            text = String.format(
-                                                stringResource(id = R.string.starts),
-                                                schedulesViewModel.formatDate(schedule.startDate)
-                                            ),
-                                            style = MaterialTheme.typography.subtitle2
-                                        )
-                                        Text(
-                                            text = String.format(
-                                                stringResource(id = R.string.ends),
-                                                schedulesViewModel.formatDate(schedule.endDate)
-                                            ),
-                                            style = MaterialTheme.typography.subtitle2
-                                        )
-                                    }
+                    if (it.isNotEmpty()) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(it) { schedule ->
+                                Column {
                                     Row(
-                                        horizontalArrangement = Arrangement.SpaceEvenly,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 4.dp)
                                     ) {
-                                        Icon(
-                                            imageVector =
-                                            when (WorkInfo.State.valueOf(schedule.status)) {
-                                                WorkInfo.State.SUCCEEDED -> Icons.Default.Done
-                                                WorkInfo.State.FAILED -> Icons.Default.Clear
-                                                WorkInfo.State.ENQUEUED -> Icons.Default.Pending
-                                                else -> Icons.Default.Help
-                                            },
-                                            contentDescription = null
-                                        )
-                                        IconButton(
-                                            onClick = { 
-                                                selectedSchedule = schedule.uuid
-                                                showDeleteDialog = true
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Delete,
-                                                contentDescription = null
+                                        Column() {
+                                            Text(
+                                                text = schedule.name,
+                                                style = MaterialTheme.typography.subtitle1
+                                            )
+                                            Text(
+                                                text = String.format(
+                                                    stringResource(id = R.string.starts),
+                                                    schedulesViewModel.formatDate(schedule.startDate)
+                                                ),
+                                                style = MaterialTheme.typography.subtitle2
+                                            )
+                                            Text(
+                                                text = String.format(
+                                                    stringResource(id = R.string.ends),
+                                                    schedulesViewModel.formatDate(schedule.endDate)
+                                                ),
+                                                style = MaterialTheme.typography.subtitle2
                                             )
                                         }
-                                        if (WorkInfo.State.valueOf(schedule.status) == WorkInfo.State.SUCCEEDED) {
-                                            IconButton(onClick = { /*TODO: Navigate to view data*/ }) {
+                                        Row(
+                                            horizontalArrangement = Arrangement.SpaceEvenly,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector =
+                                                when (WorkInfo.State.valueOf(schedule.status)) {
+                                                    WorkInfo.State.SUCCEEDED -> Icons.Default.Done
+                                                    WorkInfo.State.FAILED -> Icons.Default.Clear
+                                                    WorkInfo.State.ENQUEUED -> Icons.Default.Pending
+                                                    else -> Icons.Default.Help
+                                                },
+                                                contentDescription = null
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    selectedSchedule = schedule.uuid
+                                                    showDeleteDialog = true
+                                                }
+                                            ) {
                                                 Icon(
-                                                    imageVector = Icons.Filled.NavigateNext,
+                                                    imageVector = Icons.Default.Delete,
                                                     contentDescription = null
                                                 )
                                             }
+                                            if (WorkInfo.State.valueOf(schedule.status) == WorkInfo.State.SUCCEEDED) {
+                                                IconButton(onClick = { /*TODO: Navigate to view data*/ }) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.NavigateNext,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
+                                    Divider()
                                 }
-                                Divider()
                             }
+                        }
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            NoSchedulesAnimation()
+                            Text(
+                                text = stringResource(id = R.string.no_schedules),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.body1
+                            )
                         }
                     }
                 }
@@ -156,5 +173,18 @@ fun SchedulesView(navController: NavController,
                 Icon(imageVector = Icons.Filled.Add, contentDescription = null)
             }
         }
+    )
+}
+
+@Composable
+private fun NoSchedulesAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/18019-shedule.json"))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+       composition,
+        progress
     )
 }
