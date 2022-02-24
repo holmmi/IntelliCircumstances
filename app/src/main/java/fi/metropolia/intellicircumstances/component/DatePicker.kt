@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import fi.metropolia.intellicircumstances.extension.getActivity
-import fi.metropolia.intellicircumstances.view.schedule.ScheduleViewModel
+import fi.metropolia.intellicircumstances.view.schedule.NewScheduleViewModel
 import java.text.DateFormat
 import java.util.*
 
@@ -26,13 +26,12 @@ fun DatePicker(
     modifier: Modifier = Modifier,
     initialDate: Long? = null,
     onSelectDate: (Long) -> Unit,
-    viewModel: ScheduleViewModel
+    dateConstraints: State<CalendarConstraints?>
 ) {
     var selectedDate by rememberSaveable { mutableStateOf(initialDate) }
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val dateConstraints = viewModel.dateConstraints.observeAsState()
 
     val context = LocalContext.current
 

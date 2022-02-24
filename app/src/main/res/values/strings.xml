@@ -46,6 +46,7 @@
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="retry">Retry</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
+    <string name="clear_graph">Clear graph</string>
 
     <!--schedule-->
     <string name="schedule">Schedule</string>

@@ -38,6 +38,7 @@ fun NewScheduleView(navController: NavController,
     var endDate by rememberSaveable { mutableStateOf<Long?>(null) }
     var endHour by rememberSaveable { mutableStateOf(12) }
     var endMinute by rememberSaveable { mutableStateOf(0) }
+    val constraints = newScheduleViewModel.dateConstraints.observeAsState()
 
     var showFormErrors by rememberSaveable { mutableStateOf(false) }
 
@@ -142,9 +143,9 @@ fun NewScheduleView(navController: NavController,
                         label = stringResource(id = R.string.start_date),
                         onSelectDate = {
                             startDate = it
-                            scheduleViewModel.setDateConstraints(it, true)
+                            newScheduleViewModel.setDateConstraints(it, true)
                         },
-                        viewModel = scheduleViewModel,
+                        dateConstraints = constraints,
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .padding(10.dp)
@@ -169,9 +170,9 @@ fun NewScheduleView(navController: NavController,
                         label = stringResource(id = R.string.end_date),
                         onSelectDate = {
                             endDate = it
-                            scheduleViewModel.setDateConstraints(it, false)
+                            newScheduleViewModel.setDateConstraints(it, false)
                         },
-                        viewModel = scheduleViewModel,
+                        dateConstraints = constraints,
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .padding(10.dp)
@@ -199,7 +200,7 @@ fun NewScheduleView(navController: NavController,
                         endDate = null
                         endHour = 12
                         endMinute = 0
-                        scheduleViewModel.resetDateConstraints()
+                        newScheduleViewModel.resetDateConstraints()
                     }) {
                         Text(text = stringResource(id = R.string.reset))
                     }

@@ -5,6 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.CompositeDateValidator
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.DateValidatorPointForward
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.database.Schedule
 import fi.metropolia.intellicircumstances.repository.ScheduleRepository
@@ -74,5 +78,42 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
                 )
             )
         }
+    }
+
+    private val _dateConstraints = MutableLiveData<CalendarConstraints?>()
+    val dateConstraints: LiveData<CalendarConstraints?>
+        get() = _dateConstraints
+
+    fun setDateConstraints(date: Long?, isStartDate: Boolean) {
+        var min: CalendarConstraints.DateValidator = DateValidatorPointForward.from(minDate)
+        var max: CalendarConstraints.DateValidator = DateValidatorPointForward.from(maxDate)
+        if (isStartDate) {
+            min = DateValidatorPointForward.from(date ?: minDate)
+            max = DateValidatorPointBackward.before(date?.plus(constraint) ?: maxDate)
+        }
+        if (!isStartDate) {
+            min = DateValidatorPointForward.from(date?.minus(constraint) ?: minDate)
+            max = DateValidatorPointBackward.before(date ?: maxDate)
+        }
+
+        val constraintsBuilderRange = CalendarConstraints.Builder()
+
+        val listValidators = ArrayList<CalendarConstraints.DateValidator>()
+        listValidators.add(min)
+        listValidators.add(max)
+        val validators = CompositeDateValidator.allOf(listValidators)
+        constraintsBuilderRange.setValidator(validators)
+
+        _dateConstraints.postValue(constraintsBuilderRange.build())
+    }
+
+    fun resetDateConstraints() {
+        _dateConstraints.postValue(null)
+    }
+
+    companion object {
+        private val minDate = 0L
+        private val maxDate = 4102437600000L
+        private val constraint = 777600000L
     }
 }
