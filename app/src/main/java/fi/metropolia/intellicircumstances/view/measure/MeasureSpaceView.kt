@@ -98,7 +98,7 @@ fun MeasureSpaceView(
                     IconButton(
                         onClick = {
                             if (permissionsGiven) {
-                                measureSpaceViewModel.scanDevices()
+                                measureSpaceViewModel.startScan()
                                 showBluetoothLeScanner = true
                             } else {
                                 permissionsLauncher.launch(
@@ -136,15 +136,18 @@ fun MeasureSpaceView(
             )
         },
         content = {
-            val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
+            val ruuviTagDevices by measureSpaceViewModel.ruuviTagDevices.observeAsState()
             var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
             if (showBluetoothLeScanner) {
                 RuuviTagSearcher(
-                    ruuviTagDevices = ruuviTagDevices.value,
-                    onDismissRequest = { showBluetoothLeScanner = false },
+                    ruuviTagDevices = ruuviTagDevices,
+                    onDismissRequest = {
+                        showBluetoothLeScanner = false
+                        measureSpaceViewModel.stopScan()
+                    },
                     onConnect = {
                         if (spaceId != null && selectedOption != null) {
-                            ruuviTagDevices.value?.let {
+                            ruuviTagDevices?.let {
                                 measureSpaceViewModel.addDeviceAndConnect(
                                     spaceId,
                                     it[selectedOption!!]

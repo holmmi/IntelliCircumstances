@@ -3,7 +3,7 @@ package fi.metropolia.intellicircumstances.bluetooth
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 
 interface RuuviTagScannerCallback {
-    fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>)
+    fun onDeviceFound(ruuviTagDevices: List<RuuviTagDevice>)
 }
 
 interface RuuviTagConnectionCallback {

@@ -144,7 +144,10 @@ fun SpacesView(
 
                 RuuviTagSearcher(
                     ruuviTagDevices = devices.value,
-                    onDismissRequest = { showSearchScreen = false },
+                    onDismissRequest = {
+                        showSearchScreen = false
+                        spacesViewModel.stopScan()
+                   },
                     onConnect = {
                         if (newSpace != null && selectedOption != null) {
                             devices.value?.let {
@@ -222,7 +225,7 @@ fun SpacesView(
                                                 IconButton(
                                                     onClick = {
                                                         if (permissionsGiven) {
-                                                            spacesViewModel.scanDevices()
+                                                            spacesViewModel.startScan()
                                                             showSearchScreen = true
                                                         } else {
                                                             permissionsLauncher.launch(
@@ -231,7 +234,7 @@ fun SpacesView(
                                                                     Manifest.permission.ACCESS_FINE_LOCATION
                                                                 )
                                                             )
-                                                            spacesViewModel.scanDevices()
+                                                            spacesViewModel.startScan()
                                                         }
                                                     }
                                                 ) {

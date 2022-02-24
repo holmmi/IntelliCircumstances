@@ -11,7 +11,6 @@ import fi.metropolia.intellicircumstances.database.PropertyWithSpaces
 import fi.metropolia.intellicircumstances.database.Space
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
 import fi.metropolia.intellicircumstances.repository.SpaceRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -27,7 +26,7 @@ class SpacesViewModel(application: Application) : AndroidViewModel(application) 
         get() = _ruuviTagDevices
 
     private val scannerCallback = object : RuuviTagScannerCallback {
-        override fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>) {
+        override fun onDeviceFound(ruuviTagDevices: List<RuuviTagDevice>) {
             _ruuviTagDevices.postValue(ruuviTagDevices)
         }
     }
@@ -50,14 +49,12 @@ class SpacesViewModel(application: Application) : AndroidViewModel(application) 
         RuuviTagConnector(application.applicationContext, connectionCallback)
 
 
-    fun scanDevices() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (ruuviTagScanner.startScan()) {
-                delay(SCAN_TIMEOUT)
-                ruuviTagScanner.stopScan()
-            }
-        }
+    fun startScan(): Boolean {
+        _ruuviTagDevices.value = null
+        return ruuviTagScanner.startScan()
     }
+
+    fun stopScan() = ruuviTagScanner.stopScan()
 
     fun isBluetoothEnabled(): Flow<Boolean> = flow {
         while (true) {
