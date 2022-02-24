@@ -33,6 +33,11 @@ class RuuviTagConnector(
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.DISCONNECTED)
             }
+
+            if (status == CONNECTION_TIMEOUT) {
+                ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.CONNECTION_FAILED)
+                disconnectDevice()
+            }
         }
 
 
@@ -115,7 +120,6 @@ class RuuviTagConnector(
     fun disconnectDevice() {
         bluetoothGatt?.close()
         bluetoothGatt = null
-        ruuviTagConnectionCallback?.onConnectionStateChange(ConnectionState.DISCONNECTED)
     }
 
     fun isBluetoothEnabled(): Boolean =
@@ -202,5 +206,6 @@ class RuuviTagConnector(
         private val CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
         private const val FORMAT_5 = 5
         private const val LOGGING_CAPABLE_MIN_VERSION = 3.30
+        private const val CONNECTION_TIMEOUT = 133
     }
 }

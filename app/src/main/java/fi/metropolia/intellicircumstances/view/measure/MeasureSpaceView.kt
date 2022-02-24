@@ -5,11 +5,9 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -27,9 +25,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
+import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
-import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,7 +76,21 @@ fun MeasureSpaceView(
                 }
             }
         } else if (ruuviConnectionState == ConnectionState.CONNECTED) {
-            Toast.makeText(context, R.string.connected_to_ruuvi, Toast.LENGTH_SHORT).show()
+            scope.launch {
+                scaffoldState
+                    .snackbarHostState
+                    .showSnackbar(
+                        message = context.getString(R.string.connected_to_ruuvi)
+                    )
+            }
+        } else if (ruuviConnectionState == ConnectionState.DISCONNECTED) {
+            scope.launch {
+                scaffoldState
+                    .snackbarHostState
+                    .showSnackbar(
+                        message = context.getString(R.string.disconnected_from_ruuvi)
+                    )
+            }
         }
     }
 
@@ -220,24 +232,6 @@ fun MeasureSpaceView(
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.BLUETOOTH_SCAN
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    permissionsLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                        )
-                    )
-                }
-            }
         } else {
             permissionsGiven = true
         }

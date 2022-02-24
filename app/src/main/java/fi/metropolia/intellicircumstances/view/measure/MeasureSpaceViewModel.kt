@@ -19,8 +19,8 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
 
-    private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
-    val ruuviConnectionState: LiveData<ConnectionState>
+    private val _ruuviConnectionState = MutableLiveData<ConnectionState?>(null)
+    val ruuviConnectionState: LiveData<ConnectionState?>
         get() = _ruuviConnectionState
 
     private val scannerCallback = object : RuuviTagScannerCallback {
@@ -70,6 +70,10 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
             val device = deviceRepository.getRuuviTagDeviceBySpaceId(spaceId)
             device?.macAddress?.let { ruuviTagConnector.connectDevice(it) }
         }
+    }
+
+    fun disconnectDevice() {
+        ruuviTagConnector.disconnectDevice()
     }
 
     fun isBluetoothEnabled(): Flow<Boolean> = flow {
