@@ -80,40 +80,28 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    private val _dateConstraints = MutableLiveData<CalendarConstraints?>()
-    val dateConstraints: LiveData<CalendarConstraints?>
-        get() = _dateConstraints
+    fun getDateConstraints(startDate: Long?, isStartDate: Boolean): CalendarConstraints {
+        val min: CalendarConstraints.DateValidator
+        val max: CalendarConstraints.DateValidator
 
-    fun setDateConstraints(date: Long?, isStartDate: Boolean) {
-        var min: CalendarConstraints.DateValidator = DateValidatorPointForward.from(minDate)
-        var max: CalendarConstraints.DateValidator = DateValidatorPointForward.from(maxDate)
         if (isStartDate) {
-            min = DateValidatorPointForward.from(date ?: minDate)
-            max = DateValidatorPointBackward.before(date?.plus(constraint) ?: maxDate)
+            min = DateValidatorPointForward.from(MIN_DATE)
+            max = DateValidatorPointBackward.before(MAX_DATE)
+        } else {
+            min = DateValidatorPointForward.from(startDate ?: MIN_DATE)
+            max = DateValidatorPointBackward.before(startDate?.plus(MAX_DAYS) ?: MAX_DATE)
         }
-        if (!isStartDate) {
-            min = DateValidatorPointForward.from(date?.minus(constraint) ?: minDate)
-            max = DateValidatorPointBackward.before(date ?: maxDate)
-        }
 
-        val constraintsBuilderRange = CalendarConstraints.Builder()
-
-        val listValidators = ArrayList<CalendarConstraints.DateValidator>()
-        listValidators.add(min)
-        listValidators.add(max)
-        val validators = CompositeDateValidator.allOf(listValidators)
-        constraintsBuilderRange.setValidator(validators)
-
-        _dateConstraints.postValue(constraintsBuilderRange.build())
-    }
-
-    fun resetDateConstraints() {
-        _dateConstraints.postValue(null)
+        return CalendarConstraints.Builder()
+            .setValidator(CompositeDateValidator.allOf(listOf(min, max)))
+            .build()
     }
 
     companion object {
-        private val minDate = 0L
-        private val maxDate = 4102437600000L
-        private val constraint = 777600000L
+        private const val MIN_DATE = 0L
+        // Current time + 10 years in ms
+        private val MAX_DATE = System.currentTimeMillis() + 60 * 60 * 24 * 365 * 10 * 1000L
+        // 10 days in ms
+        private const val MAX_DAYS = 60 * 60 * 24 * 9 * 1000L
     }
 }
