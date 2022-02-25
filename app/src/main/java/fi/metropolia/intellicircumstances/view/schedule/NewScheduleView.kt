@@ -8,18 +8,27 @@ import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.CalendarConstraints.DateValidator
+import com.google.android.material.datepicker.CompositeDateValidator
+import com.google.android.material.datepicker.DateValidatorPointBackward.before
+import com.google.android.material.datepicker.DateValidatorPointForward.from
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.component.DatePicker
 import fi.metropolia.intellicircumstances.component.TimePicker
 
 @Composable
-fun NewScheduleView(navController: NavController, 
-                    spaceId: Long?, 
+fun NewScheduleView(navController: NavController,
+                    spaceId: Long?,
                     newScheduleViewModel: NewScheduleViewModel = viewModel()) {
     var selectedName by rememberSaveable { mutableStateOf("") }
     var startDate by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -29,19 +38,20 @@ fun NewScheduleView(navController: NavController,
     var endDate by rememberSaveable { mutableStateOf<Long?>(null) }
     var endHour by rememberSaveable { mutableStateOf(12) }
     var endMinute by rememberSaveable { mutableStateOf(0) }
-    
+    val constraints = newScheduleViewModel.dateConstraints.observeAsState()
+
     var showFormErrors by rememberSaveable { mutableStateOf(false) }
-    
+
     val formErrors by newScheduleViewModel.formErrors.observeAsState()
-    
+
     LaunchedEffect(formErrors) {
         formErrors?.let { showFormErrors = it.isNotEmpty() }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.measure)) },
+                title = { Text(text = stringResource(id = R.string.schedule)) },
                 actions = {
                     IconButton(
                         onClick = {
@@ -94,7 +104,7 @@ fun NewScheduleView(navController: NavController,
                     }
                 )
             }
-            
+
             Column(
                 modifier = Modifier
                     .padding(10.dp)
@@ -106,7 +116,10 @@ fun NewScheduleView(navController: NavController,
                         .padding(10.dp, bottom = 20.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(text = stringResource(id = R.string.schedule), style = MaterialTheme.typography.h3)
+                    Text(
+                        text = stringResource(id = R.string.schedule),
+                        style = MaterialTheme.typography.h3
+                    )
                 }
                 Row(
                     modifier = Modifier
@@ -128,7 +141,11 @@ fun NewScheduleView(navController: NavController,
                 ) {
                     DatePicker(
                         label = stringResource(id = R.string.start_date),
-                        onSelectDate = { startDate = it },
+                        onSelectDate = {
+                            startDate = it
+                            newScheduleViewModel.setDateConstraints(it, true)
+                        },
+                        dateConstraints = constraints,
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .padding(10.dp)
@@ -151,7 +168,11 @@ fun NewScheduleView(navController: NavController,
                 ) {
                     DatePicker(
                         label = stringResource(id = R.string.end_date),
-                        onSelectDate = { endDate = it },
+                        onSelectDate = {
+                            endDate = it
+                            newScheduleViewModel.setDateConstraints(it, false)
+                        },
+                        dateConstraints = constraints,
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .padding(10.dp)
@@ -166,6 +187,23 @@ fun NewScheduleView(navController: NavController,
                             endMinute = minute
                         }
                     )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, bottom = 20.dp)
+                ) {
+                    TextButton(onClick = {
+                        startDate = null
+                        startHour = 12
+                        startMinute = 0
+                        endDate = null
+                        endHour = 12
+                        endMinute = 0
+                        newScheduleViewModel.resetDateConstraints()
+                    }) {
+                        Text(text = stringResource(id = R.string.reset))
+                    }
                 }
             }
         }

@@ -9,19 +9,25 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import fi.metropolia.intellicircumstances.extension.getActivity
+import fi.metropolia.intellicircumstances.view.schedule.NewScheduleViewModel
 import java.text.DateFormat
 import java.util.*
 
 @Composable
-fun DatePicker(label: String,
-               modifier: Modifier = Modifier,
-               initialDate: Long? = null,
-               onSelectDate: (Long) -> Unit) {
+fun DatePicker(
+    label: String,
+    modifier: Modifier = Modifier,
+    initialDate: Long? = null,
+    onSelectDate: (Long) -> Unit,
+    dateConstraints: State<CalendarConstraints?>
+) {
     var selectedDate by rememberSaveable { mutableStateOf(initialDate) }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -33,6 +39,7 @@ fun DatePicker(label: String,
         if (isPressed) {
             showDatePicker(
                 context.getActivity(),
+                dateConstraints.value,
                 selectedDate
             ) { date ->
                 onSelectDate(date)
@@ -55,10 +62,16 @@ fun DatePicker(label: String,
     )
 }
 
-private fun showDatePicker(activity: AppCompatActivity?, selectedDate: Long?, onSelectDate: (Long) -> Unit) {
+private fun showDatePicker(
+    activity: AppCompatActivity?,
+    dateConstraints: CalendarConstraints?,
+    selectedDate: Long?,
+    onSelectDate: (Long) -> Unit
+) {
     activity?.let {
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setSelection(selectedDate)
+            .setCalendarConstraints(dateConstraints)
             .build()
         datePicker.addOnPositiveButtonClickListener(onSelectDate)
         datePicker.show(it.supportFragmentManager, datePicker.toString())

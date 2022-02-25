@@ -47,6 +47,7 @@
     <string name="retry">Retry</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
     <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
+    <string name="clear_graph">Clear graph</string>
 
     <!--schedule-->
     <string name="schedule">Schedule</string>
@@ -68,4 +69,5 @@
         and the pending schedule will not run.
     </string>
     <string name="no_schedules">There are no schedules. Click + to add one.</string>
+    <string name="reset">Reset</string>
 </resources>

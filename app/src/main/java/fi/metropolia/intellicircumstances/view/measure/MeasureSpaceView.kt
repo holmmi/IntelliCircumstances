@@ -4,10 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -17,17 +19,22 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.madrapps.plot.line.DataPoint
+import com.madrapps.plot.line.LineGraph
+import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
 
 @Composable
@@ -174,42 +181,54 @@ fun MeasureSpaceView(
             if (ruuviConnectionState == ConnectionState.CONNECTED) {
                 val sensorData = measureSpaceViewModel.sensorData.observeAsState()
 
-                var tabIndex by remember { mutableStateOf(0) } // 1.
+                var tabIndex by remember { mutableStateOf(0) }
                 val tabTitles = listOf(
                     stringResource(id = R.string.temp),
                     stringResource(R.string.humid),
                     stringResource(R.string.pressure)
                 )
-                Column(horizontalAlignment = Alignment.CenterHorizontally) { // 2.
-                    TabRow(selectedTabIndex = tabIndex) { // 3.
+                Column() {
+                    TabRow(selectedTabIndex = tabIndex) {
                         tabTitles.forEachIndexed { index, title ->
-                            Tab(selected = tabIndex == index, // 4.
+                            Tab(selected = tabIndex == index,
                                 onClick = { tabIndex = index },
-                                text = { Text(text = title) }) // 5.
+                                text = { Text(text = title) })
                         }
                     }
-                    when (tabIndex) { // 6.
-                        0 -> Text(
-                            "${stringResource(id = R.string.temp)} ${
-                                sensorData.value?.temperature?.round(
-                                    2
+                    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        when (tabIndex) {
+                            0 -> {
+                                Text(
+                                    "${stringResource(id = R.string.temp)} ${
+                                        sensorData.value?.temperature?.round(
+                                            2
+                                        )
+                                    } C"
                                 )
-                            } C"
-                        )
-                        1 -> Text(
-                            "${stringResource(id = R.string.humid)} ${
-                                sensorData.value?.humidity?.round(
-                                    2
+                                ShowGraph(measureSpaceViewModel, MeasureType.TEMPERATURE)
+                            }
+                            1 -> {
+                                Text(
+                                    "${stringResource(id = R.string.humid)} ${
+                                        sensorData.value?.humidity?.round(
+                                            2
+                                        )
+                                    } %"
                                 )
-                            } %"
-                        )
-                        2 -> Text(
-                            "${stringResource(id = R.string.pressure)} ${
-                                sensorData.value?.airPressure?.round(
-                                    2
+                                ShowGraph(measureSpaceViewModel, MeasureType.HUMIDITY)
+                            }
+
+                            2 -> {
+                                Text(
+                                    "${stringResource(id = R.string.pressure)} ${
+                                        sensorData.value?.airPressure?.round(
+                                            2
+                                        )
+                                    } hPa"
                                 )
-                            } hPa"
-                        )
+                                ShowGraph(measureSpaceViewModel, MeasureType.AIRPRESSURE)
+                            }
+                        }
                     }
                 }
             }
@@ -217,24 +236,11 @@ fun MeasureSpaceView(
     )
 
     LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(
+        permissionsGiven =
+            PermissionUtil.checkBluetoothPermissions(
                 context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
+                onCheckPermissions = { permissionsLauncher.launch(it) }
             )
-        } else {
-            permissionsGiven = true
-        }
 
         // Try to connect to RuuviTag
         if (spaceId != null && bluetoothEnabled == true) {
@@ -250,4 +256,53 @@ fun MeasureSpaceView(
             }
         }
     }
+}
+
+@Composable
+private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
+    val data = viewModel.sensorDataList.observeAsState()
+    var points by rememberSaveable { mutableStateOf<List<DataPoint>?>(null) }
+
+    if (type == MeasureType.TEMPERATURE) {
+        points = data.value?.map {
+            DataPoint(it.first.toFloat(), it.second.temperature?.toFloat() ?: 0.0F)
+        }
+    }
+    if (type == MeasureType.HUMIDITY) {
+        points = data.value?.map {
+            DataPoint(it.first.toFloat(), it.second.humidity?.toFloat() ?: 0.0F)
+        }
+    }
+    if (type == MeasureType.AIRPRESSURE) {
+        points = data.value?.map {
+            DataPoint(it.first.toFloat(), it.second.airPressure?.toFloat() ?: 0.0F)
+        }
+    }
+    if (points != null) {
+        LineGraph(
+            plot = LinePlot(
+                listOf(
+                    LinePlot.Line(
+                        points!!,
+                        LinePlot.Connection(color = MaterialTheme.colors.primary),
+                        null,
+                        null,
+                    )
+                ),
+                grid = LinePlot.Grid(MaterialTheme.colors.secondaryVariant, steps = 4),
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+        )
+    }
+    TextButton(onClick = { viewModel.clearSensorDataList() }) {
+        Text(text = stringResource(id = R.string.clear_graph))
+    }
+}
+
+enum class MeasureType(val value: String) {
+    TEMPERATURE("temperature"),
+    HUMIDITY("humidity"),
+    AIRPRESSURE("airPressure"),
 }

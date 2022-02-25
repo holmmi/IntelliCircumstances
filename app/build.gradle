@@ -58,7 +58,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
     implementation 'androidx.activity:activity-compose:1.4.0'
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
-    implementation 'com.jjoe64:graphview:4.2.2'
 
     def work_version = "2.7.1"
     implementation("androidx.work:work-runtime-ktx:$work_version")
@@ -78,6 +77,9 @@ dependencies {
 
     def lottie_version = "5.0.1"
     implementation "com.airbnb.android:lottie-compose:$lottie_version"
+
+    def plot_version = "0.1.1"
+    implementation "com.github.madrapps:plot:$plot_version"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
