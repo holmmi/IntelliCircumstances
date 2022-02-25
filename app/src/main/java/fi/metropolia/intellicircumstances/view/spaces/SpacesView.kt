@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BluetoothDisabled
 import androidx.compose.material.icons.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.outlined.Delete
@@ -142,11 +143,11 @@ fun SpacesView(
                     onDismissRequest = {
                         showSearchScreen = false
                         spacesViewModel.stopScan()
-                   },
+                    },
                     onConnect = {
                         if (newSpace != null && selectedOption != null) {
                             devices.value?.let {
-                                spacesViewModel.addDeviceAndConnect(
+                                spacesViewModel.addDevice(
                                     newSpace!!,
                                     it[selectedOption!!]
                                 )
@@ -233,10 +234,23 @@ fun SpacesView(
                                                         }
                                                     }
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.BluetoothSearching,
-                                                        contentDescription = null
-                                                    )
+                                                    if (space.id != null) {
+                                                        val isAdded =
+                                                            spacesViewModel.isDeviceAdded(space.id)
+                                                                .observeAsState().value
+
+                                                        if (isAdded == true) {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.BluetoothDisabled,
+                                                                contentDescription = null
+                                                            )
+                                                        } else {
+                                                            Icon(
+                                                                imageVector = Icons.Filled.BluetoothSearching,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                                 IconButton(
                                                     onClick = {
@@ -265,6 +279,8 @@ fun SpacesView(
 
     LaunchedEffect(Unit) {
         permissionsGiven =
-            PermissionUtil.checkBluetoothPermissions(context, onCheckPermissions = { permissionsLauncher.launch(it) })
+            PermissionUtil.checkBluetoothPermissions(
+                context,
+                onCheckPermissions = { permissionsLauncher.launch(it) })
     }
 }

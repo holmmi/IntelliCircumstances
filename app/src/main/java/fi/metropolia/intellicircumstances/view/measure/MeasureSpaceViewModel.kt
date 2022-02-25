@@ -95,6 +95,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun clearSensorDataList() {
+        seconds = 0
         _sensorDataList.postValue(null)
     }
 

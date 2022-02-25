@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 
@@ -44,20 +45,23 @@ fun RuuviTagSearcher(
                         .padding(10.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.connect_to_ruuvi_tag),
+                        text = stringResource(
+                            id = (if (ruuviTagDevices.isNullOrEmpty()) {
+                                R.string.searching
+                            } else {
+                                R.string.connect_to_ruuvi_tag
+                            })
+                        ),
                         style = MaterialTheme.typography.subtitle1,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     if (ruuviTagDevices.isNullOrEmpty()) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = stringResource(id = R.string.searching),
-                                textAlign = TextAlign.Center
-                            )
+                            ConnectAnimation()
                         }
                     }
                     ruuviTagDevices?.let {
@@ -137,5 +141,18 @@ fun RuuviTagSearcher(
                 }
             }
         }
+    )
+}
+
+@Composable
+private fun ConnectAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/55186-bluetooth.json"))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition,
+        progress
     )
 }

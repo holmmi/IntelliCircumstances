@@ -1,6 +1,7 @@
 package fi.metropolia.intellicircumstances.database
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
@@ -46,6 +47,9 @@ interface DeviceDao {
 
     @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
+
+    @Query("SELECT EXISTS(SELECT * FROM ruuvi_device WHERE space_id = :spaceId)")
+    fun isDeviceAdded(spaceId: Long): LiveData<Boolean>
 }
 
 @Dao

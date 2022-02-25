@@ -1,6 +1,8 @@
 package fi.metropolia.intellicircumstances.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.database.IntelliDatabase
 import fi.metropolia.intellicircumstances.database.RuuviDevice
@@ -26,4 +28,7 @@ class DeviceRepository(context: Context) {
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long) = withContext(Dispatchers.IO) {
         deviceDao.getRuuviTagDeviceBySpaceId(spaceId)
     }
+
+    fun isDeviceAdded(spaceId: Long) =
+            deviceDao.isDeviceAdded(spaceId)
 }
