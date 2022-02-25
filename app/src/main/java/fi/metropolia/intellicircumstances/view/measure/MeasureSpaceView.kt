@@ -4,10 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -32,11 +34,8 @@ import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
-import fi.metropolia.intellicircumstances.ui.theme.Red100
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
-import kotlin.math.max
-
 
 @Composable
 fun MeasureSpaceView(
@@ -84,7 +83,21 @@ fun MeasureSpaceView(
                 }
             }
         } else if (ruuviConnectionState == ConnectionState.CONNECTED) {
-            Toast.makeText(context, R.string.connected_to_ruuvi, Toast.LENGTH_SHORT).show()
+            scope.launch {
+                scaffoldState
+                    .snackbarHostState
+                    .showSnackbar(
+                        message = context.getString(R.string.connected_to_ruuvi)
+                    )
+            }
+        } else if (ruuviConnectionState == ConnectionState.DISCONNECTED) {
+            scope.launch {
+                scaffoldState
+                    .snackbarHostState
+                    .showSnackbar(
+                        message = context.getString(R.string.disconnected_from_ruuvi)
+                    )
+            }
         }
     }
 
@@ -104,7 +117,7 @@ fun MeasureSpaceView(
                     IconButton(
                         onClick = {
                             if (permissionsGiven) {
-                                measureSpaceViewModel.scanDevices()
+                                measureSpaceViewModel.startScan()
                                 showBluetoothLeScanner = true
                             } else {
                                 permissionsLauncher.launch(
@@ -142,15 +155,18 @@ fun MeasureSpaceView(
             )
         },
         content = {
-            val ruuviTagDevices = measureSpaceViewModel.ruuviTagDevices.observeAsState()
+            val ruuviTagDevices by measureSpaceViewModel.ruuviTagDevices.observeAsState()
             var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
             if (showBluetoothLeScanner) {
                 RuuviTagSearcher(
-                    ruuviTagDevices = ruuviTagDevices.value,
-                    onDismissRequest = { showBluetoothLeScanner = false },
+                    ruuviTagDevices = ruuviTagDevices,
+                    onDismissRequest = {
+                        showBluetoothLeScanner = false
+                        measureSpaceViewModel.stopScan()
+                    },
                     onConnect = {
                         if (spaceId != null && selectedOption != null) {
-                            ruuviTagDevices.value?.let {
+                            ruuviTagDevices?.let {
                                 measureSpaceViewModel.addDeviceAndConnect(
                                     spaceId,
                                     it[selectedOption!!]
@@ -221,7 +237,10 @@ fun MeasureSpaceView(
 
     LaunchedEffect(Unit) {
         permissionsGiven =
-            PermissionUtil.checkPerms(context, onCheckPerms = { permissionsLauncher.launch(it) })
+            PermissionUtil.checkBluetoothPermissions(
+                context,
+                onCheckPermissions = { permissionsLauncher.launch(it) }
+            )
 
         // Try to connect to RuuviTag
         if (spaceId != null && bluetoothEnabled == true) {
@@ -240,7 +259,7 @@ fun MeasureSpaceView(
 }
 
 @Composable
-fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
+private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     val data = viewModel.sensorDataList.observeAsState()
     var points by rememberSaveable { mutableStateOf<List<DataPoint>?>(null) }
 
@@ -286,9 +305,6 @@ fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
-            onSelection = { xLine, newPoints ->
-
-            }
         )
     }
     TextButton(onClick = { viewModel.clearSensorDataList() }) {

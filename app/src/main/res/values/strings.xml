@@ -30,7 +30,7 @@
     <string name="found_devices">Add RuuviTag</string>
     <string name="selected_tag">Selected</string>
     <string name="icon">Icon</string>
-    <string name="searching">Searching RuuviTag devices… please wait…</string>
+    <string name="searching">Searching for devices… Please wait.</string>
 
     <string name="bt_work">Bluetooth worker</string>
 
@@ -46,6 +46,7 @@
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="retry">Retry</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
+    <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
     <string name="clear_graph">Clear graph</string>
 
     <!--schedule-->
@@ -67,5 +68,6 @@
         Are you sure you want delete this schedule? You will lose all the data associated with it
         and the pending schedule will not run.
     </string>
+    <string name="no_schedules">There are no schedules. Click + to add one.</string>
     <string name="reset">Reset</string>
 </resources>

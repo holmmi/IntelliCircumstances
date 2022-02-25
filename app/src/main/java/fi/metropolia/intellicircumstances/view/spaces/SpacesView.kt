@@ -43,7 +43,6 @@ fun SpacesView(
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     var showSearchScreen by rememberSaveable { mutableStateOf(false) }
     var selectedSpace by rememberSaveable { mutableStateOf<Long?>(null) }
-    var selectedTag by rememberSaveable { mutableStateOf<String?>("") }
     var selectedTagInfo by rememberSaveable { mutableStateOf<RuuviTagDevice?>(null) }
     var newSpace by rememberSaveable { mutableStateOf<Long?>(null) }
 
@@ -118,7 +117,6 @@ fun SpacesView(
                                         spaceNameIsEmpty = false
                                         showAddDialog = false
                                         spaceName = ""
-                                        selectedTag = ""
                                         selectedTagInfo = null
                                     }
                                 }
@@ -141,7 +139,10 @@ fun SpacesView(
 
                 RuuviTagSearcher(
                     ruuviTagDevices = devices.value,
-                    onDismissRequest = { showSearchScreen = false },
+                    onDismissRequest = {
+                        showSearchScreen = false
+                        spacesViewModel.stopScan()
+                   },
                     onConnect = {
                         if (newSpace != null && selectedOption != null) {
                             devices.value?.let {
@@ -219,7 +220,7 @@ fun SpacesView(
                                                 IconButton(
                                                     onClick = {
                                                         if (permissionsGiven) {
-                                                            spacesViewModel.scanDevices()
+                                                            spacesViewModel.startScan()
                                                             showSearchScreen = true
                                                         } else {
                                                             permissionsLauncher
@@ -229,7 +230,6 @@ fun SpacesView(
                                                                         Manifest.permission.ACCESS_FINE_LOCATION
                                                                     )
                                                                 )
-                                                            spacesViewModel.scanDevices()
                                                         }
                                                     }
                                                 ) {
@@ -265,6 +265,6 @@ fun SpacesView(
 
     LaunchedEffect(Unit) {
         permissionsGiven =
-            PermissionUtil.checkPerms(context, onCheckPerms = { permissionsLauncher.launch(it) })
+            PermissionUtil.checkBluetoothPermissions(context, onCheckPermissions = { permissionsLauncher.launch(it) })
     }
 }

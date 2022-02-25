@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import fi.metropolia.intellicircumstances.bluetooth.*
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -23,12 +22,12 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     val sensorDataList: LiveData<List<Pair<Int,RuuviTagSensorData>>?>
         get() = _sensorDataList
 
-    private val _ruuviConnectionState = MutableLiveData(ConnectionState.DISCONNECTED)
-    val ruuviConnectionState: LiveData<ConnectionState>
+    private val _ruuviConnectionState = MutableLiveData<ConnectionState?>(null)
+    val ruuviConnectionState: LiveData<ConnectionState?>
         get() = _ruuviConnectionState
 
     private val scannerCallback = object : RuuviTagScannerCallback {
-        override fun onScanComplete(ruuviTagDevices: List<RuuviTagDevice>) {
+        override fun onDeviceFound(ruuviTagDevices: List<RuuviTagDevice>) {
             _ruuviTagDevices.postValue(ruuviTagDevices)
         }
     }
@@ -61,13 +60,13 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     private val deviceRepository = DeviceRepository(application.applicationContext)
 
-    fun scanDevices() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (ruuviTagScanner.startScan()) {
-                delay(SCAN_TIMEOUT)
-                ruuviTagScanner.stopScan()
-            }
-        }
+    fun startScan() {
+        _ruuviTagDevices.value = null
+        ruuviTagScanner.startScan()
+    }
+
+    fun stopScan() {
+        ruuviTagScanner.stopScan()
     }
 
     fun addDeviceAndConnect(spaceId: Long, ruuviTagDevice: RuuviTagDevice) {
@@ -82,6 +81,10 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
             val device = deviceRepository.getRuuviTagDeviceBySpaceId(spaceId)
             device?.macAddress?.let { ruuviTagConnector.connectDevice(it) }
         }
+    }
+
+    fun disconnectDevice() {
+        ruuviTagConnector.disconnectDevice()
     }
 
     fun isBluetoothEnabled(): Flow<Boolean> = flow {
@@ -103,7 +106,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
 
     companion object {
         private const val CHECK_BLUETOOTH = 1000L
-        private const val SCAN_TIMEOUT = 30000L
         private var seconds = 0
     }
 }
