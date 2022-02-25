@@ -112,8 +112,8 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     companion object {
-        private val minDate = 0L
-        private val maxDate = 4102437600000L
-        private val constraint = 777600000L
+        private const val minDate = 0L
+        private const val maxDate = 4102437600000L
+        private const val constraint = 777600000L
     }
 }

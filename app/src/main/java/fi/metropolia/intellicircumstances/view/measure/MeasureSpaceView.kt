@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +35,7 @@ import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 
 @Composable
@@ -187,7 +187,7 @@ fun MeasureSpaceView(
                                         sensorData.value?.temperature?.round(
                                             2
                                         )
-                                    } C"
+                                    } °C"
                                 )
                                 ShowGraph(measureSpaceViewModel, MeasureType.TEMPERATURE)
                             }
@@ -260,6 +260,7 @@ fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
         }
     }
     if (points != null) {
+        val ySteps = 6
         LineGraph(
             plot = LinePlot(
                 listOf(
@@ -270,12 +271,22 @@ fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                         null,
                     )
                 ),
-                grid = LinePlot.Grid(MaterialTheme.colors.secondaryVariant, steps = 4),
+                xAxis = LinePlot.XAxis(unit = 1F, roundToInt = true),
+                yAxis = LinePlot.YAxis(steps = ySteps, roundToInt = false, content = { min, offset, max ->
+                    //Column( verticalArrangement = Arrangement.SpaceBetween,) {
+                        Text(text = min.toDouble().round(2).toString())
+                        for (step in 1 until ySteps - 1) {
+                            Text(text = min.toDouble().plus(offset * step).round(2).toString())
+                        }
+                        Text(text = max.toDouble().round(2).toString())
+                    }
+                ),
+                grid = LinePlot.Grid(MaterialTheme.colors.onBackground, steps = 4),
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
-            onSelection = { xLine, points ->
+            onSelection = { xLine, newPoints ->
 
             }
         )
