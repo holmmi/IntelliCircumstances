@@ -1,16 +1,37 @@
 <resources>
+    <!-- Common etc. -->
     <string name="app_name">IntelliCircumstances</string>
+    <string name="delete">Delete</string>
+    <string name="icon">Icon</string>
+    <string name="bt_work">Bluetooth worker</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="reset">Reset</string>
+
+    <!-- Device search and connection -->
+    <string name="add_tag">Add RuuviTag</string>
+    <string name="found_devices">Add RuuviTag</string>
+    <string name="selected_tag">Selected</string>
+    <string name="searching">Searching for devices… Please wait.</string>
+    <string name="no_connection">No connection to a RuuviTag device.\nPlease press the Bluetooth button above to connect.\nMake sure your RuuviTag device is on and closeby.</string>
+    <string name="connect_to_ruuvi_tag">Connect to RuuviTag</string>
+    <string name="connect">Connect</string>
+    <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
+    <string name="connected_to_ruuvi">Connected to RuuviTag</string>
+    <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
+
+    <!-- Home -->
     <string name="home">Home</string>
-    <string name="spaces">Spaces</string>
-    <string name="measure">Measure</string>
     <string name="settings">Settings</string>
     <string name="need_assistance">Need assistance?</string>
     <string name="faq">FAQ</string>
+
+    <!-- Spaces and properties -->
+    <string name="spaces">Spaces</string>
     <string name="properties">Properties</string>
     <string name="no_properties">There are no properties created</string>
     <string name="create_property">Create a new property</string>
-    <string name="add">Add</string>
-    <string name="cancel">Cancel</string>
     <string name="property_name">Property name</string>
     <string name="error_empty_field">This field cannot be empty</string>
     <string name="delete_property">
@@ -24,29 +45,17 @@
         Are you sure you want to delete this space? You will lose all of the measurement data
         associated with it.
     </string>
-    <string name="delete">Delete</string>
     <string name="no_spaces">There are no spaces in this property</string>
-    <string name="add_tag">Add RuuviTag</string>
-    <string name="found_devices">Add RuuviTag</string>
-    <string name="selected_tag">Selected</string>
-    <string name="icon">Icon</string>
-    <string name="searching">Searching for devices… Please wait.</string>
-
-    <string name="bt_work">Bluetooth worker</string>
 
     <!--measure-->
+    <string name="measure">Measure</string>
     <string name="temp">Temperature</string>
     <string name="humid">Humidity</string>
     <string name="pressure">Pressure</string>
     <string name="choose_property">There are no spaces in this property</string>
     <string name="space_selection">Space selection</string>
     <string name="choose_space">Choose a space</string>
-    <string name="connect_to_ruuvi_tag">Connect to RuuviTag</string>
-    <string name="connect">Connect</string>
-    <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="retry">Retry</string>
-    <string name="connected_to_ruuvi">Connected to RuuviTag</string>
-    <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
     <string name="clear_graph">Clear graph</string>
 
     <!--schedule-->
@@ -61,7 +70,6 @@
     <string name="end_date_before">End date cannot be before start date</string>
     <string name="date_range_error">There should be 10 days between start and end dates</string>
     <string name="form_errors">Form errors</string>
-    <string name="ok">OK</string>
     <string name="starts">Starts at %s</string>
     <string name="ends">Ends at %s</string>
     <string name="delete_schedule">
@@ -69,5 +77,4 @@
         and the pending schedule will not run.
     </string>
     <string name="no_schedules">There are no schedules. Click + to add one.</string>
-    <string name="reset">Reset</string>
 </resources>

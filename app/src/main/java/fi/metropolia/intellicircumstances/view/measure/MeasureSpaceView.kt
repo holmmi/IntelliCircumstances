@@ -6,10 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BluetoothSearching
@@ -22,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.*
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
@@ -187,7 +186,7 @@ fun MeasureSpaceView(
                     stringResource(R.string.humid),
                     stringResource(R.string.pressure)
                 )
-                Column() {
+                Column {
                     TabRow(selectedTabIndex = tabIndex) {
                         tabTitles.forEachIndexed { index, title ->
                             Tab(selected = tabIndex == index,
@@ -195,7 +194,10 @@ fun MeasureSpaceView(
                                 text = { Text(text = title) })
                         }
                     }
-                    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier.padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         when (tabIndex) {
                             0 -> {
                                 Text(
@@ -230,6 +232,19 @@ fun MeasureSpaceView(
                             }
                         }
                     }
+                }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    NoConnectionAnimation()
+                    Text(
+                        text = stringResource(id = R.string.no_connection),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1
+                    )
                 }
             }
         }
@@ -291,8 +306,10 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                     )
                 ),
                 xAxis = LinePlot.XAxis(unit = 1F, roundToInt = true),
-                yAxis = LinePlot.YAxis(steps = ySteps, roundToInt = false, content = { min, offset, max ->
-                    //Column( verticalArrangement = Arrangement.SpaceBetween,) {
+                yAxis = LinePlot.YAxis(
+                    steps = ySteps,
+                    roundToInt = false,
+                    content = { min, offset, max ->
                         Text(text = min.toDouble().round(2).toString())
                         for (step in 1 until ySteps - 1) {
                             Text(text = min.toDouble().plus(offset * step).round(2).toString())
@@ -300,7 +317,7 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                         Text(text = max.toDouble().round(2).toString())
                     }
                 ),
-                grid = LinePlot.Grid(MaterialTheme.colors.onBackground, steps = 4),
+                grid = LinePlot.Grid(MaterialTheme.colors.onBackground, steps = ySteps),
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -310,6 +327,19 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     TextButton(onClick = { viewModel.clearSensorDataList() }) {
         Text(text = stringResource(id = R.string.clear_graph))
     }
+}
+
+@Composable
+private fun NoConnectionAnimation() {
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/14651-error-animation.json"))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition,
+        progress
+    )
 }
 
 enum class MeasureType(val value: String) {
