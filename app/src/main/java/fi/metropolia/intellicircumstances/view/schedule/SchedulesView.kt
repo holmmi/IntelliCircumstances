@@ -132,7 +132,17 @@ fun SchedulesView(navController: NavController,
                                                 )
                                             }
                                             if (WorkInfo.State.valueOf(schedule.status) == WorkInfo.State.SUCCEEDED) {
-                                                IconButton(onClick = { /*TODO: Navigate to view data*/ }) {
+                                                IconButton(
+                                                    onClick = {
+                                                        if (spaceId != null && schedule.id != null) {
+                                                            navController.navigate(
+                                                                NavigationRoutes.SCHEDULE_RESULTS
+                                                                    .replace("{spaceId}", spaceId.toString())
+                                                                    .replace("{scheduleId}", schedule.id.toString())
+                                                            )
+                                                        }
+                                                    }
+                                                ) {
                                                     Icon(
                                                         imageVector = Icons.Filled.NavigateNext,
                                                         contentDescription = null
