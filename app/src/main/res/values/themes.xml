@@ -23,4 +23,11 @@
     <style name="Theme.IntelliCircumstances.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.IntelliCircumstances.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Theme.IntelliCircumstances.Starting" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenIconBackgroundColor">@color/red_700</item>
+        <item name="windowSplashScreenBackground">@color/red_700</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.IntelliCircumstances.NoActionBar</item>
+    </style>
 </resources>
