@@ -57,6 +57,9 @@ interface ScheduleDao {
     @Insert
     suspend fun addSchedule(schedule: Schedule)
 
+    @Query("SELECT * FROM schedule WHERE id = :scheduleId")
+    fun getScheduleById(scheduleId: Long): Flow<Schedule>
+
     @Query("SELECT * FROM schedule WHERE space_id = :spaceId")
     fun getSchedulesBySpaceId(spaceId: Long): Flow<List<Schedule>>
 

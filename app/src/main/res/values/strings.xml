@@ -78,4 +78,9 @@
         and the pending schedule will not run.
     </string>
     <string name="no_schedules">There are no schedules. Click + to add one.</string>
+    <string name="min_value">Min: %.2f %s</string>
+    <string name="max_value">Max: %.2f %s</string>
+    <string name="avg_value">Avg: %.2f %s</string>
+    <string name="schedule_date">Showing schedule between %s and %s.</string>
+    <string name="value_at">%.2f %s at %s</string>
 </resources>
