@@ -9,8 +9,10 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -19,13 +21,10 @@ import fi.metropolia.intellicircumstances.extension.getActivity
 
 @Composable
 fun TimePicker(label: String,
-               initialHour: Int,
-               initialMinute: Int,
+               hourValue: Int,
+               minuteValue: Int,
                modifier: Modifier = Modifier,
                onSelectTime: (hour: Int, minute: Int) -> Unit) {
-    var selectedHour by rememberSaveable { mutableStateOf(initialHour) }
-    var selectedMinute by rememberSaveable { mutableStateOf(initialMinute) }
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -35,18 +34,16 @@ fun TimePicker(label: String,
         if (isPressed) {
             showTimePicker(
                 context.getActivity(),
-                selectedHour,
-                selectedMinute
+                hourValue,
+                minuteValue
             ) { hour, minute ->
-                selectedHour = hour
-                selectedMinute = minute
                 onSelectTime(hour, minute)
             }
         }
     }
 
     OutlinedTextField(
-        value = String.format("%02d:%02d", selectedHour, selectedMinute),
+        value = String.format("%02d:%02d", hourValue, minuteValue),
         onValueChange = {},
         readOnly = true,
         singleLine = true,

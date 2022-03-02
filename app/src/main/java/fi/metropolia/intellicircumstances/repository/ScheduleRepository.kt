@@ -30,6 +30,9 @@ class ScheduleRepository(context: Context) {
         workManager.cancelWorkById(UUID.fromString(uuid))
     }
 
+    fun getScheduleById(scheduleId: Long) =
+        scheduleDao.getScheduleById(scheduleId).asLiveData()
+
     fun getSchedulesBySpaceId(spaceId: Long): LiveData<List<Schedule>> =
         scheduleDao.getSchedulesBySpaceId(spaceId).asLiveData()
 

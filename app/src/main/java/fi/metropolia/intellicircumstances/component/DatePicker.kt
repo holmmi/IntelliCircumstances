@@ -8,15 +8,15 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import fi.metropolia.intellicircumstances.extension.getActivity
-import fi.metropolia.intellicircumstances.view.schedule.NewScheduleViewModel
 import java.text.DateFormat
 import java.util.*
 
@@ -24,12 +24,10 @@ import java.util.*
 fun DatePicker(
     label: String,
     modifier: Modifier = Modifier,
-    initialDate: Long? = null,
+    value: Long? = null,
     onSelectDate: (Long) -> Unit,
-    dateConstraints: State<CalendarConstraints?>
+    dateConstraints: CalendarConstraints? = null
 ) {
-    var selectedDate by rememberSaveable { mutableStateOf(initialDate) }
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -39,17 +37,16 @@ fun DatePicker(
         if (isPressed) {
             showDatePicker(
                 context.getActivity(),
-                dateConstraints.value,
-                selectedDate
+                dateConstraints,
+                value
             ) { date ->
                 onSelectDate(date)
-                selectedDate = date
             }
         }
     }
 
     OutlinedTextField(
-        value = selectedDate?.let { getLocalizedDate(it) } ?: "",
+        value = value?.let { getLocalizedDate(it) } ?: "",
         onValueChange = {},
         readOnly = true,
         singleLine = true,
