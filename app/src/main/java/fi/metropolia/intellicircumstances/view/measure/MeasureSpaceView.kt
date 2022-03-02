@@ -270,23 +270,26 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
             null
         )
     }
+    try {
+        if (data.value != null) {
+            val sec = data.value?.first!!.toFloat()
+            val tempData =
+                DataPoint(sec, data.value?.second?.temperature!!.toFloat())
+            val humiData = DataPoint(sec, data.value?.second?.humidity!!.toFloat())
+            val presData = DataPoint(sec, data.value?.second?.airPressure!!.toFloat())
 
-    if (data.value != null) {
-        val sec = data.value?.first!!.toFloat()
-        val tempData =
-            DataPoint(sec, data.value?.second?.temperature!!.toFloat())
-        val humiData = DataPoint(sec, data.value?.second?.humidity!!.toFloat())
-        val presData = DataPoint(sec, data.value?.second?.airPressure!!.toFloat())
-
-        points = if (points != null) {
-            Triple(
-                points!!.first.plus(tempData),
-                points!!.second.plus(humiData),
-                points!!.third.plus(presData)
-            )
-        } else {
-            Triple(listOf(tempData), listOf(humiData), listOf(presData))
+            points = if (points != null) {
+                Triple(
+                    points!!.first.plus(tempData),
+                    points!!.second.plus(humiData),
+                    points!!.third.plus(presData)
+                )
+            } else {
+                Triple(listOf(tempData), listOf(humiData), listOf(presData))
+            }
         }
+    } catch (e: Error) {
+        throw e
     }
 
     if (points != null) {
