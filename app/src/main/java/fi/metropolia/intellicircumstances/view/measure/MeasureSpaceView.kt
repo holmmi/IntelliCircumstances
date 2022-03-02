@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -183,9 +184,10 @@ fun MeasureSpaceView(
                 var tabIndex by remember { mutableStateOf(0) }
                 val tabTitles = listOf(
                     stringResource(id = R.string.temp),
-                    stringResource(R.string.humid),
-                    stringResource(R.string.pressure)
+                    stringResource(id = R.string.humid),
+                    stringResource(id = R.string.pressure)
                 )
+                val units = stringArrayResource(id = R.array.units)
                 Column {
                     TabRow(selectedTabIndex = tabIndex) {
                         tabTitles.forEachIndexed { index, title ->
@@ -195,42 +197,29 @@ fun MeasureSpaceView(
                         }
                     }
                     Column(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
+                        var selectedValue: Double? = null
                         when (tabIndex) {
                             0 -> {
-                                Text(
-                                    "${stringResource(id = R.string.temp)} ${
-                                        sensorData.value?.temperature?.round(
-                                            2
-                                        )
-                                    } °C"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.TEMPERATURE)
+                                selectedValue = sensorData.value?.temperature
                             }
                             1 -> {
-                                Text(
-                                    "${stringResource(id = R.string.humid)} ${
-                                        sensorData.value?.humidity?.round(
-                                            2
-                                        )
-                                    } %"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.HUMIDITY)
+                                selectedValue = sensorData.value?.humidity
                             }
-
                             2 -> {
-                                Text(
-                                    "${stringResource(id = R.string.pressure)} ${
-                                        sensorData.value?.airPressure?.round(
-                                            2
-                                        )
-                                    } hPa"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.AIRPRESSURE)
+                                selectedValue = sensorData.value?.airPressure
                             }
                         }
+                        Text(
+                            text = "${tabTitles[tabIndex]} ${selectedValue?.round(2) ?: "-"} ${units[tabIndex]}",
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        ShowGraph(measureSpaceViewModel, MeasureType.values()[tabIndex])
                     }
                 }
             } else {
@@ -275,24 +264,43 @@ fun MeasureSpaceView(
 
 @Composable
 private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
-    val data = viewModel.sensorDataList.observeAsState()
+    val data = viewModel.graphData.observeAsState()
     var points by rememberSaveable { mutableStateOf<List<DataPoint>?>(null) }
 
-    if (type == MeasureType.TEMPERATURE) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.temperature?.toFloat() ?: 0.0F)
+
+    if (data.value != null) {
+        val dp: DataPoint
+       // points = points?.plus(
+            when (type) {
+                MeasureType.TEMPERATURE -> {
+                    dp =
+                    DataPoint(
+                        data.value?.first!!.toFloat(),
+                        data.value?.second?.temperature?.toFloat() ?: 0.0F
+                    )
+                }
+                MeasureType.HUMIDITY -> {
+                    dp =
+                    DataPoint(
+                        data.value?.first!!.toFloat(),
+                        data.value?.second?.humidity?.toFloat() ?: 0.0F
+                    )
+                }
+                MeasureType.AIRPRESSURE -> {
+                    dp =
+                    DataPoint(
+                        data.value?.first!!.toFloat(),
+                        data.value?.second?.airPressure?.toFloat() ?: 0.0F
+                    )
+                }
+            }
+        if (points != null) {
+            points = points!!.plus(dp)
+        } else {
+            points = listOf(dp)
         }
     }
-    if (type == MeasureType.HUMIDITY) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.humidity?.toFloat() ?: 0.0F)
-        }
-    }
-    if (type == MeasureType.AIRPRESSURE) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.airPressure?.toFloat() ?: 0.0F)
-        }
-    }
+
     if (points != null) {
         val ySteps = 6
         LineGraph(
@@ -321,10 +329,13 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
+                .height(400.dp),
         )
     }
-    TextButton(onClick = { viewModel.clearSensorDataList() }) {
+    TextButton(onClick = {
+        viewModel.clearGraphSeconds()
+        points = null
+    }) {
         Text(text = stringResource(id = R.string.clear_graph))
     }
 }
@@ -342,8 +353,8 @@ private fun NoConnectionAnimation() {
     )
 }
 
-enum class MeasureType(val value: String) {
-    TEMPERATURE("temperature"),
-    HUMIDITY("humidity"),
-    AIRPRESSURE("airPressure"),
+enum class MeasureType(val value: Int) {
+    TEMPERATURE(0),
+    HUMIDITY(1),
+    AIRPRESSURE(2),
 }

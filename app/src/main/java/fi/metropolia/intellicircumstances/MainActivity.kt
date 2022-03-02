@@ -9,7 +9,11 @@ import fi.metropolia.intellicircumstances.ui.theme.IntelliCircumstancesTheme
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val asd = installSplashScreen()
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            setTheme(R.style.Theme_IntelliCircumstances_NoActionBar)
+        } else {
+            installSplashScreen()
+        }
         super.onCreate(savedInstanceState)
         setContent {
             IntelliCircumstancesTheme {

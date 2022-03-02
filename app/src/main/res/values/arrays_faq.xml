@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="questions">
+        <item>Q: What does this app do?</item>
+        <item>Q: How to get started?</item>
+        <item>Q: How can I share data?\nWhat can I share?</item>
+        <item>Q: Can I use one RuuviTag for multiple spaces?</item>
+        <item>Q: Who made this app?</item>
+        <item>Q: I have another question or have feedback/bug issue.</item>
+    </string-array>
+
+    <string-array name="answers">
+        <item>
+            A: In this app, you can add spaces of any area,
+            for example your kitchen, balcony and summer cottage,
+            individually measure data from them and
+            share them among other users.
+        </item>
+        <item>
+            A: Start by adding spaces from the spaces page. After that,
+            head to measure page and choose which
+            A RuuviTag device is used to measure conditions of selected space.
+            You must add one to each space by clicking the Bluetooth Icon on spaces page or measure page.
+        </item>
+        <item>
+            A: Head to the measure page. There, you can see your properties and select a space from a property
+            Select a timer symbol from the space list.
+            Add a schedule and when the scheduled measurement is done,
+            click on the finished schedule to get the results.
+            There you can share the results.
+        </item>
+        <item>
+            A: Yes. However, note that you can\'t save data from two spaces that use the same device at the same time.
+        </item>
+        <item>
+            A: This app is developed by Mikael Holm and Tiitus Telke of Metropolia University of Applied Sciences as a part of Mobile solutions major program.
+        </item>
+        <item>
+            A: Please send us email to tiitus.telke\@metropolia.fi. We are happy to help you \u263A.
+        </item>
+    </string-array>
+</resources>

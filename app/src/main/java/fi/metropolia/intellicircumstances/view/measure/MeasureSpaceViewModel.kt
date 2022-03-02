@@ -18,9 +18,9 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
         get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
-    val _sensorDataList = MutableLiveData<List<Pair<Int,RuuviTagSensorData>>?>(null)
-    val sensorDataList: LiveData<List<Pair<Int,RuuviTagSensorData>>?>
-        get() = _sensorDataList
+    private var _graphData = MutableLiveData<Pair<Int,RuuviTagSensorData>?>(null)
+    val graphData: LiveData<Pair<Int,RuuviTagSensorData>?>
+        get() = _graphData
 
     private val _ruuviConnectionState = MutableLiveData<ConnectionState?>(null)
     val ruuviConnectionState: LiveData<ConnectionState?>
@@ -40,12 +40,7 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
             sensorData.postValue(ruuviTagSensorData)
 
-            if (sensorDataList.value != null) {
-                val newData = sensorDataList.value?.plus(Pair(seconds, ruuviTagSensorData))
-                _sensorDataList.postValue(newData)
-            } else {
-                _sensorDataList.postValue(listOf(Pair(seconds, ruuviTagSensorData)))
-            }
+            _graphData.postValue((Pair(seconds, ruuviTagSensorData)))
             seconds++
         }
 
@@ -83,10 +78,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun disconnectDevice() {
-        ruuviTagConnector.disconnectDevice()
-    }
-
     fun isBluetoothEnabled(): Flow<Boolean> = flow {
         while (true) {
             emit(ruuviTagConnector.isBluetoothEnabled())
@@ -94,9 +85,9 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun clearSensorDataList() {
+    fun clearGraphSeconds() {
         seconds = 0
-        _sensorDataList.postValue(null)
+        _graphData.value = null
     }
 
     override fun onCleared() {

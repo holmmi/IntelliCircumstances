@@ -57,6 +57,11 @@
     <string name="choose_space">Choose a space</string>
     <string name="retry">Retry</string>
     <string name="clear_graph">Clear graph</string>
+    <string-array name="units">
+        <item>°C</item>
+        <item>%</item>
+        <item>hPa</item>
+    </string-array>
 
     <!--schedule-->
     <string name="schedule">Schedule</string>
