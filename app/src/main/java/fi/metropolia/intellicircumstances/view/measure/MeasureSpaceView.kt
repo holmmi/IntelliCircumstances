@@ -265,39 +265,27 @@ fun MeasureSpaceView(
 @Composable
 private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     val data = viewModel.graphData.observeAsState()
-    var points by rememberSaveable { mutableStateOf<List<DataPoint>?>(null) }
-
+    var points by rememberSaveable {
+        mutableStateOf<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(
+            null
+        )
+    }
 
     if (data.value != null) {
-        val dp: DataPoint
-       // points = points?.plus(
-            when (type) {
-                MeasureType.TEMPERATURE -> {
-                    dp =
-                    DataPoint(
-                        data.value?.first!!.toFloat(),
-                        data.value?.second?.temperature?.toFloat() ?: 0.0F
-                    )
-                }
-                MeasureType.HUMIDITY -> {
-                    dp =
-                    DataPoint(
-                        data.value?.first!!.toFloat(),
-                        data.value?.second?.humidity?.toFloat() ?: 0.0F
-                    )
-                }
-                MeasureType.AIRPRESSURE -> {
-                    dp =
-                    DataPoint(
-                        data.value?.first!!.toFloat(),
-                        data.value?.second?.airPressure?.toFloat() ?: 0.0F
-                    )
-                }
-            }
-        if (points != null) {
-            points = points!!.plus(dp)
+        val sec = data.value?.first!!.toFloat()
+        val tempData =
+            DataPoint(sec, data.value?.second?.temperature!!.toFloat())
+        val humiData = DataPoint(sec, data.value?.second?.humidity!!.toFloat())
+        val presData = DataPoint(sec, data.value?.second?.airPressure!!.toFloat())
+
+        points = if (points != null) {
+            Triple(
+                points!!.first.plus(tempData),
+                points!!.second.plus(humiData),
+                points!!.third.plus(presData)
+            )
         } else {
-            points = listOf(dp)
+            Triple(listOf(tempData), listOf(humiData), listOf(presData))
         }
     }
 
@@ -307,7 +295,7 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
             plot = LinePlot(
                 listOf(
                     LinePlot.Line(
-                        points!!,
+                        points!!.toList()[type.value],
                         LinePlot.Connection(color = MaterialTheme.colors.primary),
                         null,
                         null,
