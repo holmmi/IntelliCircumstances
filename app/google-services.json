@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "348325534225",
+    "project_id": "intellicircumstances",
+    "storage_bucket": "intellicircumstances.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348325534225:android:58b8a07628252b6ca26fb0",
+        "android_client_info": {
+          "package_name": "fi.metropolia.intellicircumstances"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "348325534225-0p1haqhikfa5odilr065mlois13479d3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA6cLmIu6cWhSQq96KbSxRgw7U-BDcKxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "348325534225-0p1haqhikfa5odilr065mlois13479d3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
