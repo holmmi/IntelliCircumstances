@@ -105,4 +105,17 @@
     <string name="unnamed">Unnamed device</string>
     <string name="no_devices">No RuuviTag Devices.</string>
     <string name="contentdesc_delete_device">Using this button you can delete the RuuviTag device associated for %s\'s %s.</string>
+    <string name="schedule_already_shared_title">Results already shared</string>
+    <string name="schedule_already_shared_content">
+        Schedule results are already shared, so no action is required. The data is stored
+        anonymously and cannot be associated with you.
+    </string>
+    <string name="schedule_shared_title">Sharing succeeded</string>
+    <string name="schedule_shared_content">
+        Schedule results are now shared anonymously. You may view shared results at Home.
+    </string>
+    <string name="schedule_share_failed_title">Sharing failed</string>
+    <string name="schedule_share_failed_content">
+        Schedule results could not be shared due to an error. Please try again later.
+    </string>
 </resources>

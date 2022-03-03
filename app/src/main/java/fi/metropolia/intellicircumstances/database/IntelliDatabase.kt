@@ -84,6 +84,9 @@ interface CircumstanceDao {
 
     @Query("SELECT * FROM circumstance WHERE schedule_id = :scheduleId")
     fun getCircumstancesByScheduleId(scheduleId: Long): Flow<List<Circumstance>>
+
+    @Query("SELECT * FROM circumstance WHERE schedule_id = :scheduleId")
+    suspend fun getCircumstancesByScheduleIdAsList(scheduleId: Long): List<Circumstance>
 }
 
 private const val DATABASE_NAME = "intelli"
