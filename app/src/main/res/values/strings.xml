@@ -9,6 +9,9 @@
     <string name="ok">OK</string>
     <string name="reset">Reset</string>
     <string name="backto">Back to %s</string>
+    <string-array name="pref_keys">
+        <item>dark_mode</item>
+    </string-array>
 
     <!-- Device search and connection -->
     <string name="add_tag">Add RuuviTag</string>

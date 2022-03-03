@@ -1,5 +1,9 @@
 package fi.metropolia.intellicircumstances.view.settings
 
+import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
@@ -25,10 +31,16 @@ import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 @Composable
 fun SettingsView(navController: NavController) {
     val context = LocalContext.current
-    var isDarkMode by remember { mutableStateOf(false) }
+    val keys = stringArrayResource(id = R.array.pref_keys)
+    val settingsViewModel = SettingsViewModel(
+        context.applicationContext as Application, keys
+    )
     var languages = stringArrayResource(id = R.array.languages)
     var language by remember { mutableStateOf(context.resources.getString(R.string.choose_language)) }
     var expanded by remember { mutableStateOf(false) }
+    val isDarkMode = settingsViewModel.isDarkMode.observeAsState()
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,12 +58,16 @@ fun SettingsView(navController: NavController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(onClick = { isDarkMode = !isDarkMode })
+                        .clickable(onClick = {
+                            settingsViewModel.toggleDarkMode(keys[0])
+                        })
                         .padding(bottom = 16.dp, top = 16.dp),
                 ) {
                     Text(text = stringResource(id = R.string.dark_mode))
                     Spacer(modifier = Modifier.weight(1f))
-                    Switch(checked = isDarkMode, onCheckedChange = { isDarkMode = it })
+                    Switch(checked = isDarkMode.value!!, onCheckedChange = {
+                        settingsViewModel.toggleDarkMode(keys[0])
+                    })
                 }
                 Divider()
                 Column() {
@@ -96,7 +112,7 @@ fun SettingsView(navController: NavController) {
                         .border(BorderStroke(1.dp, SolidColor(Color.LightGray)))
                         .padding(bottom = 16.dp, top = 16.dp)
                         .clickable(onClick = { navController.navigate(NavigationRoutes.DEVICES) }),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Devices,
