@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.repository
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,12 +16,14 @@ class ShareRepository(listenForChanges: Boolean = false) {
         .getReference()
         .child(SCHEDULE_PATH)
 
-    private val sharedSchedules = MutableLiveData<List<FirebaseSchedule>?>(null)
+    private val _sharedSchedules = MutableLiveData<List<FirebaseSchedule>?>(null)
+    val sharedSchedules: LiveData<List<FirebaseSchedule>?>
+        get() = _sharedSchedules
 
     private val valueListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val schedules = snapshot.children.mapNotNull { it.getValue(FirebaseSchedule::class.java) }
-            sharedSchedules.postValue(schedules)
+            _sharedSchedules.postValue(schedules)
         }
 
         override fun onCancelled(error: DatabaseError) {

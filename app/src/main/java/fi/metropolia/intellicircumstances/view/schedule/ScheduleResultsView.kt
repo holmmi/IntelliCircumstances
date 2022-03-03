@@ -61,7 +61,7 @@ fun ScheduleResultsView(
     }
 
     LaunchedEffect(shareSucceeded) {
-        shareSucceeded?.let { succeeded ->
+        shareSucceeded?.let {
             showSharingResultAlert = true
         }
     }
@@ -101,8 +101,14 @@ fun ScheduleResultsView(
                 title = stringResource(if (shareSucceeded == true) R.string.schedule_shared_title else R.string.schedule_share_failed_title),
                 content = stringResource(if (shareSucceeded == true) R.string.schedule_shared_content else R.string.schedule_share_failed_content),
                 visible = showSharingResultAlert,
-                onConfirm = { showSharingResultAlert = false },
-                onDismiss = { showSharingResultAlert = false }
+                onConfirm = {
+                    showSharingResultAlert = false
+                    scheduleResultsViewModel.resetSharedSucceed()
+                },
+                onDismiss = {
+                    showSharingResultAlert = false
+                    scheduleResultsViewModel.resetSharedSucceed()
+                }
             )
 
             Column(
