@@ -29,6 +29,9 @@ class DeviceRepository(context: Context) {
         deviceDao.getRuuviTagDeviceBySpaceId(spaceId)
     }
 
+    fun getRuuviTagDeviceAsLiveData(spaceId: Long): LiveData<RuuviDevice> =
+        deviceDao.getRuuviTagDeviceAsLiveData(spaceId)
+
     fun isDeviceAdded(spaceId: Long) =
             deviceDao.isDeviceAdded(spaceId)
 }

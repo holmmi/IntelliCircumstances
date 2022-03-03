@@ -237,9 +237,9 @@ fun SpacesView(
                                                     if (space.id != null) {
                                                         val isAdded =
                                                             spacesViewModel.isDeviceAdded(space.id)
-                                                                .observeAsState().value
+                                                                .observeAsState()
 
-                                                        if (isAdded == true) {
+                                                        if (isAdded.value == true) {
                                                             Icon(
                                                                 imageVector = Icons.Filled.BluetoothDisabled,
                                                                 contentDescription = null

@@ -264,41 +264,15 @@ fun MeasureSpaceView(
 
 @Composable
 private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
-    val data = viewModel.graphData.observeAsState()
-    var points by rememberSaveable {
-        mutableStateOf<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(
-            null
-        )
-    }
-    try {
-        if (data.value != null) {
-            val sec = data.value?.first!!.toFloat()
-            val tempData =
-                DataPoint(sec, data.value?.second?.temperature!!.toFloat())
-            val humiData = DataPoint(sec, data.value?.second?.humidity!!.toFloat())
-            val presData = DataPoint(sec, data.value?.second?.airPressure!!.toFloat())
+    val points = viewModel.points.observeAsState()
 
-            points = if (points != null) {
-                Triple(
-                    points!!.first.plus(tempData),
-                    points!!.second.plus(humiData),
-                    points!!.third.plus(presData)
-                )
-            } else {
-                Triple(listOf(tempData), listOf(humiData), listOf(presData))
-            }
-        }
-    } catch (e: Error) {
-        throw e
-    }
-
-    if (points != null) {
-        val ySteps = 6
+    val ySteps = 6
+    if (points.value != null) {
         LineGraph(
             plot = LinePlot(
                 listOf(
                     LinePlot.Line(
-                        points!!.toList()[type.value],
+                        points.value!!.toList()[type.value],
                         LinePlot.Connection(color = MaterialTheme.colors.primary),
                         null,
                         null,
@@ -323,9 +297,9 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                 .height(400.dp),
         )
     }
+
     TextButton(onClick = {
-        viewModel.clearGraphSeconds()
-        points = null
+        viewModel.clearGraph()
     }) {
         Text(text = stringResource(id = R.string.clear_graph))
     }

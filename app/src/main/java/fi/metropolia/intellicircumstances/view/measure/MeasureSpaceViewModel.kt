@@ -1,10 +1,13 @@
 package fi.metropolia.intellicircumstances.view.measure
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.madrapps.plot.line.DataPoint
 import fi.metropolia.intellicircumstances.bluetooth.*
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
@@ -18,9 +21,9 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
         get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
-    private var _graphData = MutableLiveData<Pair<Int,RuuviTagSensorData>?>(null)
-    val graphData: LiveData<Pair<Int,RuuviTagSensorData>?>
-        get() = _graphData
+    private var _points = MutableLiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(null)
+    val points: LiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>
+        get() = _points
 
     private val _ruuviConnectionState = MutableLiveData<ConnectionState?>(null)
     val ruuviConnectionState: LiveData<ConnectionState?>
@@ -40,7 +43,22 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
             sensorData.postValue(ruuviTagSensorData)
 
-            _graphData.postValue((Pair(seconds, ruuviTagSensorData)))
+            try {
+                val tempData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.temperature?.toFloat() ?: 0.0f)
+                val humiData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.humidity?.toFloat() ?: 0.0f)
+                val presData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.airPressure?.toFloat() ?: 0.0f)
+
+                _points.value = Triple(
+                    points.value!!.first.plus(tempData),
+                    points.value!!.second.plus(humiData),
+                    points.value!!.third.plus(presData)
+                )
+            } catch (e: Error) {
+                throw e
+            }
             seconds++
         }
 
@@ -85,9 +103,10 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun clearGraphSeconds() {
+
+    fun clearGraph() {
         seconds = 0
-        _graphData.value = null
+        _points.value = null
     }
 
     override fun onCleared() {

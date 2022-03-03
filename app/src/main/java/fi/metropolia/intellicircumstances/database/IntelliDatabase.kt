@@ -48,6 +48,9 @@ interface DeviceDao {
     @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 
+    @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
+    fun getRuuviTagDeviceAsLiveData(spaceId: Long): LiveData<RuuviDevice>
+
     @Query("SELECT EXISTS(SELECT * FROM ruuvi_device WHERE space_id = :spaceId)")
     fun isDeviceAdded(spaceId: Long): LiveData<Boolean>
 }

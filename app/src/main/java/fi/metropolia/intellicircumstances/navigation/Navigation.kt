@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.accompanist.pager.ExperimentalPagerApi
 import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
@@ -17,10 +18,12 @@ import fi.metropolia.intellicircumstances.view.measure.SpaceSelectionView
 import fi.metropolia.intellicircumstances.view.schedule.NewScheduleView
 import fi.metropolia.intellicircumstances.view.schedule.ScheduleResultsView
 import fi.metropolia.intellicircumstances.view.schedule.SchedulesView
+import fi.metropolia.intellicircumstances.view.settings.DevicesView
 import fi.metropolia.intellicircumstances.view.settings.SettingsView
 import fi.metropolia.intellicircumstances.view.spaces.PropertiesView
 import fi.metropolia.intellicircumstances.view.spaces.SpacesView
 
+@ExperimentalPagerApi
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
@@ -64,6 +67,7 @@ fun Navigation() {
                         )
                     }
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
+                    composable(NavigationRoutes.DEVICES) { DevicesView(navController) }
                     composable(
                         NavigationRoutes.SPACES,
                         arguments = listOf(navArgument("propertyId") { type = NavType.StringType })
@@ -87,5 +91,6 @@ object NavigationRoutes {
     const val SCHEDULES = "measure/{spaceId}/schedules"
     const val SCHEDULE_RESULTS = "measure/{spaceId}/schedules/{scheduleId}"
     const val SETTINGS = "settings"
+    const val DEVICES = "settings/devices"
     const val SPACES = "properties/{propertyId}"
 }
