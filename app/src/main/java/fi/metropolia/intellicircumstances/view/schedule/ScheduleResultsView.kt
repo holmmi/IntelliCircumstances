@@ -6,12 +6,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -25,6 +22,7 @@ import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.ShowAlertDialog
 import fi.metropolia.intellicircumstances.database.Circumstance
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 import fi.metropolia.intellicircumstances.ui.theme.Red200
@@ -46,6 +44,27 @@ fun ScheduleResultsView(
     var selectedTab by rememberSaveable { mutableStateOf(0) }
     val circumstances by scheduleResultsViewModel.getCircumstancesByScheduleId(scheduleId!!).observeAsState()
     val schedule by scheduleResultsViewModel.getScheduleById(scheduleId!!).observeAsState()
+    val isScheduleShared by scheduleResultsViewModel.isScheduleShared.observeAsState()
+    val shareSucceeded by scheduleResultsViewModel.shareSucceeded.observeAsState()
+    var showAlreadySharedAlert by rememberSaveable { mutableStateOf(false) }
+    var showSharingResultAlert by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(isScheduleShared) {
+        isScheduleShared?.let { isShared ->
+            if (!isShared) {
+                schedule?.let { scheduleResultsViewModel.shareSchedule(it) }
+            } else {
+                showAlreadySharedAlert = true
+            }
+            scheduleResultsViewModel.resetScheduleIsShared()
+        }
+    }
+
+    LaunchedEffect(shareSucceeded) {
+        shareSucceeded?.let { succeeded ->
+            showSharingResultAlert = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -57,13 +76,35 @@ fun ScheduleResultsView(
                      }
                  },
                  actions = {
-                     IconButton(onClick = { /*TODO: Share results*/ }) {
+                     IconButton(
+                         onClick = {
+                             schedule?.let { s ->
+                                 s.uuid?.let { scheduleResultsViewModel.checkIfScheduleIsShared(it) }
+                             }
+                         }
+                     ) {
                          Icon(imageVector = Icons.Filled.Share, contentDescription = null)
                      }
                  }
              )
         },
         content = {
+            ShowAlertDialog(
+                title = stringResource(id = R.string.schedule_already_shared_title),
+                content = stringResource(id = R.string.schedule_already_shared_content),
+                visible = showAlreadySharedAlert,
+                onConfirm = { showAlreadySharedAlert = false },
+                onDismiss = { showAlreadySharedAlert = false }
+            )
+
+            ShowAlertDialog(
+                title = stringResource(if (shareSucceeded == true) R.string.schedule_shared_title else R.string.schedule_share_failed_title),
+                content = stringResource(if (shareSucceeded == true) R.string.schedule_shared_content else R.string.schedule_share_failed_content),
+                visible = showSharingResultAlert,
+                onConfirm = { showSharingResultAlert = false },
+                onDismiss = { showSharingResultAlert = false }
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
