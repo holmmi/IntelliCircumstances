@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.util.DateUtil
 
 @Composable
 fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewModel()) {
@@ -64,8 +65,8 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
                                         Text(
                                             text = String.format(
                                                 stringResource(R.string.schedule_between),
-                                                homeViewModel.getFormattedDate(schedule.startDate ?: 0),
-                                                homeViewModel.getFormattedDate(schedule.endDate ?: 0)
+                                                DateUtil.getFormattedDate(schedule.startDate ?: 0),
+                                                DateUtil.getFormattedDate(schedule.endDate ?: 0)
                                             ),
                                             style = MaterialTheme.typography.subtitle2
                                         )
