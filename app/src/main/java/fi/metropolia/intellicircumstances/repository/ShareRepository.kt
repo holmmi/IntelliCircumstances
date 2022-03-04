@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DataSnapshot
@@ -27,7 +28,7 @@ class ShareRepository(listenForChanges: Boolean = false) {
         }
 
         override fun onCancelled(error: DatabaseError) {
-            // Not used
+            Log.e(ShareRepository::class.java.name, error.toString())
         }
     }
 
@@ -48,9 +49,8 @@ class ShareRepository(listenForChanges: Boolean = false) {
                         }
                     }
                     .addOnFailureListener {
-                        if (continuation.isActive) {
-                            continuation.resume(false)
-                        }
+                        Log.e(ShareRepository::class.java.name, it.toString())
+                        continuation.cancel(it.cause)
                     }
             }
         }
@@ -64,9 +64,26 @@ class ShareRepository(listenForChanges: Boolean = false) {
                     }
                 }
                 .addOnFailureListener {
+                    Log.e(ShareRepository::class.java.name, it.toString())
+                    continuation.cancel(it.cause)
+                }
+        }
+
+    suspend fun getScheduleByUuid(uuid: String): FirebaseSchedule? =
+        suspendCancellableCoroutine { continuation ->
+            database.orderByChild("uuid").equalTo(uuid).get()
+                .addOnSuccessListener { dataSnapshot ->
                     if (continuation.isActive) {
-                        continuation.resume(false)
+                        continuation.resume(
+                            dataSnapshot.children
+                                .map { it.getValue(FirebaseSchedule::class.java) }
+                                .firstOrNull()
+                        )
                     }
+                }
+                .addOnFailureListener {
+                    Log.e(ShareRepository::class.java.name, it.toString())
+                    continuation.cancel(it.cause)
                 }
         }
 
