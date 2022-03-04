@@ -59,6 +59,10 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
             errors.add(resources.getString(R.string.date_range_error))
         }
 
+        if (System.currentTimeMillis() > endCalendar.timeInMillis) {
+            errors.add(resources.getString(R.string.end_date_past))
+        }
+
         if (errors.isEmpty()) {
             addSchedule(spaceId, scheduleName, startCalendar.timeInMillis, endCalendar.timeInMillis)
         } else {
