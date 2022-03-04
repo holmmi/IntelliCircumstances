@@ -77,11 +77,17 @@ fun NewScheduleView(navController: NavController,
         content = {
             if (showFormErrors) {
                 AlertDialog(
-                    onDismissRequest = { showFormErrors = false },
+                    onDismissRequest = {
+                        showFormErrors = false
+                        newScheduleViewModel.resetFormErrors()
+                    },
                     title = { Text(text = stringResource(id = R.string.form_errors)) },
                     dismissButton = {
                         TextButton(
-                            onClick = { showFormErrors = false }
+                            onClick = {
+                                showFormErrors = false
+                                newScheduleViewModel.resetFormErrors()
+                            }
                         ) {
                             Text(text = stringResource(id = R.string.ok))
                         }
@@ -89,7 +95,7 @@ fun NewScheduleView(navController: NavController,
                     confirmButton = {},
                     text = {
                         formErrors?.let {
-                            Text(text = it.joinToString("\n\n") )
+                            Text(text = it.joinToString("\n\n"))
                         }
                     }
                 )

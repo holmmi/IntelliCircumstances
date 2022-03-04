@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.google.accompanist.pager.ExperimentalPagerApi
 import fi.metropolia.intellicircumstances.view.faq.FaqView
 import fi.metropolia.intellicircumstances.view.home.HomeView
+import fi.metropolia.intellicircumstances.view.home.SharedScheduleView
 import fi.metropolia.intellicircumstances.view.measure.MeasureSpaceView
 import fi.metropolia.intellicircumstances.view.measure.SpaceSelectionView
 import fi.metropolia.intellicircumstances.view.schedule.NewScheduleView
@@ -69,6 +70,12 @@ fun Navigation() {
                     composable(NavigationRoutes.SETTINGS) { SettingsView(navController) }
                     composable(NavigationRoutes.DEVICES) { DevicesView(navController) }
                     composable(
+                        NavigationRoutes.SHARED_SCHEDULE,
+                        arguments = listOf(navArgument("uuid") { type = NavType.StringType })
+                    ) {
+                        SharedScheduleView(navController, it.arguments?.getString("uuid"))
+                    }
+                    composable(
                         NavigationRoutes.SPACES,
                         arguments = listOf(navArgument("propertyId") { type = NavType.StringType })
                     ) {
@@ -92,5 +99,6 @@ object NavigationRoutes {
     const val SCHEDULE_RESULTS = "measure/{spaceId}/schedules/{scheduleId}"
     const val SETTINGS = "settings"
     const val DEVICES = "settings/devices"
+    const val SHARED_SCHEDULE = "home/shared-schedule/{uuid}"
     const val SPACES = "properties/{propertyId}"
 }

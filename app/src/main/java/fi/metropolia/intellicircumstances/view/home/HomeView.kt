@@ -71,7 +71,16 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
                                             style = MaterialTheme.typography.subtitle2
                                         )
                                     }
-                                    IconButton(onClick = { /*TODO: Navigate to view shared results*/ }) {
+                                    IconButton(
+                                        onClick = {
+                                            schedule.uuid?.let {
+                                                navController.navigate(
+                                                    NavigationRoutes.SHARED_SCHEDULE
+                                                        .replace("{uuid}", it)
+                                                )
+                                            }
+                                        }
+                                    ) {
                                         Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = null)
                                     }
                                 }
