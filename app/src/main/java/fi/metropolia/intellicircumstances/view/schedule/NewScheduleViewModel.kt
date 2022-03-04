@@ -32,8 +32,6 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         endHour: Int,
         endMinute: Int
     ): Boolean {
-        _formErrors.value = mutableListOf()
-
         val resources = getApplication<Application>().applicationContext.resources
         val errors = mutableListOf<String>()
         if (scheduleName.isEmpty()) {
@@ -71,6 +69,10 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         return errors.isEmpty()
     }
 
+    fun resetFormErrors() {
+        _formErrors.value = listOf()
+    }
+
     private fun addSchedule(spaceId: Long, scheduleName: String, start: Long, end: Long) {
         viewModelScope.launch {
             scheduleRepository.addSchedule(
@@ -89,7 +91,7 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         val max: CalendarConstraints.DateValidator
 
         if (isStartDate) {
-            min = DateValidatorPointForward.from(MIN_DATE)
+            min = DateValidatorPointForward.from(System.currentTimeMillis() - MAX_DAYS)
             max = DateValidatorPointBackward.before(MAX_DATE)
         } else {
             min = DateValidatorPointForward.from(startDate ?: MIN_DATE)
@@ -106,6 +108,6 @@ class NewScheduleViewModel(application: Application) : AndroidViewModel(applicat
         // Current time + 10 years in ms
         private val MAX_DATE = System.currentTimeMillis() + 60 * 60 * 24 * 365 * 10 * 1000L
         // 10 days in ms
-        private const val MAX_DAYS = 60 * 60 * 24 * 9 * 1000L
+        private const val MAX_DAYS = 60 * 60 * 24 * 10 * 1000L
     }
 }
