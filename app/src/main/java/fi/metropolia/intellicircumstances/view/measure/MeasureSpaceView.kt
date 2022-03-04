@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -26,7 +27,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.*
-import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
@@ -34,6 +34,9 @@ import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.ui.theme.Red100
+import fi.metropolia.intellicircumstances.ui.theme.Red300
+import fi.metropolia.intellicircumstances.ui.theme.Red500
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
 
@@ -267,14 +270,15 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     val points = viewModel.points.observeAsState()
 
     val ySteps = 6
+    Log.d("DBG","${points.value}")
     if (points.value != null) {
         LineGraph(
             plot = LinePlot(
                 listOf(
                     LinePlot.Line(
                         points.value!!.toList()[type.value],
-                        LinePlot.Connection(color = MaterialTheme.colors.primary),
-                        null,
+                        connection = LinePlot.Connection(color = Red300),
+                        intersection = LinePlot.Intersection(color = Red500),
                         null,
                     )
                 ),
@@ -290,7 +294,7 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                         Text(text = max.toDouble().round(2).toString())
                     }
                 ),
-                grid = LinePlot.Grid(MaterialTheme.colors.onBackground, steps = ySteps),
+                grid = LinePlot.Grid(color = Red100, steps = ySteps),
             ),
             modifier = Modifier
                 .fillMaxWidth()

@@ -1,6 +1,7 @@
 package fi.metropolia.intellicircumstances.view.measure
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.AndroidViewModel
@@ -21,7 +22,8 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
         get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
-    private var _points = MutableLiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(null)
+    private var _points =
+        MutableLiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(null)
     val points: LiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>
         get() = _points
 
@@ -51,13 +53,27 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
                 val presData =
                     DataPoint(seconds.toFloat(), ruuviTagSensorData.airPressure?.toFloat() ?: 0.0f)
 
-                _points.value = Triple(
-                    points.value!!.first.plus(tempData),
-                    points.value!!.second.plus(humiData),
-                    points.value!!.third.plus(presData)
-                )
+                if (points.value != null) {
+                    _points.postValue(
+                        Triple(
+                            points.value!!.first.plus(tempData),
+                            points.value!!.second.plus(humiData),
+                            points.value!!.third.plus(presData)
+                        )
+                    )
+                } else {
+                    _points.postValue(
+                        Triple(
+                            listOf(tempData),
+                            listOf(humiData),
+                            listOf(presData)
+                        )
+                    )
+                }
+
+
             } catch (e: Error) {
-                throw e
+                Log.d("DBG", "onReceiveSensorData error: ${e.message}")
             }
             seconds++
         }

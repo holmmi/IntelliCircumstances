@@ -18,10 +18,6 @@ class SettingsViewModel(application: Application, private val keys: Array<String
     val isDarkMode: LiveData<Boolean>
         get() = _isDarkMode
 
-    init {
-
-    }
-
     fun toggleDarkMode(key: String) {
         _isDarkMode.value = !_isDarkMode.value!!
         var mode: Int = 0
