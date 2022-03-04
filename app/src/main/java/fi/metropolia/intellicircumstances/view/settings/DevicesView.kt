@@ -1,10 +1,8 @@
 package fi.metropolia.intellicircumstances.view.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -18,13 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.component.TabContent
 import fi.metropolia.intellicircumstances.component.TabsWithSwiping
-import fi.metropolia.intellicircumstances.database.Space
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @ExperimentalPagerApi
@@ -43,7 +37,7 @@ fun DevicesView(
                         Icon(
                             imageVector = Icons.Filled.NavigateBefore,
                             contentDescription = stringResource(
-                                id = R.string.backto, stringResource(id = R.string.settings)
+                                id = R.string.back_to, stringResource(id = R.string.settings)
                             )
                         )
                     }

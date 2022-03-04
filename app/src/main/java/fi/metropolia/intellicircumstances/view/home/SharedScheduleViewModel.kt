@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import fi.metropolia.intellicircumstances.dto.FirebaseSchedule
 import fi.metropolia.intellicircumstances.repository.ShareRepository
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.util.*
 
 class SharedScheduleViewModel : ViewModel() {
     private val shareRepository = ShareRepository()
@@ -19,5 +21,10 @@ class SharedScheduleViewModel : ViewModel() {
         viewModelScope.launch {
             _sharedSchedule.value = shareRepository.getScheduleByUuid(uuid)
         }
+    }
+
+    fun getFormattedDate(date: Long): String? {
+        val dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        return dateFormat.format(Date(date))
     }
 }

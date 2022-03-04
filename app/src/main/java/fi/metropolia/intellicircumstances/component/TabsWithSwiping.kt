@@ -18,10 +18,10 @@ import com.google.accompanist.pager.rememberPagerState
 fun TabsWithSwiping(tabs: List<TabContent>) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabTitles = tabs.map { it.tabName }
-    val pagerState = rememberPagerState() // 2.
+    val pagerState = rememberPagerState()
     Column {
         TabRow(selectedTabIndex = tabIndex,
-            indicator = { tabPositions -> // 3.
+            indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     Modifier.pagerTabIndicatorOffset(
                         pagerState,
@@ -36,7 +36,6 @@ fun TabsWithSwiping(tabs: List<TabContent>) {
             }
         }
         HorizontalPager(
-            // 4.
             count = tabs.size,
             state = pagerState,
         ) { tabIndex ->
