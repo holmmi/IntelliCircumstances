@@ -6,6 +6,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 data class FirebaseSchedule(
     val uuid: String? = null,
     val name: String? = null,
+    val startDate: Long? = null,
+    val endDate: Long? = null,
     val records: List<FirebaseScheduleRecord>? = null
 )
 

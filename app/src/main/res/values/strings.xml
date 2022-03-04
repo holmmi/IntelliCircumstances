@@ -29,6 +29,8 @@
     <string name="home">Home</string>
     <string name="need_assistance">Need assistance?</string>
     <string name="faq">FAQ</string>
+    <string name="schedule_between">From %s to %s</string>
+    <string name="community_data">Data shared by users</string>
 
     <!-- Spaces and properties -->
     <string name="spaces">Spaces</string>
@@ -79,6 +81,7 @@
     <string name="name_is_empty">Name is empty</string>
     <string name="end_date_before">End date cannot be before start date</string>
     <string name="date_range_error">There should be 10 days between start and end dates</string>
+    <string name="end_date_past">End date should not be in the past</string>
     <string name="form_errors">Form errors</string>
     <string name="starts">Starts at %s</string>
     <string name="ends">Ends at %s</string>

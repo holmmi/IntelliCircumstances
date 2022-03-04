@@ -50,12 +50,18 @@ class ScheduleResultsViewModel(application: Application) : AndroidViewModel(appl
         _isScheduleShared.value = null
     }
 
+    fun resetSharedSucceed() {
+        _shareSucceeded.value = null
+    }
+
     fun shareSchedule(schedule: Schedule) {
         viewModelScope.launch {
             val circumstances = circumstanceRepository.getCircumstancesByScheduleIdAsList(schedule.id!!)
             val firebaseSchedule = FirebaseSchedule(
                 uuid = schedule.uuid,
                 name = schedule.name,
+                startDate = schedule.startDate,
+                endDate = schedule.endDate,
                 records = circumstances.map {
                     FirebaseScheduleRecord(
                         date = it.time,
