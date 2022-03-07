@@ -24,10 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -187,12 +189,15 @@ fun SpacesView(
                     val spaces = spacesViewModel.getSpaces(propertyId).observeAsState()
                     spaces.value?.let {
                         if (it.spaces.isEmpty()) {
-                            Text(
-                                text = stringResource(id = R.string.no_spaces),
-                                style = MaterialTheme.typography.h5,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            Column() {
+                                Text(
+                                    text = stringResource(id = R.string.no_spaces),
+                                    style = MaterialTheme.typography.h5,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                ShowAnimation("animations/97507-room-2.json")
+                            }
                         } else {
                             LazyColumn(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),

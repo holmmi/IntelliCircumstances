@@ -22,11 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @Composable
-fun PropertiesView(navController: NavController, propertiesViewModel: PropertiesViewModel = viewModel()) {
+fun PropertiesView(
+    navController: NavController,
+    propertiesViewModel: PropertiesViewModel = viewModel()
+) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var propertyName by rememberSaveable { mutableStateOf("") }
     var propertyNameIsEmpty by rememberSaveable { mutableStateOf(false) }
@@ -35,7 +39,7 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
 
     Scaffold(
         topBar = {
-             TopAppBar(title = { Text(text = stringResource(id = R.string.properties)) })
+            TopAppBar(title = { Text(text = stringResource(id = R.string.properties)) })
         },
         content = {
             if (showAddDialog) {
@@ -113,16 +117,20 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)) {
+                    .padding(12.dp)
+            ) {
                 val properties = propertiesViewModel.properties.observeAsState()
                 properties.value?.let {
                     if (it.isEmpty()) {
-                        Text(
-                            text = stringResource(id = R.string.no_properties),
-                            style = MaterialTheme.typography.h5,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column() {
+                            Text(
+                                text = stringResource(id = R.string.no_properties),
+                                style = MaterialTheme.typography.h5,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            ShowAnimation("animations/55213-blue-house.json")
+                        }
                     } else {
                         LazyColumn(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,7 +167,12 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                                             }
                                             IconButton(
                                                 onClick = {
-                                                    navController.navigate(NavigationRoutes.SPACES.replace("{propertyId}", property.id.toString()))
+                                                    navController.navigate(
+                                                        NavigationRoutes.SPACES.replace(
+                                                            "{propertyId}",
+                                                            property.id.toString()
+                                                        )
+                                                    )
                                                 }
                                             ) {
                                                 Icon(Icons.Outlined.NavigateNext, null)

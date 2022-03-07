@@ -124,5 +124,6 @@
     <string name="contentdesc_added_devices">Using this button you can view and delete your added RuuviTag devices</string>
     <string name="unnamed">Unnamed device</string>
     <string name="no_devices">No RuuviTag Devices.</string>
+    <string name="delete_device">Are you sure you want to delete this device? You will lose all schedules associated with this device.</string>
     <string name="contentdesc_delete_device">Using this button you can delete the RuuviTag device associated for %s\'s %s.</string>
 </resources>

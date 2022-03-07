@@ -45,6 +45,9 @@ interface DeviceDao {
     @Query("DELETE FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun deleteDeviceBySpaceId(spaceId: Long)
 
+    @Query("DELETE FROM ruuvi_device WHERE id = :deviceId")
+    suspend fun deleteDeviceById(deviceId: Long)
+
     @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 
@@ -53,6 +56,10 @@ interface DeviceDao {
 
     @Query("SELECT EXISTS(SELECT * FROM ruuvi_device WHERE space_id = :spaceId)")
     fun isDeviceAdded(spaceId: Long): LiveData<Boolean>
+
+    @Transaction
+    @Query("SELECT * FROM ruuvi_device WHERE id = :deviceId")
+    fun getDeviceSpaces(deviceId: Long): Flow<DeviceWithSpaces>
 }
 
 @Dao
@@ -75,6 +82,9 @@ interface ScheduleDao {
 
     @Update
     suspend fun updateSchedule(schedule: Schedule)
+
+    @Query("DELETE from schedule WHERE space_id = :spaceId")
+    suspend fun deleteScheduleBySpaceId(spaceId: Long)
 }
 
 @Dao

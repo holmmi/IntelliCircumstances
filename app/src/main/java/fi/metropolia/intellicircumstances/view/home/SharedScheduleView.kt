@@ -1,8 +1,5 @@
 package fi.metropolia.intellicircumstances.view.home
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
@@ -11,15 +8,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.google.accompanist.pager.ExperimentalPagerApi
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.TabsWithSwiping
 import fi.metropolia.intellicircumstances.component.resultview.MeasurementTab
-import fi.metropolia.intellicircumstances.component.resultview.TabContent
 import fi.metropolia.intellicircumstances.database.Circumstance
+import fi.metropolia.intellicircumstances.database.Schedule
 
+@ExperimentalPagerApi
 @Composable
 fun SharedScheduleView(
     navController: NavController,
@@ -33,6 +30,7 @@ fun SharedScheduleView(
         MeasurementTab.TemperatureTab
     )
     var selectedTab by rememberSaveable { mutableStateOf(0) }
+    val dateError = stringResource(id = R.string.date_error)
 
     LaunchedEffect(Unit) {
         uuid?.let { sharedScheduleViewModel.getScheduleByUuid(it) }
@@ -50,58 +48,35 @@ fun SharedScheduleView(
             )
         },
         content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TabRow(selectedTabIndex = selectedTab) {
-                    measurementTabs.forEachIndexed { index, measurementTab ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = { Text(text = stringResource(id = measurementTab.tabName)) },
-                        )
-                    }
-                }
-                Column(modifier = Modifier.padding(10.dp)) {
-                    sharedSchedule?.let { schedule ->
-                        val startDate = schedule.startDate
-                        val endDate = schedule.endDate
-                        if (startDate != null && endDate != null) {
-                            Text(
-                                text = String.format(
-                                    stringResource(R.string.schedule_date),
-                                    sharedScheduleViewModel.getFormattedDate(startDate),
-                                    sharedScheduleViewModel.getFormattedDate(endDate)
-                                ),
-                                style = MaterialTheme.typography.subtitle1,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+            if (sharedSchedule != null) {
+                sharedSchedule?.records?.let { rec ->
+                    TabsWithSwiping(
+                        measurementTabs = measurementTabs,
+                        circumstances = rec.map {
+                            Circumstance(
+                                scheduleId = null,
+                                time = it.date,
+                                airPressure = it.airPressure,
+                                humidity = it.humidity,
+                                temperature = it.temperature,
                             )
+                        },
+                        schedule = Schedule(
+                            spaceId = null,
+                            uuid = sharedSchedule!!.uuid,
+                            name = sharedSchedule!!.name ?: "",
+                            startDate = sharedSchedule!!.startDate ?: 0,
+                            endDate = sharedSchedule!!.endDate ?: 9999999L,
+                        ),
+                        dateFormatter = { date ->
+                            sharedScheduleViewModel.getFormattedDate(
+                                date
+                            ) ?: dateError
                         }
-                        val dateError = stringResource(id = R.string.date_error)
-                        schedule.records?.let { rec ->
-                            TabContent(
-                                measurementTab = measurementTabs[selectedTab],
-                                circumstances = rec.map {
-                                    Circumstance(
-                                        scheduleId = null,
-                                        time = it.date,
-                                        airPressure = it.airPressure,
-                                        humidity = it.humidity,
-                                        temperature = it.temperature
-                                    )
-                                },
-                                dateFormatter = { date ->
-                                    sharedScheduleViewModel.getFormattedDate(
-                                        date
-                                    ) ?: dateError
-                                }
-                            )
-                        }
-                    }
+                    )
                 }
             }
+
         }
     )
 }

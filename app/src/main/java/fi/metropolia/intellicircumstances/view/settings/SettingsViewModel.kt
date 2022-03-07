@@ -4,12 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fi.metropolia.intellicircumstances.R
-import fi.metropolia.intellicircumstances.extension.getActivity
 
 class SettingsViewModel(application: Application, private val keys: Array<String>) :
     AndroidViewModel(application) {

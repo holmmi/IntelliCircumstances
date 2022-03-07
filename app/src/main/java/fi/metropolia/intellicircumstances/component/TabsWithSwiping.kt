@@ -1,26 +1,42 @@
 package fi.metropolia.intellicircumstances.component
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
+import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.resultview.MeasurementTab
+import fi.metropolia.intellicircumstances.component.resultview.TabContent
+import fi.metropolia.intellicircumstances.database.Circumstance
+import fi.metropolia.intellicircumstances.database.Schedule
+import kotlinx.coroutines.launch
 
-//from this guide: https://www.rockandnull.com/jetpack-compose-swipe-pager/
 @ExperimentalPagerApi
 @Composable
-fun TabsWithSwiping(tabs: List<TabContent>) {
-    var tabIndex by remember { mutableStateOf(0) }
-    val tabTitles = tabs.map { it.tabName }
+fun TabsWithSwiping(
+    measurementTabs: List<MeasurementTab>,
+    circumstances: List<Circumstance>?,
+    schedule: Schedule?,
+    dateFormatter: (Long) -> String
+) {
+    var selectedTab by rememberSaveable { mutableStateOf(0) }
     val pagerState = rememberPagerState()
-    Column {
-        TabRow(selectedTabIndex = tabIndex,
+    val coroutineScope = rememberCoroutineScope()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        TabRow(selectedTabIndex = selectedTab,
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     Modifier.pagerTabIndicatorOffset(
@@ -29,23 +45,45 @@ fun TabsWithSwiping(tabs: List<TabContent>) {
                     )
                 )
             }) {
-            tabTitles.forEachIndexed { index, title ->
-                Tab(selected = tabIndex == index,
-                    onClick = { tabIndex = index },
-                    text = { Text(text = title) })
+            measurementTabs.forEachIndexed { index, measurementTab ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = {
+                        selectedTab = index
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
+                    text = { Text(text = stringResource(id = measurementTab.tabName)) },
+                )
             }
         }
         HorizontalPager(
-            count = tabs.size,
+            count = measurementTabs.size,
             state = pagerState,
         ) { tabIndex ->
-            tabs[tabIndex].content()
+            selectedTab = tabIndex
+            Column(modifier = Modifier.padding(10.dp)) {
+                schedule?.let {
+                    Text(
+                        text = String.format(
+                            stringResource(R.string.schedule_date),
+                            dateFormatter(it.startDate),
+                            dateFormatter(it.endDate)
+                        ),
+                        style = MaterialTheme.typography.subtitle1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+                    )
+                }
+                circumstances?.let {
+                    TabContent(
+                        measurementTab = measurementTabs[selectedTab],
+                        circumstances = it,
+                        dateFormatter = dateFormatter
+                    )
+                }
+            }
         }
     }
 }
-
-data class TabContent(
-    val tabName: String,
-    val content: @Composable() () -> Unit,
-    val tabId: Long? = null,
-)

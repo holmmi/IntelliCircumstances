@@ -2,8 +2,6 @@ package fi.metropolia.intellicircumstances.view.measure
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -70,8 +68,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
                         )
                     )
                 }
-
-
             } catch (e: Error) {
                 Log.d("DBG", "onReceiveSensorData error: ${e.message}")
             }
@@ -118,7 +114,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
             delay(CHECK_BLUETOOTH)
         }
     }
-
 
     fun clearGraph() {
         seconds = 0

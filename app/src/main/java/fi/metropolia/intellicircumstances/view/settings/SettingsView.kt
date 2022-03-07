@@ -1,9 +1,6 @@
 package fi.metropolia.intellicircumstances.view.settings
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,10 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -23,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
@@ -35,7 +29,7 @@ fun SettingsView(navController: NavController) {
     val settingsViewModel = SettingsViewModel(
         context.applicationContext as Application, keys
     )
-    var languages = stringArrayResource(id = R.array.languages)
+    val languages = stringArrayResource(id = R.array.languages)
     var language by remember { mutableStateOf(context.resources.getString(R.string.choose_language)) }
     var expanded by remember { mutableStateOf(false) }
     val isDarkMode = settingsViewModel.isDarkMode.observeAsState()

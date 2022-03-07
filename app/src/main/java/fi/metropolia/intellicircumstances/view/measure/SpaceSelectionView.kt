@@ -23,18 +23,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable
-fun SpaceSelectionView(navController: NavController, spaceSelectionViewModel: SpaceSelectionViewModel = viewModel()) {
+fun SpaceSelectionView(
+    navController: NavController,
+    spaceSelectionViewModel: SpaceSelectionViewModel = viewModel()
+) {
     val propertiesWithSpaces = spaceSelectionViewModel.propertiesWithSpaces.observeAsState()
     var selectedProperty by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Scaffold(
         topBar = {
-             TopAppBar(
-                 title = { Text(text = stringResource(id = R.string.space_selection)) }
-             )
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.space_selection)) }
+            )
         },
         content = {
             Column(
@@ -74,11 +78,17 @@ fun SpaceSelectionView(navController: NavController, spaceSelectionViewModel: Sp
                                 }
                             }
                         } else {
-                            Text(
-                                text = stringResource(id = R.string.no_properties),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            Column() {
+                                Text(
+                                    text = stringResource(id = R.string.no_properties),
+                                    style = MaterialTheme.typography.h5,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp)
+                                )
+                                ShowAnimation("animations/55213-blue-house.json")
+                            }
                         }
                     }
                     if (selectedProperty != null) {
@@ -112,10 +122,18 @@ fun SpaceSelectionView(navController: NavController, spaceSelectionViewModel: Sp
                                             )
                                             IconButton(
                                                 onClick = {
-                                                    navController.navigate(NavigationRoutes.MEASURE_SPACE.replace("{spaceId}", space.id.toString()))
+                                                    navController.navigate(
+                                                        NavigationRoutes.MEASURE_SPACE.replace(
+                                                            "{spaceId}",
+                                                            space.id.toString()
+                                                        )
+                                                    )
                                                 }
                                             ) {
-                                                Icon(imageVector = Icons.Outlined.NavigateNext, contentDescription = null)
+                                                Icon(
+                                                    imageVector = Icons.Outlined.NavigateNext,
+                                                    contentDescription = null
+                                                )
                                             }
                                         }
                                         Divider()
@@ -124,6 +142,7 @@ fun SpaceSelectionView(navController: NavController, spaceSelectionViewModel: Sp
                             } else {
                                 item {
                                     Text(text = stringResource(id = R.string.no_spaces))
+                                    ShowAnimation("animations/97507-room-2.json")
                                 }
                             }
                         }

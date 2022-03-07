@@ -17,12 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 
 @Composable
 fun RuuviTagSearcher(
@@ -57,11 +56,13 @@ fun RuuviTagSearcher(
                     )
                     if (ruuviTagDevices.isNullOrEmpty()) {
                         Column(
-                            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.9f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            ConnectAnimation()
+                            ShowAnimation("animations/55186-bluetooth.json")
                         }
                     }
                     ruuviTagDevices?.let {
@@ -141,18 +142,5 @@ fun RuuviTagSearcher(
                 }
             }
         }
-    )
-}
-
-@Composable
-private fun ConnectAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/55186-bluetooth.json"))
-    val progress by animateLottieCompositionAsState(
-        composition,
-        iterations = LottieConstants.IterateForever
-    )
-    LottieAnimation(
-        composition,
-        progress
     )
 }

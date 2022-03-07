@@ -58,6 +58,15 @@ data class RuuviDevice(
     val description: String? = null
 )
 
+data class DeviceWithSpaces(
+    @Embedded val device: RuuviDevice,
+    @Relation(
+        parentColumn = "space_id",
+        entityColumn = "id"
+    )
+    val spaces: List<Space>
+)
+
 @Entity(
     tableName = "schedule",
     foreignKeys = [

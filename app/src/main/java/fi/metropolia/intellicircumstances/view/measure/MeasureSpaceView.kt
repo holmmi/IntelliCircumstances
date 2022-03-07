@@ -32,6 +32,7 @@ import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Red100
@@ -231,7 +232,7 @@ fun MeasureSpaceView(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    NoConnectionAnimation()
+                    ShowAnimation("animations/14651-error-animation.json")
                     Text(
                         text = stringResource(id = R.string.no_connection),
                         textAlign = TextAlign.Center,
@@ -270,7 +271,7 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     val points = viewModel.points.observeAsState()
 
     val ySteps = 6
-    Log.d("DBG","${points.value}")
+    Log.d("DBG", "${points.value}")
     if (points.value != null) {
         LineGraph(
             plot = LinePlot(
@@ -307,19 +308,6 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
     }) {
         Text(text = stringResource(id = R.string.clear_graph))
     }
-}
-
-@Composable
-private fun NoConnectionAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/14651-error-animation.json"))
-    val progress by animateLottieCompositionAsState(
-        composition,
-        iterations = LottieConstants.IterateForever
-    )
-    LottieAnimation(
-        composition,
-        progress
-    )
 }
 
 enum class MeasureType(val value: Int) {
