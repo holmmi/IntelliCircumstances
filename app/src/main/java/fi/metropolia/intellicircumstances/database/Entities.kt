@@ -121,3 +121,10 @@ data class Circumstance(
     val humidity: Double?,
     val temperature: Double?
 )
+
+@Entity(tableName = "setting")
+data class Setting(
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @ColumnInfo(name = "dark_mode") var darkMode: Boolean,
+    val language: String
+)
