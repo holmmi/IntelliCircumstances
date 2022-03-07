@@ -89,6 +89,21 @@ interface CircumstanceDao {
     suspend fun getCircumstancesByScheduleIdAsList(scheduleId: Long): List<Circumstance>
 }
 
+@Dao
+interface SettingDao {
+    @Insert
+    suspend fun addSettings(setting: Setting)
+
+    @Query("SELECT * FROM setting LIMIT 1")
+    fun getSettings(): Flow<Setting?>
+
+    @Query("SELECT COUNT(*) FROM setting")
+    fun getSettingsCount(): Long
+
+    @Update
+    suspend fun updateSettings(setting: Setting)
+}
+
 private const val DATABASE_NAME = "intelli"
 
 @Database(
@@ -97,7 +112,8 @@ private const val DATABASE_NAME = "intelli"
         Property::class,
         RuuviDevice::class,
         Schedule::class,
-        Space::class
+        Setting::class,
+        Space::class,
     ],
     version = 1,
     exportSchema = false
@@ -106,6 +122,7 @@ abstract class IntelliDatabase : RoomDatabase() {
     abstract fun circumstanceDao(): CircumstanceDao
     abstract fun deviceDao(): DeviceDao
     abstract fun scheduleDao(): ScheduleDao
+    abstract fun settingDao(): SettingDao
     abstract fun spaceDao(): SpaceDao
 
     companion object {
