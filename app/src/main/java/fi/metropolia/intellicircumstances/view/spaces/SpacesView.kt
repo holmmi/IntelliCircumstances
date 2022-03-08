@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,12 +64,20 @@ fun SpacesView(
             if (propertyId != null) {
                 val spaces = spacesViewModel.getSpaces(propertyId).observeAsState()
                 TopAppBar(
-                    title = { Text(text = spaces.value?.property?.name ?: "-") },
+                    title = {
+                        Text(
+                            text = spaces.value?.property?.name ?: "-",
+                            modifier = Modifier.semantics { heading() })
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
                                 imageVector = Icons.Filled.NavigateBefore,
-                                contentDescription = null
+                                contentDescription = stringResource(
+                                    id = R.string.back_to, stringResource(
+                                        id = R.string.property_selection
+                                    )
+                                )
                             )
                         }
                     }
@@ -247,12 +257,24 @@ fun SpacesView(
                                                         if (isAdded.value == true) {
                                                             Icon(
                                                                 imageVector = Icons.Filled.BluetoothDisabled,
-                                                                contentDescription = null
+                                                                contentDescription = stringResource(
+                                                                    id = R.string.contentdesc_bt_added,
+                                                                    space.name
+                                                                ) + stringResource(
+                                                                    id = R.string.contentdesc_add_tag,
+                                                                    space.name
+                                                                )
                                                             )
                                                         } else {
                                                             Icon(
                                                                 imageVector = Icons.Filled.BluetoothSearching,
-                                                                contentDescription = null
+                                                                contentDescription = stringResource(
+                                                                    id = R.string.contentdesc_bt_not_added,
+                                                                    space.name
+                                                                ) + stringResource(
+                                                                    id = R.string.contentdesc_add_tag,
+                                                                    space.name
+                                                                )
                                                             )
                                                         }
                                                     }
@@ -263,7 +285,15 @@ fun SpacesView(
                                                         showDeleteDialog = true
                                                     }
                                                 ) {
-                                                    Icon(Icons.Outlined.Delete, null)
+                                                    Icon(
+                                                        Icons.Outlined.Delete, stringResource(
+                                                            id = R.string.contentdesc_delete,
+                                                            stringResource(
+                                                                id = R.string.space
+                                                            ),
+                                                            space.name
+                                                        )
+                                                    )
                                                 }
                                             }
                                         }
@@ -277,7 +307,13 @@ fun SpacesView(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Filled.Add, contentDescription = null)
+                Icon(
+                    Icons.Filled.Add, contentDescription = stringResource(
+                        id = R.string.add_new, stringResource(
+                            id = R.string.space
+                        )
+                    )
+                )
             }
         }
     )

@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.view.measure
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -115,26 +116,32 @@ fun SpaceSelectionView(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(10.dp)
+                                                .clickable(
+                                                    onClick = {
+                                                        navController.navigate(
+                                                            NavigationRoutes.MEASURE_SPACE
+                                                                .replace(
+                                                                    "{spaceId}",
+                                                                    space.id.toString()
+                                                                )
+                                                                .replace("{spaceName}", space.name)
+                                                        )
+                                                    },
+                                                    role = Role.Button,
+                                                    onClickLabel = stringResource(
+                                                        id = R.string.contentdesc_show_measure,
+                                                        space.name
+                                                    )
+                                                )
                                         ) {
                                             Text(
                                                 text = space.name,
                                                 style = MaterialTheme.typography.h6
                                             )
-                                            IconButton(
-                                                onClick = {
-                                                    navController.navigate(
-                                                        NavigationRoutes.MEASURE_SPACE.replace(
-                                                            "{spaceId}",
-                                                            space.id.toString()
-                                                        )
-                                                    )
-                                                }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.NavigateNext,
-                                                    contentDescription = null
-                                                )
-                                            }
+                                            Icon(
+                                                imageVector = Icons.Outlined.NavigateNext,
+                                                contentDescription = null
+                                            )
                                         }
                                         Divider()
                                     }

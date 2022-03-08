@@ -25,17 +25,23 @@ fun FaqView(navController: NavController) {
     Scaffold(
         topBar = { TopBar(navController) },
         content = {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
                 qList.forEachIndexed { index, q ->
                     var selected by remember { mutableStateOf(false) }
-                    Column(modifier = Modifier
-                        .clickable(onClick = {
-                            selected = !selected
-                        })
-                        .padding(16.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = {
+                                selected = !selected
+                            })
+                        ) {
                             Text(
                                 text = q,
                                 style = MaterialTheme.typography.h5
@@ -63,7 +69,11 @@ private fun TopBar(navController: NavController) {
         title = { Text(stringResource(R.string.faq)) },
         navigationIcon = {
             IconButton(onClick = { navController.navigateUp() }) {
-                Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Filled.NavigateBefore, contentDescription = stringResource(
+                        id = R.string.back_to, stringResource(id = R.string.home)
+                    )
+                )
             }
         }
     )

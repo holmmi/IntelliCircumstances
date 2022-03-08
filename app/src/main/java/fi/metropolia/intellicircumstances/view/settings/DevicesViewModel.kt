@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 class DevicesViewModel(application: Application) : AndroidViewModel(application) {
     private val spaceRepository = SpaceRepository(application.applicationContext)
     private val deviceRepository = DeviceRepository(application.applicationContext)
-    private val scheduleRepository = ScheduleRepository(application.applicationContext)
 
     val propertiesWithSpaces: LiveData<List<PropertyWithSpaces>>
         get() = spaceRepository.getPropertiesWithSpaces()

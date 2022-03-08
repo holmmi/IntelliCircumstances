@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -16,6 +17,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -38,7 +42,11 @@ fun SettingsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.settings)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.settings),
+                        modifier = Modifier.semantics { heading() })
+                },
             )
         },
         content = {
@@ -49,73 +57,79 @@ fun SettingsView(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-               setting?.let { s ->
-                   Row(
-                       modifier = Modifier
-                           .fillMaxWidth()
-                           .padding(bottom = 16.dp, top = 16.dp),
-                   ) {
-                       Text(text = stringResource(id = R.string.dark_mode))
-                       Spacer(modifier = Modifier.weight(1f))
-                       Switch(
-                           checked = s.darkMode,
-                           onCheckedChange = { settingsViewModel.toggleDarkMode(s) }
-                       )
-                   }
-                   Divider()
-                   Column {
-                       Text(
-                           text = stringResource(id = R.string.language),
-                           style = MaterialTheme.typography.caption
-                       )
-                       Row(
-                           modifier = Modifier
-                               .fillMaxWidth()
-                               .clickable(onClick = { expanded = true })
-                               .padding(bottom = 16.dp, top = 16.dp),
-                       ) {
-                           Text(text = language)
-                           Spacer(modifier = Modifier.weight(1f))
-                           DropdownMenu(
-                               expanded = expanded,
-                               onDismissRequest = { expanded = false },
-                               modifier = Modifier.fillMaxWidth()
-                           ) {
-                               languages.forEach {
-                                   DropdownMenuItem(onClick = { /* Change lang */
-                                       language = it
-                                       expanded = false
-                                   }) {
-                                       Text(it)
-                                   }
-                               }
-                           }
-                           Icon(
-                               imageVector = Icons.Default.ArrowDropDown,
-                               contentDescription = stringResource(
-                                   id = R.string.contentdesc_lang_dropdown
-                               )
-                           )
-                       }
-                   }
-                   Divider()
-                   Row(
-                       modifier = Modifier
-                           .fillMaxWidth()
-                           .border(BorderStroke(1.dp, SolidColor(Color.LightGray)))
-                           .padding(bottom = 16.dp, top = 16.dp)
-                           .clickable(onClick = { navController.navigate(NavigationRoutes.DEVICES) }),
-                       horizontalArrangement = Arrangement.Center,
-                   ) {
-                       Icon(
-                           imageVector = Icons.Default.Devices,
-                           tint = MaterialTheme.colors.secondary,
-                           contentDescription = stringResource(id = R.string.contentdesc_added_devices)
-                       )
-                       Spacer(modifier = Modifier.width(16.dp))
-                       Text(text = stringResource(id = R.string.added_devices))
-                   }
-               }
+                setting?.let { s ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp, top = 16.dp)
+                            .toggleable(
+                                value = s.darkMode,
+                                role = Role.Switch,
+                                onValueChange = { settingsViewModel.toggleDarkMode(s) }
+                            ),
+
+                        ) {
+                        Text(text = stringResource(id = R.string.dark_mode))
+                        Spacer(modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = s.darkMode,
+                            onCheckedChange = null,
+                        )
+                    }
+                    Divider()
+                    Column {
+                        Text(
+                            text = stringResource(id = R.string.language),
+                            style = MaterialTheme.typography.caption
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = { expanded = true })
+                                .padding(bottom = 16.dp, top = 16.dp),
+                        ) {
+                            Text(text = language)
+                            Spacer(modifier = Modifier.weight(1f))
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                languages.forEach {
+                                    DropdownMenuItem(onClick = { /* Change lang */
+                                        language = it
+                                        expanded = false
+                                    }) {
+                                        Text(it)
+                                    }
+                                }
+                            }
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = stringResource(
+                                    id = R.string.contentdesc_lang_dropdown
+                                )
+                            )
+                        }
+                    }
+                    Divider()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(BorderStroke(1.dp, SolidColor(Color.LightGray)))
+                            .padding(bottom = 16.dp, top = 16.dp)
+                            .clickable(onClick = { navController.navigate(NavigationRoutes.DEVICES) }),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Devices,
+                            tint = MaterialTheme.colors.secondary,
+                            contentDescription = stringResource(id = R.string.contentdesc_added_devices)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(text = stringResource(id = R.string.added_devices))
+                    }
+                }
             }
         }
     )

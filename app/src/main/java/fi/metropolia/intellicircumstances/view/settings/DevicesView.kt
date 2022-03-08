@@ -13,6 +13,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +43,11 @@ fun DevicesView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.added_devices)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.added_devices),
+                        modifier = Modifier.semantics { heading() })
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -98,7 +104,9 @@ fun DevicesView(
                         Text(
                             text = "${stringResource(id = R.string.property)} ${property.property.name}",
                             style = MaterialTheme.typography.h5,
-                            modifier = Modifier.padding(32.dp)
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .semantics { heading() }
                         )
                         val tabContent = property.spaces.map { space ->
                             TabContent(space.name, content = {
@@ -184,12 +192,13 @@ private fun SpaceTabs(tabs: List<TabContent>) {
                 )
             }) {
             tabTitles.forEachIndexed { index, title ->
-                Tab(selected = selectedTab == index,
+                val i = index + 1
+                Tab(selected = selectedTab == i,
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(index)
                         }
-                        selectedTab = index
+                        selectedTab = i
                     },
                     text = { Text(text = title) })
             }
@@ -197,9 +206,9 @@ private fun SpaceTabs(tabs: List<TabContent>) {
         HorizontalPager(
             count = tabs.size,
             state = pagerState,
-        ) { tabIndex ->
-            selectedTab = tabIndex
-            tabs[selectedTab].content()
+        ) {
+            selectedTab = pagerState.currentPage + 1
+            tabs[selectedTab - 1].content()
         }
     }
 }

@@ -7,7 +7,10 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -57,7 +60,11 @@ fun ScheduleResultsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = schedule?.name ?: "") },
+                title = {
+                    Text(
+                        text = schedule?.name ?: "",
+                        modifier = Modifier.semantics { heading() })
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)

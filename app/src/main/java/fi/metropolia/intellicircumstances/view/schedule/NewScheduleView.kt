@@ -18,9 +18,11 @@ import fi.metropolia.intellicircumstances.component.DatePicker
 import fi.metropolia.intellicircumstances.component.TimePicker
 
 @Composable
-fun NewScheduleView(navController: NavController,
-                    spaceId: Long?,
-                    newScheduleViewModel: NewScheduleViewModel = viewModel()) {
+fun NewScheduleView(
+    navController: NavController,
+    spaceId: Long?,
+    newScheduleViewModel: NewScheduleViewModel = viewModel()
+) {
     var selectedName by rememberSaveable { mutableStateOf("") }
     var startDate by rememberSaveable { mutableStateOf<Long?>(null) }
     var startHour by rememberSaveable { mutableStateOf(12) }
@@ -69,7 +71,12 @@ fun NewScheduleView(navController: NavController,
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.NavigateBefore,
+                            contentDescription = stringResource(
+                                id = R.string.back_to, stringResource(id = R.string.schedule_list)
+                            )
+                        )
                     }
                 }
             )

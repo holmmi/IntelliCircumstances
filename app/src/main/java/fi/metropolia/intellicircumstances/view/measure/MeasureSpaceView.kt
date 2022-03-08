@@ -21,12 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.airbnb.lottie.compose.*
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 fun MeasureSpaceView(
     navController: NavController,
     spaceId: Long?,
+    spaceName: String?,
     measureSpaceViewModel: MeasureSpaceViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -116,7 +118,11 @@ fun MeasureSpaceView(
         },
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.measure)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.measure),
+                        modifier = Modifier.semantics { heading() })
+                },
                 actions = {
                     IconButton(
                         onClick = {
@@ -135,7 +141,11 @@ fun MeasureSpaceView(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.BluetoothSearching,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                id = R.string.contentdesc_add_tag, spaceName ?: stringResource(
+                                    id = R.string.this_space
+                                )
+                            )
                         )
                     }
                     IconButton(
@@ -148,12 +158,22 @@ fun MeasureSpaceView(
                             )
                         }
                     ) {
-                        Icon(imageVector = Icons.Filled.Schedule, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.Schedule,
+                            contentDescription = stringResource(
+                                id = R.string.add_new, stringResource(id = R.string.schedule)
+                            )
+                        )
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.NavigateBefore,
+                            contentDescription = stringResource(
+                                id = R.string.back_to, stringResource(id = R.string.space_selection)
+                            )
+                        )
                     }
                 }
             )

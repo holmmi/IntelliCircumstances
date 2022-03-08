@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,13 +30,14 @@ fun TabsWithSwiping(
     schedule: Schedule?,
     dateFormatter: (Long) -> String
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(0) }
+    var selectedTab by rememberSaveable { mutableStateOf(1) }
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
+        Log.d("DBG", "selectedtab ${selectedTab.toString()}")
         TabRow(selectedTabIndex = selectedTab,
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
@@ -46,10 +48,11 @@ fun TabsWithSwiping(
                 )
             }) {
             measurementTabs.forEachIndexed { index, measurementTab ->
+                val i = index + 1
                 Tab(
-                    selected = selectedTab == index,
+                    selected = selectedTab == i,
                     onClick = {
-                        selectedTab = index
+                        selectedTab = i
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(index)
                         }
@@ -61,8 +64,8 @@ fun TabsWithSwiping(
         HorizontalPager(
             count = measurementTabs.size,
             state = pagerState,
-        ) { tabIndex ->
-            selectedTab = tabIndex
+        ) {
+            selectedTab = pagerState.currentPage + 1
             Column(modifier = Modifier.padding(10.dp)) {
                 schedule?.let {
                     Text(
@@ -78,7 +81,7 @@ fun TabsWithSwiping(
                 }
                 circumstances?.let {
                     TabContent(
-                        measurementTab = measurementTabs[selectedTab],
+                        measurementTab = measurementTabs[selectedTab - 1],
                         circumstances = it,
                         dateFormatter = dateFormatter
                     )

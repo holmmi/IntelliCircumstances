@@ -8,10 +8,17 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="reset">Reset</string>
-    <string name="back_to">Back to %s</string>
+    <string name="device">RuuviTag device</string>
+
     <string-array name="pref_keys">
         <item>dark_mode</item>
     </string-array>
+
+    <!-- Semantics common -->
+    <string name="add_new">Add a new %s</string>
+    <string name="move_to">Move to %s</string>
+    <string name="back_to">Back to %s</string>
+    <string name="contentdesc_delete">Delete this %s named %s by selecting this button</string>
 
     <!-- Device search and connection -->
     <string name="add_tag">Add RuuviTag</string>
@@ -24,6 +31,9 @@
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
     <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
+    <string name="contentdesc_bt_added">A bluetooth device is already added to space %s</string>
+    <string name="contentdesc_bt_not_added">A bluetooth is not added to space %s</string>
+    <string name="contentdesc_add_tag">Add a new device to space %s by clicking this button</string>
 
     <!-- Home -->
     <string name="home">Home</string>
@@ -32,11 +42,15 @@
     <string name="schedule_between">From %s to %s</string>
     <string name="community_data">Data shared by users</string>
     <string name="date_error">Error formatting date</string>
+    <string name="view_schedule_info">View information about this schedule</string>
 
     <!-- Spaces and properties -->
+    <string name="space">Space</string>
+    <string name="this_space">This space</string>
     <string name="spaces">Spaces</string>
     <string name="property">Property</string>
     <string name="properties">Properties</string>
+    <string name="property_selection">Property selection</string>
     <string name="no_properties">There are no properties created</string>
     <string name="create_property">Create a new property</string>
     <string name="property_name">Property name</string>
@@ -53,6 +67,8 @@
         associated with it.
     </string>
     <string name="no_spaces">There are no spaces in this property</string>
+    <string name="contentdesc_show_spaces">Show spaces for property %s by selecting this button</string>
+
 
     <!--measure-->
     <string name="measure">Measure</string>
@@ -69,9 +85,11 @@
         <item>%</item>
         <item>hPa</item>
     </string-array>
+    <string name="contentdesc_show_measure">Show measurements for space %s</string>
 
     <!--schedule-->
     <string name="schedule">Schedule</string>
+    <string name="schedule_list">schedule list</string>
     <string name="new_schedule">New schedule</string>
     <string name="schedule_name">Schedule name</string>
     <string name="start_date">Start date</string>
@@ -109,10 +127,17 @@
     <string name="schedule_share_failed_content">
         Schedule results could not be shared due to an error. Please try again later.
     </string>
+    <string name="schedule_enqueued">This schedule is enqueued</string>
+    <string name="schedule_done">This schedule is done. You can now view the results by clicking the next button on the right</string>
+    <string name="schedule_failed">
+        This schedule failed. Please try again and check that your RuuviTag device is closeby.
+        Also Check that you have allowed all permissions for this app.
+    </string>
 
     <!--settings-->
     <string name="settings">Settings</string>
     <string name="dark_mode">Dark mode</string>
+    <string name="dark_mode_toggle">Dark mode toggle</string>
     <string name="language">Language</string>
     <string-array name="languages">
         <item>English</item>
@@ -120,10 +145,12 @@
     </string-array>
     <string name="choose_language">Choose language</string>
     <string name="added_devices">Added devices</string>
-    <string name="contentdesc_lang_dropdown">Dropdown for menu for choosing language</string>
-    <string name="contentdesc_added_devices">Using this button you can view and delete your added RuuviTag devices</string>
+
     <string name="unnamed">Unnamed device</string>
     <string name="no_devices">No RuuviTag Devices.</string>
     <string name="delete_device">Are you sure you want to delete this device? You will lose all schedules associated with this device.</string>
+    <!--settings semantics-->
+    <string name="contentdesc_lang_dropdown">Dropdown menu for choosing language</string>
+    <string name="contentdesc_added_devices">Using this button you can view and delete your added RuuviTag devices</string>
     <string name="contentdesc_delete_device">Using this button you can delete the RuuviTag device associated for %s\'s %s.</string>
 </resources>

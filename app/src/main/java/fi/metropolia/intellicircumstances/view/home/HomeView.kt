@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.view.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -25,9 +29,9 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
 
     Scaffold(
         topBar = {
-             TopAppBar(
-                 title = { Text(text = stringResource(id = R.string.home)) }
-             )
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.home)) }
+            )
         },
         content = {
             Column(
@@ -45,7 +49,8 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
                         item {
                             Text(
                                 text = stringResource(R.string.community_data),
-                                style = MaterialTheme.typography.h4
+                                style = MaterialTheme.typography.h4,
+                                modifier = Modifier.semantics { heading() }
                             )
                         }
 
@@ -54,7 +59,21 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(
+                                            onClick = {
+                                                schedule.uuid?.let {
+                                                    navController.navigate(
+                                                        NavigationRoutes.SHARED_SCHEDULE
+                                                            .replace("{uuid}", it)
+                                                    )
+                                                }
+                                            }, role = Role.Button,
+                                            onClickLabel = stringResource(
+                                                id = R.string.view_schedule_info,
+                                            )
+                                        )
                                 ) {
                                     Column {
                                         Text(
@@ -71,18 +90,12 @@ fun HomeView(navController: NavController, homeViewModel: HomeViewModel = viewMo
                                             style = MaterialTheme.typography.subtitle2
                                         )
                                     }
-                                    IconButton(
-                                        onClick = {
-                                            schedule.uuid?.let {
-                                                navController.navigate(
-                                                    NavigationRoutes.SHARED_SCHEDULE
-                                                        .replace("{uuid}", it)
-                                                )
-                                            }
-                                        }
-                                    ) {
-                                        Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = null)
-                                    }
+
+                                    Icon(
+                                        imageVector = Icons.Filled.NavigateNext,
+                                        contentDescription = null
+                                    )
+
                                 }
                                 Divider(
                                     modifier = Modifier

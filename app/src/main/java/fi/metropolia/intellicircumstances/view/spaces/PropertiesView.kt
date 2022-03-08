@@ -16,7 +16,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,7 +43,11 @@ fun PropertiesView(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = stringResource(id = R.string.properties)) })
+            TopAppBar(title = {
+                Text(
+                    text = stringResource(id = R.string.properties),
+                    modifier = Modifier.semantics { heading() })
+            })
         },
         content = {
             if (showAddDialog) {
@@ -161,9 +169,17 @@ fun PropertiesView(
                                                 onClick = {
                                                     selectedProperty = property.id
                                                     showDeleteDialog = true
-                                                }
+                                                },
                                             ) {
-                                                Icon(Icons.Outlined.Delete, null)
+                                                Icon(
+                                                    Icons.Outlined.Delete, stringResource(
+                                                        id = R.string.contentdesc_delete,
+                                                        stringResource(
+                                                            id = R.string.property
+                                                        ),
+                                                        property.name
+                                                    )
+                                                )
                                             }
                                             IconButton(
                                                 onClick = {
@@ -175,7 +191,12 @@ fun PropertiesView(
                                                     )
                                                 }
                                             ) {
-                                                Icon(Icons.Outlined.NavigateNext, null)
+                                                Icon(
+                                                    Icons.Outlined.NavigateNext, stringResource(
+                                                        id = R.string.contentdesc_show_spaces,
+                                                        property.name
+                                                    )
+                                                )
                                             }
                                         }
                                     }
@@ -190,7 +211,13 @@ fun PropertiesView(
             FloatingActionButton(
                 onClick = { showAddDialog = true }
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Filled.Add, contentDescription = stringResource(
+                        id = R.string.add_new, stringResource(
+                            id = R.string.property
+                        )
+                    )
+                )
             }
         }
     )

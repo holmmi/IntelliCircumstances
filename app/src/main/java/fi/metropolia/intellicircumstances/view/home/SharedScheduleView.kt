@@ -8,7 +8,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.google.accompanist.pager.ExperimentalPagerApi
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.component.TabsWithSwiping
@@ -44,7 +47,7 @@ fun SharedScheduleView(
                         Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
                     }
                 },
-                title = { Text(text = sharedSchedule?.name ?: "") }
+                title = { Text(text = sharedSchedule?.name ?: "", modifier = Modifier.semantics { heading() })  }
             )
         },
         content = {
