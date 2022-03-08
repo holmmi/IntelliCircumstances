@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.extension.getActivity
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable
@@ -27,13 +27,10 @@ fun SettingsView(
     navController: NavController,
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
-    val languages = stringArrayResource(id = R.array.languages)
+    var expanded by remember { mutableStateOf(false) }
+    val setting by settingsViewModel.getSettings().observeAsState()
 
     val context = LocalContext.current
-    var language by remember { mutableStateOf(context.getString(R.string.choose_language)) }
-    var expanded by remember { mutableStateOf(false) }
-
-    val setting by settingsViewModel.getSettings().observeAsState()
 
     Scaffold(
         topBar = {
@@ -65,7 +62,7 @@ fun SettingsView(
                    Divider()
                    Column {
                        Text(
-                           text = stringResource(id = R.string.language),
+                           text = stringResource(id = R.string.localization),
                            style = MaterialTheme.typography.caption
                        )
                        Row(
@@ -74,19 +71,22 @@ fun SettingsView(
                                .clickable(onClick = { expanded = true })
                                .padding(bottom = 16.dp, top = 16.dp),
                        ) {
-                           Text(text = language)
+                           Text(text = settingsViewModel.getCurrentLocale(s.language))
                            Spacer(modifier = Modifier.weight(1f))
                            DropdownMenu(
                                expanded = expanded,
                                onDismissRequest = { expanded = false },
                                modifier = Modifier.fillMaxWidth()
                            ) {
-                               languages.forEach {
-                                   DropdownMenuItem(onClick = { /* Change lang */
-                                       language = it
-                                       expanded = false
-                                   }) {
-                                       Text(it)
+                               settingsViewModel.getAvailableLocales().forEachIndexed { index, string ->
+                                   DropdownMenuItem(
+                                       onClick = {
+                                           settingsViewModel.updateLanguage(s, index)
+                                           expanded = false
+                                           context.getActivity()?.recreate()
+                                       }
+                                   ) {
+                                       Text(string)
                                    }
                                }
                            }
