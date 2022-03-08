@@ -77,7 +77,7 @@ fun SettingsView(
                     Divider()
                     Column {
                         Text(
-                            text = stringResource(id = R.string.language),
+                            text = stringResource(id = R.string.localization),
                             style = MaterialTheme.typography.caption
                         )
                         Row(

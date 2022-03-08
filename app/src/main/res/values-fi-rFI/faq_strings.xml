@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--faq arrays-->
+    <string name="question_1">K: Mitä tämä appi tekee?</string>
+    <string name="question_2">K: Miten pääsen alkuun?</string>
+    <string name="question_3">
+        K: Miten jaan dataa?\n
+        Mitä voin jakaa?
+    </string>
+    <string name="question_4">K: Voinko käyttää RuuviTagia useampaan tilaan?</string>
+    <string name="question_5">K: Kuka on tehnyt tämän apin?</string>
+    <string name="question_6">K: Minulla on muuta kysyttävää tai kommentti/palaute.</string>
+
+    <string name="answer_1">
+        V: Tässä apissa voit lisätä tiloja mihin tahansa kiinteistöön
+        voit esimerkiksi lisätä kesämökkisi, keittiösi ja parvekkeesi,
+        mitata niistä olosuhteita (lämpötila, ilmanpaine ja kosteus) erikseen ja
+        jakaa ne muiden käyttäjien kanssa.
+    </string>
+    <string name="answer_2">A: Aloita lisäämällä tiloja tilat-sivulta. Sen jälkeen,
+        siirry mittaus-sivulle ja valitse mitä tilaa mitataan.
+        Appi tarvitsee RuuviTag-mittauslaitteen mittaamaan olosuhteita.
+        Sinun tulee lisätä sellainen jokaiseen mitattavaan tilaan klikkaamalla tilat-sivulla tai mittaussivulla löytyvää bluetooth-kuvaketta.
+    </string>
+    <string name="answer_3">A: Siirry mittaussivulle. Valitse mitattava tila.
+        Valitse kellosymboli yläpalkista.
+        Lisää ohjelma. Kun ohjelma on valmis
+        klikkaa ohjelmaa nähdäksesi tulokset.
+        Voit jakaa tulokset yläpalkin jakopainikkeesta.
+    </string>
+    <string name="answer_4">
+        A: Kyllä. Huomioi tosin ettet voi tallentaa kahta tilaa eri tilaa samaan aikaan jos niihin on lisätty sama mittauslaite.
+    </string>
+    <string name="answer_5">
+        A: Apin on kehittänyt Metropolia-ammattikorkeakoulun opiskelijat Mikael Holm ja Tiitus Telke osana Mobile solutions -pääainetta.
+    </string>
+    <string name="answer_6">
+        A: Ole hyvä ja lähetä sähköpostia osoitteeseen tiitus.telke\@metropolia.fi. Autamme mielellämme \u263A.
+    </string>
+</resources>

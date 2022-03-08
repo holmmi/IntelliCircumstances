@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Faq arrays -->
+    <string-array name="questions">
+        <item>@string/question_1</item>
+        <item>@string/question_2</item>
+        <item>@string/question_3</item>
+        <item>@string/question_4</item>
+        <item>@string/question_5</item>
+        <item>@string/question_6</item>
+    </string-array>
+
+    <string-array name="answers">
+        <item>@string/answer_1</item>
+        <item>@string/answer_2</item>
+        <item>@string/answer_3</item>
+        <item>@string/answer_4</item>
+        <item>@string/answer_5</item>
+        <item>@string/answer_6</item>
+    </string-array>
+</resources>
