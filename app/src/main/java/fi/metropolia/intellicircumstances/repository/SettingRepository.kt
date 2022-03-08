@@ -21,6 +21,10 @@ class SettingRepository(context: Context) {
         settingDao.getSettingsCount()
     }
 
+    suspend fun getLanguage() = withContext(Dispatchers.IO) {
+        settingDao.getLanguage()
+    }
+
     suspend fun updateSettings(setting: Setting) = withContext(Dispatchers.IO) {
         settingDao.updateSettings(setting)
     }

@@ -108,7 +108,10 @@ interface SettingDao {
     fun getSettings(): Flow<Setting?>
 
     @Query("SELECT COUNT(*) FROM setting")
-    fun getSettingsCount(): Long
+    suspend fun getSettingsCount(): Long
+
+    @Query("SELECT language FROM setting LIMIT 1")
+    suspend fun getLanguage(): String?
 
     @Update
     suspend fun updateSettings(setting: Setting)

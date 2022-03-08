@@ -22,7 +22,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun initializeSettings() {
         val context = getApplication<Application>().applicationContext
         val uiMode = context.resources.configuration.uiMode
-        val language = Locale.current.language
+        val language = Locale.current.toLanguageTag()
 
         viewModelScope.launch {
             if (settingRepository.getSettingsCount() == 0L) {
