@@ -44,7 +44,7 @@
 
     <!-- Spaces and properties -->
     <string name="space">Tila</string>
-    <string name="this_space">Tämä tila</string>
+    <string name="this_space">tähän tilaan</string>
     <string name="spaces">Tilat</string>
     <string name="property">Kiinteistö</string>
     <string name="properties">Kiinteistöt</string>

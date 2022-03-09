@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
@@ -42,6 +45,7 @@ import fi.metropolia.intellicircumstances.ui.theme.Red500
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
 
+@ExperimentalPagerApi
 @Composable
 fun MeasureSpaceView(
     navController: NavController,
@@ -212,38 +216,53 @@ fun MeasureSpaceView(
                     stringResource(id = R.string.pressure)
                 )
                 val units = stringArrayResource(id = R.array.units)
+                val pagerState = rememberPagerState()
+                val coroutineScope = rememberCoroutineScope()
+
                 Column {
                     TabRow(selectedTabIndex = tabIndex) {
                         tabTitles.forEachIndexed { index, title ->
                             Tab(selected = tabIndex == index,
-                                onClick = { tabIndex = index },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
                                 text = { Text(text = title) })
                         }
                     }
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxHeight(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    HorizontalPager(
+                        count = 3,
+                        state = pagerState,
                     ) {
-                        var selectedValue: Double? = null
-                        when (tabIndex) {
-                            0 -> {
-                                selectedValue = sensorData.value?.temperature
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+
+
+                            tabIndex = pagerState.currentPage
+                            var selectedValue: Double? = null
+                            when (tabIndex) {
+                                0 -> {
+                                    selectedValue = sensorData.value?.temperature
+                                }
+                                1 -> {
+                                    selectedValue = sensorData.value?.humidity
+                                }
+                                2 -> {
+                                    selectedValue = sensorData.value?.airPressure
+                                }
                             }
-                            1 -> {
-                                selectedValue = sensorData.value?.humidity
-                            }
-                            2 -> {
-                                selectedValue = sensorData.value?.airPressure
-                            }
+                            Text(
+                                text = "${tabTitles[tabIndex]} ${selectedValue?.round(2) ?: "-"} ${units[tabIndex]}",
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            ShowGraph(measureSpaceViewModel, MeasureType.values()[tabIndex])
                         }
-                        Text(
-                            text = "${tabTitles[tabIndex]} ${selectedValue?.round(2) ?: "-"} ${units[tabIndex]}",
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                        ShowGraph(measureSpaceViewModel, MeasureType.values()[tabIndex])
                     }
                 }
             } else {
