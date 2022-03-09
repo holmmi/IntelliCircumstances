@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -71,6 +72,7 @@ fun MeasureSpaceView(
             }
         }
     val bluetoothEnabled by measureSpaceViewModel.isBluetoothEnabled().asLiveData().observeAsState()
+    var showNoPermsAlert by rememberSaveable { mutableStateOf(false) }
 
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -134,12 +136,7 @@ fun MeasureSpaceView(
                                 measureSpaceViewModel.startScan()
                                 showBluetoothLeScanner = true
                             } else {
-                                permissionsLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
-                                    )
-                                )
+                                showNoPermsAlert = true
                             }
                         }
                     ) {
@@ -185,6 +182,7 @@ fun MeasureSpaceView(
         content = {
             val ruuviTagDevices by measureSpaceViewModel.ruuviTagDevices.observeAsState()
             var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
+
             if (showBluetoothLeScanner) {
                 RuuviTagSearcher(
                     ruuviTagDevices = ruuviTagDevices,
@@ -203,6 +201,50 @@ fun MeasureSpaceView(
                         }
                     },
                     onSelect = { selectedOption = it }
+                )
+            }
+
+            if (showNoPermsAlert) {
+                Dialog(onDismissRequest = {
+                    showNoPermsAlert = false
+                    PermissionUtil.checkBluetoothPermissions(
+                        context,
+                        onCheckPermissions = { permissionsLauncher.launch(it) })
+                },
+                    content = {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.81f)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(10.dp),
+                            ) {
+                                Row(modifier = Modifier.padding(12.dp)) {
+                                    Text(stringResource(id = R.string.missing_perms))
+                                }
+                                Row {
+                                    ShowAnimation("animations/14651-error-animation.json")
+                                }
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    TextButton(onClick = {
+                                        showNoPermsAlert = false
+                                        PermissionUtil.checkBluetoothPermissions(
+                                            context,
+                                            onCheckPermissions = { permissionsLauncher.launch(it) })
+                                    }) {
+                                        Text(text = stringResource(id = R.string.cancel))
+                                    }
+                                }
+                            }
+                        }
+                    }
                 )
             }
 
@@ -279,31 +321,31 @@ fun MeasureSpaceView(
                     )
                 }
             }
-        }
-    )
 
-    LaunchedEffect(Unit) {
-        permissionsGiven =
-            PermissionUtil.checkBluetoothPermissions(
-                context,
-                onCheckPermissions = { permissionsLauncher.launch(it) }
-            )
+            LaunchedEffect(Unit) {
+                permissionsGiven =
+                    PermissionUtil.checkBluetoothPermissions(
+                        context,
+                        onCheckPermissions = { permissionsLauncher.launch(it) }
+                    )
 
-        // Try to connect to RuuviTag
-        if (spaceId != null && bluetoothEnabled == true) {
-            measureSpaceViewModel.connectDevice(spaceId)
-        }
-    }
-
-    LaunchedEffect(bluetoothEnabled) {
-        bluetoothEnabled?.let {
-            if (!it) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                enableBluetoothLauncher.launch(enableBtIntent)
+                // Try to connect to RuuviTag
+                if (spaceId != null && bluetoothEnabled == true) {
+                    measureSpaceViewModel.connectDevice(spaceId)
+                }
             }
-        }
-    }
+
+            LaunchedEffect(bluetoothEnabled) {
+                bluetoothEnabled?.let {
+                    if (!it) {
+                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                        enableBluetoothLauncher.launch(enableBtIntent)
+                    }
+                }
+            }
+        })
 }
+
 
 @Composable
 private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
@@ -329,7 +371,10 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                     content = { min, offset, max ->
                         Text(text = min.toDouble().round(2).toString())
                         for (step in 1 until ySteps - 1) {
-                            Text(text = min.toDouble().plus(offset * step).round(2).toString())
+                            Text(
+                                text = min.toDouble().plus(offset * step).round(2)
+                                    .toString()
+                            )
                         }
                         Text(text = max.toDouble().round(2).toString())
                     }

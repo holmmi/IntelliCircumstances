@@ -126,6 +126,8 @@
         Ohjelma epäonnistui. Ole hyvä ja yritä uudestaan ja varmista, että RuuviTag-laitteesi on lähettyvillä.
         Varmista myös, että olet antanut kaikki sovelluksen pyytämät käyttöoikeudet.
     </string>
+    <string name="missing_perms">Ei voitu avata BT skanneria puuttuvien käyttöoikeuksien vuoksi! Ole hyvä ja hyväksy kaikki sovelluksen pyytämät käyttöoikeudet.</string>
+
 
     <!--settings-->
     <string name="settings">Asetukset</string>
