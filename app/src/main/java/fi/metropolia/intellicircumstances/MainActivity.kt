@@ -3,6 +3,7 @@ package fi.metropolia.intellicircumstances
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -11,6 +12,7 @@ import fi.metropolia.intellicircumstances.view.main.MainView
 import kotlinx.coroutines.launch
 import java.util.*
 
+@ExperimentalAnimationApi
 @ExperimentalPagerApi
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

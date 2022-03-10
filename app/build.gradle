@@ -91,6 +91,9 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.1.0')
     implementation "com.google.firebase:firebase-database"
 
+    def navigation_animation_version = "0.24.3-alpha"
+    implementation "com.google.accompanist:accompanist-navigation-animation:$navigation_animation_version"
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
