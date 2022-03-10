@@ -18,16 +18,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.work.WorkInfo
-import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable
-fun SchedulesView(navController: NavController,
-                  spaceId: Long?,
-                  schedulesViewModel: SchedulesViewModel = viewModel()) {
+fun SchedulesView(
+    navController: NavController,
+    spaceId: Long?,
+    schedulesViewModel: SchedulesViewModel = viewModel()
+) {
 
     val schedules by schedulesViewModel.getSchedules(spaceId!!).observeAsState()
     var selectedSchedule by rememberSaveable { mutableStateOf<String?>(null) }
@@ -36,10 +40,19 @@ fun SchedulesView(navController: NavController,
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.schedule)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.schedule),
+                        modifier = Modifier.semantics { heading() })
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.NavigateBefore,
+                            contentDescription = stringResource(
+                                id = R.string.back_to, stringResource(id = R.string.measure)
+                            )
+                        )
                     }
                 }
             )
@@ -50,7 +63,7 @@ fun SchedulesView(navController: NavController,
                     onDismissRequest = { showDeleteDialog = false },
                     confirmButton = {
                         TextButton(
-                            onClick = { 
+                            onClick = {
                                 schedulesViewModel.deleteSchedule(selectedSchedule!!)
                                 showDeleteDialog = false
                             }
@@ -68,7 +81,7 @@ fun SchedulesView(navController: NavController,
                     }
                 )
             }
-            
+
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -118,7 +131,14 @@ fun SchedulesView(navController: NavController,
                                                     WorkInfo.State.ENQUEUED -> Icons.Default.Pending
                                                     else -> Icons.Default.Help
                                                 },
-                                                contentDescription = null
+                                                contentDescription = when (WorkInfo.State.valueOf(
+                                                    schedule.status
+                                                )) {
+                                                    WorkInfo.State.SUCCEEDED -> stringResource(id = R.string.schedule_done)
+                                                    WorkInfo.State.FAILED -> stringResource(id = R.string.schedule_failed)
+                                                    WorkInfo.State.ENQUEUED -> stringResource(id = R.string.schedule_enqueued)
+                                                    else -> ""
+                                                },
                                             )
                                             IconButton(
                                                 onClick = {
@@ -128,11 +148,33 @@ fun SchedulesView(navController: NavController,
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Delete,
-                                                    contentDescription = null
+                                                    contentDescription = stringResource(
+                                                        id = R.string.contentdesc_delete,
+                                                        stringResource(
+                                                            id = R.string.schedule
+                                                        ),
+                                                        schedule.name
+                                                    )
                                                 )
                                             }
                                             if (WorkInfo.State.valueOf(schedule.status) == WorkInfo.State.SUCCEEDED) {
-                                                IconButton(onClick = { /*TODO: Navigate to view data*/ }) {
+                                                IconButton(
+                                                    onClick = {
+                                                        if (spaceId != null && schedule.id != null) {
+                                                            navController.navigate(
+                                                                NavigationRoutes.SCHEDULE_RESULTS
+                                                                    .replace(
+                                                                        "{spaceId}",
+                                                                        spaceId.toString()
+                                                                    )
+                                                                    .replace(
+                                                                        "{scheduleId}",
+                                                                        schedule.id.toString()
+                                                                    )
+                                                            )
+                                                        }
+                                                    }
+                                                ) {
                                                     Icon(
                                                         imageVector = Icons.Filled.NavigateNext,
                                                         contentDescription = null
@@ -148,10 +190,12 @@ fun SchedulesView(navController: NavController,
                     } else {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
+                            verticalArrangement = Arrangement.Top,
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            NoSchedulesAnimation()
+                            Box {
+                                ShowAnimation("animations/18019-shedule.json")
+                            }
                             Text(
                                 text = stringResource(id = R.string.no_schedules),
                                 textAlign = TextAlign.Center,
@@ -170,21 +214,14 @@ fun SchedulesView(navController: NavController,
                     )
                 }
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Filled.Add, contentDescription = stringResource(
+                        id = R.string.add_new, stringResource(
+                            id = R.string.schedule
+                        )
+                    )
+                )
             }
         }
-    )
-}
-
-@Composable
-private fun NoSchedulesAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/18019-shedule.json"))
-    val progress by animateLottieCompositionAsState(
-        composition,
-        iterations = LottieConstants.IterateForever
-    )
-    LottieAnimation(
-       composition,
-        progress
     )
 }

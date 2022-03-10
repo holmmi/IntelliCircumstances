@@ -1,10 +1,12 @@
 package fi.metropolia.intellicircumstances.view.measure
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.madrapps.plot.line.DataPoint
 import fi.metropolia.intellicircumstances.bluetooth.*
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagSensorData
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
@@ -18,9 +20,10 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
     val ruuviTagDevices: LiveData<List<RuuviTagDevice>?>
         get() = _ruuviTagDevices
     val sensorData = MutableLiveData<RuuviTagSensorData?>(null)
-    val _sensorDataList = MutableLiveData<List<Pair<Int,RuuviTagSensorData>>?>(null)
-    val sensorDataList: LiveData<List<Pair<Int,RuuviTagSensorData>>?>
-        get() = _sensorDataList
+    private var _points =
+        MutableLiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>(null)
+    val points: LiveData<Triple<List<DataPoint>, List<DataPoint>, List<DataPoint>>?>
+        get() = _points
 
     private val _ruuviConnectionState = MutableLiveData<ConnectionState?>(null)
     val ruuviConnectionState: LiveData<ConnectionState?>
@@ -40,11 +43,33 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         override fun onReceiveSensorData(ruuviTagSensorData: RuuviTagSensorData) {
             sensorData.postValue(ruuviTagSensorData)
 
-            if (sensorDataList.value != null) {
-                val newData = sensorDataList.value?.plus(Pair(seconds, ruuviTagSensorData))
-                _sensorDataList.postValue(newData)
-            } else {
-                _sensorDataList.postValue(listOf(Pair(seconds, ruuviTagSensorData)))
+            try {
+                val tempData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.temperature?.toFloat() ?: 0.0f)
+                val humiData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.humidity?.toFloat() ?: 0.0f)
+                val presData =
+                    DataPoint(seconds.toFloat(), ruuviTagSensorData.airPressure?.toFloat() ?: 0.0f)
+
+                if (points.value != null) {
+                    _points.postValue(
+                        Triple(
+                            points.value!!.first.plus(tempData),
+                            points.value!!.second.plus(humiData),
+                            points.value!!.third.plus(presData)
+                        )
+                    )
+                } else {
+                    _points.postValue(
+                        Triple(
+                            listOf(tempData),
+                            listOf(humiData),
+                            listOf(presData)
+                        )
+                    )
+                }
+            } catch (e: Error) {
+                Log.d("DBG", "onReceiveSensorData error: ${e.message}")
             }
             seconds++
         }
@@ -83,10 +108,6 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun disconnectDevice() {
-        ruuviTagConnector.disconnectDevice()
-    }
-
     fun isBluetoothEnabled(): Flow<Boolean> = flow {
         while (true) {
             emit(ruuviTagConnector.isBluetoothEnabled())
@@ -94,9 +115,9 @@ class MeasureSpaceViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun clearSensorDataList() {
+    fun clearGraph() {
         seconds = 0
-        _sensorDataList.postValue(null)
+        _points.value = null
     }
 
     override fun onCleared() {

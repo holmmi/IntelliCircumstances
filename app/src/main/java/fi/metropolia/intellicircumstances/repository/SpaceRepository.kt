@@ -30,10 +30,6 @@ class SpaceRepository(context: Context) {
         spaceDao.addSpace(space)
     }
 
-    suspend fun getSpace(spaceId: Long): Space = withContext(Dispatchers.IO) {
-        spaceDao.getSpace(spaceId)
-    }
-
     fun getSpaces(propertyId: Long): LiveData<PropertyWithSpaces> =
         spaceDao.getPropertyWithSpaces(propertyId).asLiveData()
 

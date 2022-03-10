@@ -45,17 +45,30 @@ interface DeviceDao {
     @Query("DELETE FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun deleteDeviceBySpaceId(spaceId: Long)
 
+    @Query("DELETE FROM ruuvi_device WHERE id = :deviceId")
+    suspend fun deleteDeviceById(deviceId: Long)
+
     @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
     suspend fun getRuuviTagDeviceBySpaceId(spaceId: Long): RuuviDevice?
 
+    @Query("SELECT * FROM ruuvi_device WHERE space_id = :spaceId")
+    fun getRuuviTagDeviceAsLiveData(spaceId: Long): LiveData<RuuviDevice>
+
     @Query("SELECT EXISTS(SELECT * FROM ruuvi_device WHERE space_id = :spaceId)")
     fun isDeviceAdded(spaceId: Long): LiveData<Boolean>
+
+    @Transaction
+    @Query("SELECT * FROM ruuvi_device WHERE id = :deviceId")
+    fun getDeviceSpaces(deviceId: Long): Flow<DeviceWithSpaces>
 }
 
 @Dao
 interface ScheduleDao {
     @Insert
     suspend fun addSchedule(schedule: Schedule)
+
+    @Query("SELECT * FROM schedule WHERE id = :scheduleId")
+    fun getScheduleById(scheduleId: Long): Flow<Schedule>
 
     @Query("SELECT * FROM schedule WHERE space_id = :spaceId")
     fun getSchedulesBySpaceId(spaceId: Long): Flow<List<Schedule>>
@@ -69,6 +82,9 @@ interface ScheduleDao {
 
     @Update
     suspend fun updateSchedule(schedule: Schedule)
+
+    @Query("DELETE from schedule WHERE space_id = :spaceId")
+    suspend fun deleteScheduleBySpaceId(spaceId: Long)
 }
 
 @Dao
@@ -78,6 +94,27 @@ interface CircumstanceDao {
 
     @Query("SELECT * FROM circumstance WHERE schedule_id = :scheduleId")
     fun getCircumstancesByScheduleId(scheduleId: Long): Flow<List<Circumstance>>
+
+    @Query("SELECT * FROM circumstance WHERE schedule_id = :scheduleId")
+    suspend fun getCircumstancesByScheduleIdAsList(scheduleId: Long): List<Circumstance>
+}
+
+@Dao
+interface SettingDao {
+    @Insert
+    suspend fun addSettings(setting: Setting)
+
+    @Query("SELECT * FROM setting LIMIT 1")
+    fun getSettings(): Flow<Setting?>
+
+    @Query("SELECT COUNT(*) FROM setting")
+    suspend fun getSettingsCount(): Long
+
+    @Query("SELECT language FROM setting LIMIT 1")
+    suspend fun getLanguage(): String?
+
+    @Update
+    suspend fun updateSettings(setting: Setting)
 }
 
 private const val DATABASE_NAME = "intelli"
@@ -88,7 +125,8 @@ private const val DATABASE_NAME = "intelli"
         Property::class,
         RuuviDevice::class,
         Schedule::class,
-        Space::class
+        Setting::class,
+        Space::class,
     ],
     version = 1,
     exportSchema = false
@@ -97,6 +135,7 @@ abstract class IntelliDatabase : RoomDatabase() {
     abstract fun circumstanceDao(): CircumstanceDao
     abstract fun deviceDao(): DeviceDao
     abstract fun scheduleDao(): ScheduleDao
+    abstract fun settingDao(): SettingDao
     abstract fun spaceDao(): SpaceDao
 
     companion object {

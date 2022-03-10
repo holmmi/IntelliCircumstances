@@ -17,16 +17,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 import fi.metropolia.intellicircumstances.ui.theme.Red100
 
 @Composable
-fun PropertiesView(navController: NavController, propertiesViewModel: PropertiesViewModel = viewModel()) {
+fun PropertiesView(
+    navController: NavController,
+    propertiesViewModel: PropertiesViewModel = viewModel()
+) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var propertyName by rememberSaveable { mutableStateOf("") }
     var propertyNameIsEmpty by rememberSaveable { mutableStateOf(false) }
@@ -35,7 +41,11 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
 
     Scaffold(
         topBar = {
-             TopAppBar(title = { Text(text = stringResource(id = R.string.properties)) })
+            TopAppBar(title = {
+                Text(
+                    text = stringResource(id = R.string.properties),
+                    modifier = Modifier.semantics { heading() })
+            })
         },
         content = {
             if (showAddDialog) {
@@ -113,16 +123,20 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)) {
+                    .padding(12.dp)
+            ) {
                 val properties = propertiesViewModel.properties.observeAsState()
                 properties.value?.let {
                     if (it.isEmpty()) {
-                        Text(
-                            text = stringResource(id = R.string.no_properties),
-                            style = MaterialTheme.typography.h5,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column() {
+                            Text(
+                                text = stringResource(id = R.string.no_properties),
+                                style = MaterialTheme.typography.h5,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            ShowAnimation("animations/55213-blue-house.json")
+                        }
                     } else {
                         LazyColumn(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -153,16 +167,34 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
                                                 onClick = {
                                                     selectedProperty = property.id
                                                     showDeleteDialog = true
-                                                }
+                                                },
                                             ) {
-                                                Icon(Icons.Outlined.Delete, null)
+                                                Icon(
+                                                    Icons.Outlined.Delete, stringResource(
+                                                        id = R.string.contentdesc_delete,
+                                                        stringResource(
+                                                            id = R.string.property
+                                                        ),
+                                                        property.name
+                                                    )
+                                                )
                                             }
                                             IconButton(
                                                 onClick = {
-                                                    navController.navigate(NavigationRoutes.SPACES.replace("{propertyId}", property.id.toString()))
+                                                    navController.navigate(
+                                                        NavigationRoutes.SPACES.replace(
+                                                            "{propertyId}",
+                                                            property.id.toString()
+                                                        )
+                                                    )
                                                 }
                                             ) {
-                                                Icon(Icons.Outlined.NavigateNext, null)
+                                                Icon(
+                                                    Icons.Outlined.NavigateNext, stringResource(
+                                                        id = R.string.contentdesc_show_spaces,
+                                                        property.name
+                                                    )
+                                                )
                                             }
                                         }
                                     }
@@ -177,7 +209,13 @@ fun PropertiesView(navController: NavController, propertiesViewModel: Properties
             FloatingActionButton(
                 onClick = { showAddDialog = true }
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Filled.Add, contentDescription = stringResource(
+                        id = R.string.add_new, stringResource(
+                            id = R.string.property
+                        )
+                    )
+                )
             }
         }
     )

@@ -58,6 +58,15 @@ data class RuuviDevice(
     val description: String? = null
 )
 
+data class DeviceWithSpaces(
+    @Embedded val device: RuuviDevice,
+    @Relation(
+        parentColumn = "space_id",
+        entityColumn = "id"
+    )
+    val spaces: List<Space>
+)
+
 @Entity(
     tableName = "schedule",
     foreignKeys = [
@@ -111,4 +120,11 @@ data class Circumstance(
     val airPressure: Double?,
     val humidity: Double?,
     val temperature: Double?
+)
+
+@Entity(tableName = "setting")
+data class Setting(
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @ColumnInfo(name = "dark_mode") var darkMode: Boolean,
+    val language: String
 )

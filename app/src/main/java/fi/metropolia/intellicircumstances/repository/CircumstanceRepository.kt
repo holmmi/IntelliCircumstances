@@ -17,4 +17,8 @@ class CircumstanceRepository(context: Context) {
 
     fun getCircumstancesByScheduleId(scheduleId: Long): LiveData<List<Circumstance>> =
         circumstanceDao.getCircumstancesByScheduleId(scheduleId).asLiveData()
+
+    suspend fun getCircumstancesByScheduleIdAsList(scheduleId: Long) = withContext(Dispatchers.IO) {
+        circumstanceDao.getCircumstancesByScheduleIdAsList(scheduleId)
+    }
 }

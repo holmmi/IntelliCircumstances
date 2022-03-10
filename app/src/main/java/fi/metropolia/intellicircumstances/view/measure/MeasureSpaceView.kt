@@ -1,9 +1,9 @@
 package fi.metropolia.intellicircumstances.view.measure
 
-import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -18,28 +18,39 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.airbnb.lottie.compose.*
-import com.madrapps.plot.line.DataPoint
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.bluetooth.ConnectionState
 import fi.metropolia.intellicircumstances.component.RuuviTagSearcher
+import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.extension.round
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
+import fi.metropolia.intellicircumstances.ui.theme.Red100
+import fi.metropolia.intellicircumstances.ui.theme.Red300
+import fi.metropolia.intellicircumstances.ui.theme.Red500
 import fi.metropolia.intellicircumstances.util.PermissionUtil
 import kotlinx.coroutines.launch
 
+@ExperimentalPagerApi
 @Composable
 fun MeasureSpaceView(
     navController: NavController,
     spaceId: Long?,
+    spaceName: String?,
     measureSpaceViewModel: MeasureSpaceViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -60,6 +71,7 @@ fun MeasureSpaceView(
             }
         }
     val bluetoothEnabled by measureSpaceViewModel.isBluetoothEnabled().asLiveData().observeAsState()
+    var showNoPermsAlert by rememberSaveable { mutableStateOf(false) }
 
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -111,7 +123,11 @@ fun MeasureSpaceView(
         },
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.measure)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.measure),
+                        modifier = Modifier.semantics { heading() })
+                },
                 actions = {
                     IconButton(
                         onClick = {
@@ -119,18 +135,17 @@ fun MeasureSpaceView(
                                 measureSpaceViewModel.startScan()
                                 showBluetoothLeScanner = true
                             } else {
-                                permissionsLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
-                                    )
-                                )
+                                showNoPermsAlert = true
                             }
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Filled.BluetoothSearching,
-                            contentDescription = null
+                            contentDescription = stringResource(
+                                id = R.string.contentdesc_add_tag, spaceName ?: stringResource(
+                                    id = R.string.this_space
+                                )
+                            )
                         )
                     }
                     IconButton(
@@ -143,12 +158,22 @@ fun MeasureSpaceView(
                             )
                         }
                     ) {
-                        Icon(imageVector = Icons.Filled.Schedule, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.Schedule,
+                            contentDescription = stringResource(
+                                id = R.string.add_new, stringResource(id = R.string.schedule)
+                            )
+                        )
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(imageVector = Icons.Filled.NavigateBefore, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Filled.NavigateBefore,
+                            contentDescription = stringResource(
+                                id = R.string.back_to, stringResource(id = R.string.space_selection)
+                            )
+                        )
                     }
                 }
             )
@@ -156,6 +181,7 @@ fun MeasureSpaceView(
         content = {
             val ruuviTagDevices by measureSpaceViewModel.ruuviTagDevices.observeAsState()
             var selectedOption by rememberSaveable { mutableStateOf<Int?>(null) }
+
             if (showBluetoothLeScanner) {
                 RuuviTagSearcher(
                     ruuviTagDevices = ruuviTagDevices,
@@ -177,59 +203,106 @@ fun MeasureSpaceView(
                 )
             }
 
+            if (showNoPermsAlert) {
+                Dialog(onDismissRequest = {
+                    showNoPermsAlert = false
+                    PermissionUtil.checkBluetoothPermissions(
+                        context,
+                        onCheckPermissions = { permissionsLauncher.launch(it) })
+                },
+                    content = {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.81f)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(10.dp),
+                            ) {
+                                Row(modifier = Modifier.padding(12.dp)) {
+                                    Text(stringResource(id = R.string.missing_perms))
+                                }
+                                Row {
+                                    ShowAnimation("animations/14651-error-animation.json")
+                                }
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    TextButton(onClick = {
+                                        showNoPermsAlert = false
+                                        PermissionUtil.checkBluetoothPermissions(
+                                            context,
+                                            onCheckPermissions = { permissionsLauncher.launch(it) })
+                                    }) {
+                                        Text(text = stringResource(id = R.string.cancel))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
             if (ruuviConnectionState == ConnectionState.CONNECTED) {
                 val sensorData = measureSpaceViewModel.sensorData.observeAsState()
 
                 var tabIndex by remember { mutableStateOf(0) }
                 val tabTitles = listOf(
                     stringResource(id = R.string.temp),
-                    stringResource(R.string.humid),
-                    stringResource(R.string.pressure)
+                    stringResource(id = R.string.humid),
+                    stringResource(id = R.string.pressure)
                 )
+                val units = stringArrayResource(id = R.array.units)
+                val pagerState = rememberPagerState()
+                val coroutineScope = rememberCoroutineScope()
+
                 Column {
                     TabRow(selectedTabIndex = tabIndex) {
                         tabTitles.forEachIndexed { index, title ->
                             Tab(selected = tabIndex == index,
-                                onClick = { tabIndex = index },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
                                 text = { Text(text = title) })
                         }
                     }
-                    Column(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    HorizontalPager(
+                        count = 3,
+                        state = pagerState,
                     ) {
-                        when (tabIndex) {
-                            0 -> {
-                                Text(
-                                    "${stringResource(id = R.string.temp)} ${
-                                        sensorData.value?.temperature?.round(
-                                            2
-                                        )
-                                    } °C"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.TEMPERATURE)
-                            }
-                            1 -> {
-                                Text(
-                                    "${stringResource(id = R.string.humid)} ${
-                                        sensorData.value?.humidity?.round(
-                                            2
-                                        )
-                                    } %"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.HUMIDITY)
-                            }
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
 
-                            2 -> {
-                                Text(
-                                    "${stringResource(id = R.string.pressure)} ${
-                                        sensorData.value?.airPressure?.round(
-                                            2
-                                        )
-                                    } hPa"
-                                )
-                                ShowGraph(measureSpaceViewModel, MeasureType.AIRPRESSURE)
+
+                            tabIndex = pagerState.currentPage
+                            var selectedValue: Double? = null
+                            when (tabIndex) {
+                                0 -> {
+                                    selectedValue = sensorData.value?.temperature
+                                }
+                                1 -> {
+                                    selectedValue = sensorData.value?.humidity
+                                }
+                                2 -> {
+                                    selectedValue = sensorData.value?.airPressure
+                                }
                             }
+                            Text(
+                                text = "${tabTitles[tabIndex]} ${selectedValue?.round(2) ?: "-"} ${units[tabIndex]}",
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            ShowGraph(measureSpaceViewModel, MeasureType.values()[tabIndex])
                         }
                     }
                 }
@@ -239,7 +312,7 @@ fun MeasureSpaceView(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    NoConnectionAnimation()
+                    ShowAnimation("animations/14651-error-animation.json")
                     Text(
                         text = stringResource(id = R.string.no_connection),
                         textAlign = TextAlign.Center,
@@ -247,61 +320,46 @@ fun MeasureSpaceView(
                     )
                 }
             }
-        }
-    )
 
-    LaunchedEffect(Unit) {
-        permissionsGiven =
-            PermissionUtil.checkBluetoothPermissions(
-                context,
-                onCheckPermissions = { permissionsLauncher.launch(it) }
-            )
+            LaunchedEffect(Unit) {
+                permissionsGiven =
+                    PermissionUtil.checkBluetoothPermissions(
+                        context,
+                        onCheckPermissions = { permissionsLauncher.launch(it) }
+                    )
 
-        // Try to connect to RuuviTag
-        if (spaceId != null && bluetoothEnabled == true) {
-            measureSpaceViewModel.connectDevice(spaceId)
-        }
-    }
-
-    LaunchedEffect(bluetoothEnabled) {
-        bluetoothEnabled?.let {
-            if (!it) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                enableBluetoothLauncher.launch(enableBtIntent)
+                // Try to connect to RuuviTag
+                if (spaceId != null && bluetoothEnabled == true) {
+                    measureSpaceViewModel.connectDevice(spaceId)
+                }
             }
-        }
-    }
+
+            LaunchedEffect(bluetoothEnabled) {
+                bluetoothEnabled?.let {
+                    if (!it) {
+                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                        enableBluetoothLauncher.launch(enableBtIntent)
+                    }
+                }
+            }
+        })
 }
+
 
 @Composable
 private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
-    val data = viewModel.sensorDataList.observeAsState()
-    var points by rememberSaveable { mutableStateOf<List<DataPoint>?>(null) }
+    val points = viewModel.points.observeAsState()
 
-    if (type == MeasureType.TEMPERATURE) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.temperature?.toFloat() ?: 0.0F)
-        }
-    }
-    if (type == MeasureType.HUMIDITY) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.humidity?.toFloat() ?: 0.0F)
-        }
-    }
-    if (type == MeasureType.AIRPRESSURE) {
-        points = data.value?.map {
-            DataPoint(it.first.toFloat(), it.second.airPressure?.toFloat() ?: 0.0F)
-        }
-    }
-    if (points != null) {
-        val ySteps = 6
+    val ySteps = 6
+    Log.d("DBG", "${points.value}")
+    if (points.value != null) {
         LineGraph(
             plot = LinePlot(
                 listOf(
                     LinePlot.Line(
-                        points!!,
-                        LinePlot.Connection(color = MaterialTheme.colors.primary),
-                        null,
+                        points.value!!.toList()[type.value],
+                        connection = LinePlot.Connection(color = Red300),
+                        intersection = LinePlot.Intersection(color = Red500),
                         null,
                     )
                 ),
@@ -312,38 +370,31 @@ private fun ShowGraph(viewModel: MeasureSpaceViewModel, type: MeasureType) {
                     content = { min, offset, max ->
                         Text(text = min.toDouble().round(2).toString())
                         for (step in 1 until ySteps - 1) {
-                            Text(text = min.toDouble().plus(offset * step).round(2).toString())
+                            Text(
+                                text = min.toDouble().plus(offset * step).round(2)
+                                    .toString()
+                            )
                         }
                         Text(text = max.toDouble().round(2).toString())
                     }
                 ),
-                grid = LinePlot.Grid(MaterialTheme.colors.onBackground, steps = ySteps),
+                grid = LinePlot.Grid(color = Red100, steps = ySteps),
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
+                .height(400.dp),
         )
     }
-    TextButton(onClick = { viewModel.clearSensorDataList() }) {
+
+    TextButton(onClick = {
+        viewModel.clearGraph()
+    }) {
         Text(text = stringResource(id = R.string.clear_graph))
     }
 }
 
-@Composable
-private fun NoConnectionAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("animations/14651-error-animation.json"))
-    val progress by animateLottieCompositionAsState(
-        composition,
-        iterations = LottieConstants.IterateForever
-    )
-    LottieAnimation(
-        composition,
-        progress
-    )
-}
-
-enum class MeasureType(val value: String) {
-    TEMPERATURE("temperature"),
-    HUMIDITY("humidity"),
-    AIRPRESSURE("airPressure"),
+enum class MeasureType(val value: Int) {
+    TEMPERATURE(0),
+    HUMIDITY(1),
+    AIRPRESSURE(2),
 }

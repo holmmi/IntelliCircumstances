@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common etc. -->
+    <string name="delete">Poista</string>
+    <string name="icon">Icon</string>
+    <string name="add">Lisää</string>
+    <string name="cancel">Peruuta</string>
+    <string name="reset">Nollaa</string>
+    <string name="device">RuuviTag-laite</string>
+
+    <!-- Semantics common -->
+    <string name="add_new">Lisää uusi %1$s</string>
+    <string name="move_to">Siirry sivulle %1$s</string>
+    <string name="back_to">Takaisin sivulle %1$s</string>
+    <string name="contentdesc_delete">Poista tämä %1$s, jonka nimi on %2$s</string>
+
+    <!-- Device search and connection -->
+    <string name="add_tag">Lisää RuuviTag</string>
+    <string name="found_devices">Löydetyt RuuviTag-laitteet</string>
+    <string name="selected_tag">Valittu</string>
+    <string name="searching">Haetaan laitteita… Ole hyvä ja odota.</string>
+    <string name="no_connection">
+        Ei yhteyttä RuuviTag-laitteeseen.\n
+        Ole hyvä ja paina Bluetooth-nappia yläpalkissa yhdistääksesi.\n
+        Varmista, että RuuviTag-laite on päällä ja lähettyvillä.
+    </string>
+    <string name="connect_to_ruuvi_tag">Yhdistä RuuviTagiin</string>
+    <string name="connect">Yhdistä</string>
+    <string name="ruuvi_connection_failed">Ei voida yhdistää RuuviTagiin</string>
+    <string name="connected_to_ruuvi">Yhdistetty RuuviTagiin</string>
+    <string name="disconnected_from_ruuvi">Yhteys RuuviTagiin katkaistu</string>
+    <!-- Semantics -->
+    <string name="contentdesc_bt_added">Bluetooth-laite on jo lisätty tilaan %1$s</string>
+    <string name="contentdesc_bt_not_added">Bluetooth-laitetta ei ole lisätty tilaan %1$s</string>
+    <string name="contentdesc_add_tag">Lisää uusi laite tilaan %1$s</string>
+
+    <!-- Home -->
+    <string name="home">Koti</string>
+    <string name="need_assistance">Tarvitsetko apua?</string>
+    <string name="faq">UKK</string>
+    <string name="schedule_between">%1$s:stä %2$s:een</string>
+    <string name="community_data">Käyttäjien jakama data</string>
+    <string name="date_error">Virhe muotoillessa päivämäärää</string>
+    <string name="view_schedule_info">Katso lisätietoa tästä ohjelmasta</string>
+
+    <!-- Spaces and properties -->
+    <string name="space">Tila</string>
+    <string name="this_space">tähän tilaan</string>
+    <string name="spaces">Tilat</string>
+    <string name="property">Kiinteistö</string>
+    <string name="properties">Kiinteistöt</string>
+    <string name="property_selection">Kiinteistön valinta</string>
+    <string name="no_properties">Kiinteistöjä ei lisätty</string>
+    <string name="create_property">Lisää uusi kiinteistö</string>
+    <string name="property_name">Kiinteistön nimi</string>
+    <string name="error_empty_field">Tämä kenttä ei voi olla tyhjä</string>
+    <string name="delete_property">
+        Haluatko varmasti poistaa tämän kiinteistön? Menetät kaikki kiinteistöön lisätyt tilat
+        sekä niiden sisältämän datan.
+    </string>
+    <string name="confirm">Vahvista</string>
+    <string name="create_space">Lisää uusi tila</string>
+    <string name="space_name">Tilan nimi</string>
+    <string name="delete_space">
+        Haluatko varmasti poistaa tämän tilan?
+        Menetät kaikki siihen liittyvät tiedot.
+    </string>
+    <string name="no_spaces">Ei tiloja tässä kiinteistössä</string>
+    <!-- Semantics -->
+    <string name="contentdesc_show_spaces">Näytä tilat kiinteistölle %1$s</string>
+
+    <!--measure-->
+    <string name="measure">Mittaus</string>
+    <string name="temp">Lämpötila</string>
+    <string name="humid">Kosteus</string>
+    <string name="pressure">Ilmanpaine</string>
+    <string name="choose_property">Valitse kiinteistö</string>
+    <string name="space_selection">Tilan valinta</string>
+    <string name="choose_space">Valitse tila</string>
+    <string name="retry">Yritä uudestaan</string>
+    <string name="clear_graph">Tyhjennä kaavio</string>
+    <!-- Semantics -->
+    <string name="contentdesc_show_measure">Näytä mittaustulokset tilaan %1$s</string>
+
+    <!--schedule-->
+    <string name="schedule">Ohjelmat</string>
+    <string name="schedule_list">Ohjelmalista</string>
+    <string name="new_schedule">Uusi ohjelma</string>
+    <string name="schedule_name">Ohjelman nimi</string>
+    <string name="start_date">Alkupäivä</string>
+    <string name="start_time">Alkuaika</string>
+    <string name="end_date">Loppupäivä</string>
+    <string name="end_time">Loppuaika</string>
+    <string name="frequency">Aikaväli (min)</string>
+    <string name="name_is_empty">Nimi on tyhjä</string>
+    <string name="end_date_before">Päättymispäivä ei saa olla ennen alkamispäivää</string>
+    <string name="date_range_error">Alkupäivän ja päättymispäivän välillä ei saa olla enemmän kuin 10 päivää</string>
+    <string name="end_date_past">Loppupäivä ei saa olla menneisyydessä</string>
+    <string name="form_errors">Lomakevirheet</string>
+    <string name="starts">%1$s alkaen</string>
+    <string name="ends">%1$s asti</string>
+    <string name="delete_schedule">
+        Oletko varma, että haluat poistaa tämän ohjelman? Menetät kaikki siihen liittyvän datan
+        eikä ohjelma toteudu.
+    </string>
+    <string name="no_schedules">Ei ohjelmia. Paina + lisätäksesi ohjelman.</string>
+    <string name="min_value">Min: %1$.2f %2$s</string>
+    <string name="max_value">Max: %1$.2f %2$s</string>
+    <string name="avg_value">Keskiarvo: %1$.2f %2$s</string>
+    <string name="schedule_date">Näytetään ohjelma %1$s alkaen ja %2$s päättyen.</string>
+    <string name="value_at">%1$.2f %2$s ajankohtana %3$s</string>
+    <string name="schedule_already_shared_title">Tulokset ovat jo jaettu.</string>
+    <string name="schedule_already_shared_content">
+        Tulokset ovat jo jaettu, joten toimenpiteitä ei tarvita.
+        Tieto on tallennettu nimettömänä eikä sitä voida yhdistää sinuun.
+    </string>
+    <string name="schedule_shared_title">Jakaminen onnistui</string>
+    <string name="schedule_shared_content">
+        Ohjelman tulokset ovat nyt tallennettu. Voit katsoa jaettuja tuloksia kotinäkymässä.
+    </string>
+    <string name="schedule_share_failed_title">Jakaminen epäonnistui</string>
+    <string name="schedule_share_failed_content">
+        Ohjelman tuloksia ei voitu jakaa virheen vuoksi. Ole hyvä ja yritä uudelleen myöhemmin.
+    </string>
+    <string name="missing_perms">Ei voitu avata BT skanneria puuttuvien käyttöoikeuksien vuoksi! Ole hyvä ja hyväksy kaikki sovelluksen pyytämät käyttöoikeudet.</string>
+    <!-- Semantics -->
+    <string name="schedule_enqueued">Tämä ohjelma on tallennuksessa.</string>
+    <string name="schedule_done">Tämä ohjelma on valmis. Voit nyt katsoa tuloksia painamalla oikeanpuoleista painiketta.</string>
+    <string name="schedule_failed">
+        Ohjelma epäonnistui. Ole hyvä ja yritä uudestaan ja varmista, että RuuviTag-laitteesi on lähettyvillä.
+        Varmista myös, että olet antanut kaikki sovelluksen pyytämät käyttöoikeudet.
+    </string>
+
+
+    <!--settings-->
+    <string name="settings">Asetukset</string>
+    <string name="dark_mode">Tumma tila</string>
+    <string name="dark_mode_toggle">Tumman tilan kytkin</string>
+    <string name="localization">Lokalisointi</string>
+    <string name="choose_language">Valitse kieli</string>
+    <string name="added_devices">Lisätyt laitteet</string>
+    <string name="unnamed">Nimetön laite</string>
+    <string name="no_devices">Ei RuuviTag-laitetta tässä tilassa.</string>
+    <string name="delete_device">Oletko varma, että haluat poistaa tämän laitteen? Menetät kaikki laitteeseen yhdistetyt ohjelmat.</string>
+    <!--settings semantics-->
+    <string name="contentdesc_lang_dropdown">Alasvetovalikko kielen valintaan.</string>
+    <string name="contentdesc_added_devices">Katso ja poista RuuviTag -laitteitasi</string>
+    <string name="contentdesc_delete_device">Poista kiinteistön %1$s tilassa %2$s oleva laite.</string>
+
+</resources>
