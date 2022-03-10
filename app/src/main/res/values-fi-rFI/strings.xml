@@ -106,7 +106,7 @@
     <string name="no_schedules">Ei ohjelmia. Paina + lisätäksesi ohjelman.</string>
     <string name="min_value">Min: %1$.2f %2$s</string>
     <string name="max_value">Max: %1$.2f %2$s</string>
-    <string name="avg_value">Keskimäärä: %1$.2f %2$s</string>
+    <string name="avg_value">Keskiarvo: %1$.2f %2$s</string>
     <string name="schedule_date">Näytetään ohjelma %1$s alkaen ja %2$s päättyen.</string>
     <string name="value_at">%1$.2f %2$s ajankohtana %3$s</string>
     <string name="schedule_already_shared_title">Tulokset ovat jo jaettu.</string>

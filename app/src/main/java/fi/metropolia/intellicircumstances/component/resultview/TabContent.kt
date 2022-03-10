@@ -72,15 +72,18 @@ fun TabContent(
             ) {
                 Text(
                     text = String.format(stringResource(R.string.min_value), data.minOrNull(), unit),
-                    style = MaterialTheme.typography.subtitle2
+                    style = MaterialTheme.typography.subtitle2,
+                    modifier = Modifier.padding(8.dp)
                 )
                 Text(
                     text = String.format(stringResource(R.string.max_value), data.maxOrNull(), unit),
-                    style = MaterialTheme.typography.subtitle2
+                    style = MaterialTheme.typography.subtitle2,
+                    modifier = Modifier.padding(8.dp)
                 )
                 Text(
                     text = String.format(stringResource(R.string.avg_value), data.average(), unit),
-                    style = MaterialTheme.typography.subtitle2
+                    style = MaterialTheme.typography.subtitle2,
+                    modifier = Modifier.padding(8.dp)
                 )
             }
         }
