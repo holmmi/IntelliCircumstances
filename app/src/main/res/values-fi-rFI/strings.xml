@@ -106,7 +106,7 @@
     <string name="max_value">Max: %1$.2f %2$s</string>
     <string name="avg_value">Keskimäärä: %1$.2f %2$s</string>
     <string name="schedule_date">Näytetään ohjelma %1$s alkaen ja %2$s päättyen.</string>
-    <string name="value_at">%1$.2f ajankohtana %2$s</string>
+    <string name="value_at">%.2f %s ajankohtana %s</string>
     <string name="schedule_already_shared_title">Tulokset ovat jo jaettu.</string>
     <string name="schedule_already_shared_content">
         Tulokset ovat jo jaettu, joten toimenpiteitä ei tarvita.

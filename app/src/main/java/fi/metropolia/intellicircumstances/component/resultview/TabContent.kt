@@ -3,11 +3,8 @@ package fi.metropolia.intellicircumstances.component.resultview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,7 +21,7 @@ fun TabContent(
 ) {
     var showInformation by rememberSaveable { mutableStateOf(false) }
     var xCoordinate by rememberSaveable { mutableStateOf<Float?>(null) }
-    var dataPoint by rememberSaveable { mutableStateOf<DataPoint?>(null) }
+    var dataPoint by remember { mutableStateOf<DataPoint?>(null) }
 
     val data = circumstances.mapNotNull {
         when (measurementTab) {
