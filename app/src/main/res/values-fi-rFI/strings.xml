@@ -6,7 +6,7 @@
     <string name="add">Lisää</string>
     <string name="cancel">Peruuta</string>
     <string name="reset">Nollaa</string>
-    <string name="device">RuuviTag laite</string>
+    <string name="device">RuuviTag-laite</string>
 
     <!-- Semantics common -->
     <string name="add_new">Lisää uusi %1$s</string>
@@ -29,6 +29,7 @@
     <string name="ruuvi_connection_failed">Ei voida yhdistää RuuviTagiin</string>
     <string name="connected_to_ruuvi">Yhdistetty RuuviTagiin</string>
     <string name="disconnected_from_ruuvi">Yhteys RuuviTagiin katkaistu</string>
+    <!-- Semantics -->
     <string name="contentdesc_bt_added">Bluetooth-laite on jo lisätty tilaan %1$s</string>
     <string name="contentdesc_bt_not_added">Bluetooth-laitetta ei ole lisätty tilaan %1$s</string>
     <string name="contentdesc_add_tag">Lisää uusi laite tilaan %1$s</string>
@@ -65,8 +66,8 @@
         Menetät kaikki siihen liittyvät tiedot.
     </string>
     <string name="no_spaces">Ei tiloja tässä kiinteistössä</string>
+    <!-- Semantics -->
     <string name="contentdesc_show_spaces">Näytä tilat kiinteistölle %1$s</string>
-
 
     <!--measure-->
     <string name="measure">Mittaus</string>
@@ -78,6 +79,7 @@
     <string name="choose_space">Valitse tila</string>
     <string name="retry">Yritä uudestaan</string>
     <string name="clear_graph">Tyhjennä kaavio</string>
+    <!-- Semantics -->
     <string name="contentdesc_show_measure">Näytä mittaustulokset tilaan %1$s</string>
 
     <!--schedule-->
@@ -106,7 +108,7 @@
     <string name="max_value">Max: %1$.2f %2$s</string>
     <string name="avg_value">Keskimäärä: %1$.2f %2$s</string>
     <string name="schedule_date">Näytetään ohjelma %1$s alkaen ja %2$s päättyen.</string>
-    <string name="value_at">%.2f %s ajankohtana %s</string>
+    <string name="value_at">%1$.2f %2$s ajankohtana %3$s</string>
     <string name="schedule_already_shared_title">Tulokset ovat jo jaettu.</string>
     <string name="schedule_already_shared_content">
         Tulokset ovat jo jaettu, joten toimenpiteitä ei tarvita.
@@ -120,13 +122,14 @@
     <string name="schedule_share_failed_content">
         Ohjelman tuloksia ei voitu jakaa virheen vuoksi. Ole hyvä ja yritä uudelleen myöhemmin.
     </string>
+    <string name="missing_perms">Ei voitu avata BT skanneria puuttuvien käyttöoikeuksien vuoksi! Ole hyvä ja hyväksy kaikki sovelluksen pyytämät käyttöoikeudet.</string>
+    <!-- Semantics -->
     <string name="schedule_enqueued">Tämä ohjelma on tallennuksessa.</string>
     <string name="schedule_done">Tämä ohjelma on valmis. Voit nyt katsoa tuloksia painamalla oikeanpuoleista painiketta.</string>
     <string name="schedule_failed">
         Ohjelma epäonnistui. Ole hyvä ja yritä uudestaan ja varmista, että RuuviTag-laitteesi on lähettyvillä.
         Varmista myös, että olet antanut kaikki sovelluksen pyytämät käyttöoikeudet.
     </string>
-    <string name="missing_perms">Ei voitu avata BT skanneria puuttuvien käyttöoikeuksien vuoksi! Ole hyvä ja hyväksy kaikki sovelluksen pyytämät käyttöoikeudet.</string>
 
 
     <!--settings-->

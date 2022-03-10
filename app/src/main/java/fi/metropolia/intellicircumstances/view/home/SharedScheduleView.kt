@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -32,7 +31,6 @@ fun SharedScheduleView(
         MeasurementTab.PressureTab,
         MeasurementTab.TemperatureTab
     )
-    var selectedTab by rememberSaveable { mutableStateOf(0) }
     val dateError = stringResource(id = R.string.date_error)
 
     LaunchedEffect(Unit) {

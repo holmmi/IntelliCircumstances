@@ -10,10 +10,6 @@
     <string name="reset">Reset</string>
     <string name="device">RuuviTag device</string>
 
-    <string-array name="pref_keys">
-        <item>dark_mode</item>
-    </string-array>
-
     <!-- Semantics common -->
     <string name="add_new">Add a new %s</string>
     <string name="move_to">Move to %s</string>
@@ -31,6 +27,7 @@
     <string name="ruuvi_connection_failed">Cannot connect to RuuviTag</string>
     <string name="connected_to_ruuvi">Connected to RuuviTag</string>
     <string name="disconnected_from_ruuvi">Disconnected from RuuviTag</string>
+    <!-- Semantics -->
     <string name="contentdesc_bt_added">A bluetooth device is already added to space %s</string>
     <string name="contentdesc_bt_not_added">A bluetooth is not added to space %s</string>
     <string name="contentdesc_add_tag">Add a new device to space %s</string>
@@ -67,8 +64,8 @@
         associated with it.
     </string>
     <string name="no_spaces">There are no spaces in this property</string>
+    <!-- Semantics -->
     <string name="contentdesc_show_spaces">Show spaces for property %s by selecting this button</string>
-
 
     <!--measure-->
     <string name="measure">Measure</string>
@@ -85,8 +82,9 @@
         <item>%</item>
         <item>hPa</item>
     </string-array>
-    <string name="contentdesc_show_measure">Show measurements for space %1$s</string>
     <string name="missing_perms">Cannot open BT scanner because of missing permissions! Please accept all asked permissions to add a new RuuviTag device.</string>
+    <!-- Semantics -->
+    <string name="contentdesc_show_measure">Show measurements for space %1$s</string>
 
     <!--schedule-->
     <string name="schedule">Schedule</string>
@@ -114,7 +112,7 @@
     <string name="max_value">Max: %1$.2f %2$s</string>
     <string name="avg_value">Avg: %1$.2f %2$s</string>
     <string name="schedule_date">Showing schedule between %1$s and %2$s.</string>
-    <string name="value_at">%.2f %s at %s</string>
+    <string name="value_at">%1$.2f %2$s at %3$s</string>
     <string name="schedule_already_shared_title">Results already shared</string>
     <string name="schedule_already_shared_content">
         Schedule results are already shared, so no action is required. The data is stored
@@ -128,6 +126,7 @@
     <string name="schedule_share_failed_content">
         Schedule results could not be shared due to an error. Please try again later.
     </string>
+    <!-- Semantics -->
     <string name="schedule_enqueued">This schedule is enqueued</string>
     <string name="schedule_done">This schedule is done. You can now view the results by clicking the next button on the right</string>
     <string name="schedule_failed">

@@ -22,7 +22,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.work.WorkInfo
-import com.airbnb.lottie.compose.*
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.component.animation.ShowAnimation
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes

@@ -3,11 +3,9 @@ package fi.metropolia.intellicircumstances.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import fi.metropolia.intellicircumstances.bluetooth.RuuviTagDevice
-import fi.metropolia.intellicircumstances.database.DeviceWithSpaces
 import fi.metropolia.intellicircumstances.database.IntelliDatabase
 import fi.metropolia.intellicircumstances.database.RuuviDevice
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
@@ -39,10 +37,6 @@ class DeviceRepository(context: Context) {
     fun isDeviceAdded(spaceId: Long) =
         deviceDao.isDeviceAdded(spaceId)
 
-    suspend fun deleteDeviceBySpaceId(spaceId: Long) = withContext(Dispatchers.IO) {
-        deviceDao.deleteDeviceBySpaceId(spaceId)
-    }
-
     suspend fun deleteDevice(deviceId: Long) = withContext(Dispatchers.IO) {
         //get all spaces where the device is allocated
         val spaces =
@@ -53,9 +47,4 @@ class DeviceRepository(context: Context) {
         }
         deviceDao.deleteDeviceById(deviceId)
     }
-
-    suspend fun getDeviceSpaces(deviceId: Long): Flow<DeviceWithSpaces> =
-        withContext(Dispatchers.IO) {
-            deviceDao.getDeviceSpaces(deviceId)
-        }
 }

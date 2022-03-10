@@ -37,7 +37,6 @@ fun TabsWithSwiping(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Log.d("DBG", "selectedtab ${selectedTab.toString()}")
         TabRow(selectedTabIndex = selectedTab,
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(

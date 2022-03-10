@@ -24,7 +24,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fi.metropolia.intellicircumstances.R
 import fi.metropolia.intellicircumstances.extension.getActivity
-import fi.metropolia.intellicircumstances.extension.getActivity
 import fi.metropolia.intellicircumstances.navigation.NavigationRoutes
 
 @Composable

@@ -1,5 +1,6 @@
 package fi.metropolia.intellicircumstances.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.Context
 import fi.metropolia.intellicircumstances.bluetooth.decode.RuuviTagFormat
@@ -9,6 +10,7 @@ import fi.metropolia.intellicircumstances.extension.toHex
 import fi.metropolia.intellicircumstances.extension.toInt32
 import java.util.*
 
+@SuppressLint("MissingPermission")
 class RuuviTagConnector(
     private val context: Context,
     private var ruuviTagConnectionCallback: RuuviTagConnectionCallback? = null

@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import fi.metropolia.intellicircumstances.database.PropertyWithSpaces
 import fi.metropolia.intellicircumstances.repository.DeviceRepository
-import fi.metropolia.intellicircumstances.repository.ScheduleRepository
 import fi.metropolia.intellicircumstances.repository.SpaceRepository
 import kotlinx.coroutines.launch
 

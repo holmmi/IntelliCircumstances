@@ -1,6 +1,5 @@
 package fi.metropolia.intellicircumstances.view.measure
 
-import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
